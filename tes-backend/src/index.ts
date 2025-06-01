@@ -1,17 +1,23 @@
 import Fastify from "fastify";
-import "dotenv/config";
+import dotenv from "dotenv";
+import prismaPlugin from "./plugins/prisma";
+import creatureRoutes from "./routes/creatures";
+
+dotenv.config();
 
 const app = Fastify({ logger: true });
-const port: number = Number(process.env.PORT);
+const port = Number(process.env.PORT) || 3001;
 
-app.get("/", async (request, reply) => {
-  return { message: "Elder Scrolls API is online!" };
-});
+app.register(prismaPlugin);
 
-app.listen({ port }, (err, adress) => {
+// Route pour les créatures
+app.register(creatureRoutes);
+
+// 3. Démarrage
+app.listen({ port }, (err, address) => {
   if (err) {
     app.log.error(err);
     process.exit(1);
   }
-  console.log(`Serveur lancé : ${adress}`);
+  console.log(`🚀 Serveur lancé sur ${address}`);
 });

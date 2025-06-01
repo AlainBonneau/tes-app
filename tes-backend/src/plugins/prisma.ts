@@ -3,16 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export default fp(async (fastify, opts) => {
+// On crée un plugin Fastify qui décore l’instance avec `prisma`
+export default fp(async (fastify) => {
   fastify.decorate("prisma", prisma);
 
   fastify.addHook("onClose", async (instance) => {
     await instance.prisma.$disconnect();
   });
 });
-
-declare module "fastify" {
-  interface FastifyInstance {
-    prisma: PrismaClient;
-  }
-}
