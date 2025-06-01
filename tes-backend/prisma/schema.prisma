@@ -1,0 +1,46 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url = env("DATABASE_URL")
+}
+
+model Region {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  imageUrl    String?
+  creatures   Creature[]
+  characters  Character[]
+}
+
+model Race {
+  id          Int         @id @default(autoincrement())
+  name        String
+  faction     String
+  description String
+  characters  Character[]
+}
+
+model Character {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  imageUrl    String?
+  region      Region    @relation(fields: [regionId], references: [id])
+  regionId    Int
+  race        Race      @relation(fields: [raceId], references: [id])
+  raceId      Int
+}
+
+model Creature {
+  id          Int       @id @default(autoincrement())
+  name        String
+  type        String
+  description String
+  imageUrl    String?
+  region      Region    @relation(fields: [regionId], references: [id])
+  regionId    Int
+}
