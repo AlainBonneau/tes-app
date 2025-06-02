@@ -11,6 +11,14 @@ type CreateRegionRequest = FastifyRequest<{
   };
 }>;
 
+type UpdateRegionRequest = FastifyRequest<{
+  Params: { id: string };
+  Body: {
+    name: string;
+    description: string;
+    imageUrl?: string;
+  };
+}>;
 // Fin du typage
 
 // Controlleurs
@@ -78,5 +86,32 @@ export async function createRegion(
     return reply
       .status(500)
       .send({ error: "Impossible créer la région", details: error.message });
+  }
+}
+
+export async function updateRegion(
+  request: UpdateRegionRequest,
+  reply: FastifyReply
+) {
+  const id = Number(request.params.id);
+  const { name, description, imageUrl } = request.body;
+
+  try {
+    const data: any = {};
+    if (name) data.name = name;
+    if (description) data.description = description;
+    if (imageUrl !== undefined) data.imageUrl = imageUrl;
+
+    const updateRegion = await request.server.prisma.region.update({
+      where: { id },
+      data,
+    });
+
+    return reply.status(200).send(updateRegion);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour la régino",
+      details: error.message,
+    });
   }
 }
