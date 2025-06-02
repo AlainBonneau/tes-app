@@ -25,7 +25,6 @@ type UpdateCreatureRequest = FastifyRequest<{
 // Fin du typage
 
 // Controlleurs
-
 export async function getAllCreatures(
   request: FastifyRequest,
   reply: FastifyReply
