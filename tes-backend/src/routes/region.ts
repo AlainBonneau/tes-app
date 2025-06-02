@@ -1,7 +1,29 @@
 import { FastifyInstance } from "fastify";
-import { getAllRegions, getRegionById } from "../controllers/regionController";
+import {
+  getAllRegions,
+  getRegionById,
+  createRegion,
+  updateRegion,
+  deleteRegion,
+} from "../controllers/regionController";
 
 export default async function regionRoutes(app: FastifyInstance) {
   app.get("/regions", getAllRegions);
   app.get<{ Params: { id: string } }>("/regions/:id", getRegionById);
+  app.post<{
+    Body: {
+      name: string;
+      description: string;
+      imageUrl?: string;
+    };
+  }>("/regions", createRegion);
+  app.patch<{
+    Params: { id: string };
+    Body: {
+      name: string;
+      description: string;
+      imageUrl?: string;
+    };
+  }>("/regions/:id", updateRegion);
+  app.delete<{ Params: { id: string } }>("/regions/:id", deleteRegion);
 }
