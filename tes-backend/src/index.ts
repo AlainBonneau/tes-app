@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import dotenv from "dotenv";
 import prismaPlugin from "./plugins/prisma";
 import creatureRoutes from "./routes/creatures";
+import regionRoutes from "./routes/region";
 
 dotenv.config();
 
@@ -15,8 +16,9 @@ app.get("/", async (request, reply) => {
 
 app.register(prismaPlugin);
 
-// Route pour les créatures
+// Nos routes
 app.register(creatureRoutes);
+app.register(regionRoutes);
 
 // 3. Démarrage
 app.listen({ port }, (err, address) => {
