@@ -2,6 +2,15 @@ import { FastifyRequest, FastifyReply } from "fastify";
 
 // Début du typage
 type GetByIdRequest = FastifyRequest<{ Params: { id: string } }>;
+
+type CreateRegionRequest = FastifyRequest<{
+  Body: {
+    name: string;
+    description: string;
+    imageUrl?: string;
+  };
+}>;
+
 // Fin du typage
 
 // Controlleurs
@@ -36,5 +45,38 @@ export async function getRegionById(
   } catch (error) {
     console.error("Erreur lors de la récupération de la région :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
+  }
+}
+
+export async function createRegion(
+  request: CreateRegionRequest,
+  reply: FastifyReply
+) {
+  const { name, description, imageUrl } = request.body;
+
+  if (!name || !description) {
+    return reply
+      .status(400)
+      .send({ error: "Les champs name et description sont obligatoires" });
+  }
+
+  try {
+    const data: {
+      name: string;
+      description: string;
+      imageUrl?: string | null;
+    } = {
+      name,
+      description,
+    };
+
+    if (imageUrl) data.imageUrl = imageUrl;
+
+    const newRegion = await request.server.prisma.region.create({ data });
+    return reply.status(201).send(newRegion);
+  } catch (error: any) {
+    return reply
+      .status(500)
+      .send({ error: "Impossible créer la région", details: error.message });
   }
 }
