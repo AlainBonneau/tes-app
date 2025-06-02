@@ -1,4 +1,3 @@
-// src/controllers/creaturesController.ts
 import { FastifyRequest, FastifyReply } from "fastify";
 
 // Début du typage
