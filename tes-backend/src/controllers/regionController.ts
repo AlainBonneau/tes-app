@@ -115,3 +115,16 @@ export async function updateRegion(
     });
   }
 }
+
+export async function deleteRegion(
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  const id = parseInt(request.params.id, 10);
+  try {
+    await request.server.prisma.region.delete({ where: { id } });
+    return reply.status(204).send();
+  } catch (error: any) {
+    return reply.status(404).send({ error: "Région non trouvée." });
+  }
+}
