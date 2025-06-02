@@ -4,6 +4,7 @@ import {
   getCreatureById,
   createCreature,
   updateCreature,
+  deleteCreature,
 } from "../controllers/creaturesController";
 
 export default async function creatureRoutes(app: FastifyInstance) {
@@ -28,4 +29,5 @@ export default async function creatureRoutes(app: FastifyInstance) {
       imageUrl?: string;
     };
   }>("/creatures/:id", updateCreature);
+  app.delete<{ Params: { id: string } }>("/creatures/:id", deleteCreature);
 }

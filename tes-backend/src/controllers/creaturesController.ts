@@ -108,11 +108,24 @@ export async function updateCreature(
       data,
     });
 
-    return reply.send(updatedCreature);
+    return reply.status(200).send(updatedCreature);
   } catch (err: any) {
     return reply.status(500).send({
       error: "Impossible de mettre à jour la créature.",
       details: err.message,
     });
+  }
+}
+
+export async function deleteCreature(
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  const id = parseInt(request.params.id, 10);
+  try {
+    await request.server.prisma.creature.delete({ where: { id } });
+    return reply.status(204).send();
+  } catch (err: any) {
+    return reply.status(404).send({ error: "Créature non trouvée." });
   }
 }
