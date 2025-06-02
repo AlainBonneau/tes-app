@@ -3,6 +3,7 @@ import {
   getAllCreatures,
   getCreatureById,
   createCreature,
+  updateCreature,
 } from "../controllers/creaturesController";
 
 export default async function creatureRoutes(app: FastifyInstance) {
@@ -17,4 +18,14 @@ export default async function creatureRoutes(app: FastifyInstance) {
       imageUrl?: string;
     };
   }>("/creatures", createCreature);
+  app.patch<{
+    Params: { id: string };
+    Body: {
+      name: string;
+      type: string;
+      description: string;
+      regionId?: number;
+      imageUrl?: string;
+    };
+  }>("/creatures/:id", updateCreature);
 }

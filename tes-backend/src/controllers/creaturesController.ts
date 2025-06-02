@@ -12,6 +12,17 @@ type CreateCreatureRequest = FastifyRequest<{
     imageUrl?: string;
   };
 }>;
+
+type UpdateCreatureRequest = FastifyRequest<{
+  Params: { id: string };
+  Body: {
+    name: string;
+    type: string;
+    description: string;
+    regionId?: number;
+    imageUrl?: string;
+  };
+}>;
 // Fin du typage
 
 // Controlleurs
@@ -72,6 +83,35 @@ export async function createCreature(
   } catch (err: any) {
     return reply.status(500).send({
       error: "Impossible de créer la créature.",
+      details: err.message,
+    });
+  }
+}
+
+export async function updateCreature(
+  request: UpdateCreatureRequest,
+  reply: FastifyReply
+) {
+  const id = Number(request.params.id);
+  const { name, type, description, regionId, imageUrl } = request.body;
+
+  try {
+    const data: any = {};
+    if (name) data.name = name;
+    if (type) data.type = type;
+    if (description) data.description = description;
+    if (imageUrl !== undefined) data.imageUrl = imageUrl;
+    if (regionId !== undefined) data.region = { connect: { id: regionId } };
+
+    const updatedCreature = await request.server.prisma.creature.update({
+      where: { id },
+      data,
+    });
+
+    return reply.send(updatedCreature);
+  } catch (err: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour la créature.",
       details: err.message,
     });
   }
