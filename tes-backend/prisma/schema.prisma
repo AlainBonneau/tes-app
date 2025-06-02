@@ -41,6 +41,6 @@ model Creature {
   type        String
   description String
   imageUrl    String?
-  region      Region    @relation(fields: [regionId], references: [id])
-  regionId    Int
+  region      Region?   @relation(fields: [regionId], references: [id]) // rendre la relation optionnelle
+  regionId    Int?                                      // changer en Int?
 }

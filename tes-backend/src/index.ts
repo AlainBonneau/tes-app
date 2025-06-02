@@ -8,6 +8,11 @@ dotenv.config();
 const app = Fastify({ logger: true });
 const port = Number(process.env.PORT) || 3001;
 
+app.get("/", async (request, reply) => {
+  console.log("Welcome to the TES API");
+  return { message: "Bienvenue sur l’API TES !" };
+});
+
 app.register(prismaPlugin);
 
 // Route pour les créatures
