@@ -112,3 +112,16 @@ export async function updateRace(
     });
   }
 }
+
+export async function deleteRace(
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  const id = parseInt(request.params.id, 10);
+  try {
+    await request.server.prisma.race.delete({ where: { id } });
+    return reply.status(204).send();
+  } catch (error: any) {
+    return reply.status(404).send({ error: "Race non trouvée." });
+  }
+}
