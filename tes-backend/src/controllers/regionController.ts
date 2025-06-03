@@ -110,7 +110,7 @@ export async function updateRegion(
     return reply.status(200).send(updateRegion);
   } catch (error: any) {
     return reply.status(500).send({
-      error: "Impossible de mettre à jour la régino",
+      error: "Impossible de mettre à jour la région",
       details: error.message,
     });
   }

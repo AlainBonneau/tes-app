@@ -11,6 +11,15 @@ type CreateRaceRequest = FastifyRequest<{
   };
 }>;
 
+type UpdateRaceRequest = FastifyRequest<{
+  Params: { id: string };
+  Body: {
+    name: string;
+    faction: string;
+    description: string;
+  };
+}>;
+
 // Fin du typage
 
 export async function getAllRaces(
@@ -53,7 +62,7 @@ export async function createRace(
 
   if (!name || !faction || !description) {
     return reply.status(400).send({
-      error: "Les champs name, factino et description sont obligatoires",
+      error: "Les champs name, faction et description sont obligatoires",
     });
   }
 
@@ -74,5 +83,32 @@ export async function createRace(
     return reply
       .status(500)
       .send({ error: "Impossible créer la race", details: error.message });
+  }
+}
+
+export async function updateRace(
+  request: UpdateRaceRequest,
+  reply: FastifyReply
+) {
+  const id = parseInt(request.params.id, 10);
+  const { name, faction, description } = request.body;
+
+  try {
+    const data: any = {};
+    if (name) data.name = name;
+    if (faction) data.faction = faction;
+    if (description) data.description = description;
+
+    const updateRace = await request.server.prisma.race.update({
+      where: { id },
+      data,
+    });
+
+    return reply.status(500).send(updateRace);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour la race",
+      details: error.message,
+    });
   }
 }
