@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import prismaPlugin from "./plugins/prisma";
 import creatureRoutes from "./routes/creatures";
 import regionRoutes from "./routes/region";
+import raceRoutes from "./routes/race";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.register(prismaPlugin);
 // Nos routes
 app.register(creatureRoutes);
 app.register(regionRoutes);
+app.register(raceRoutes);
 
 // 3. Démarrage
 app.listen({ port }, (err, address) => {
