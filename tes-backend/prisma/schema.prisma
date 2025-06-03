@@ -19,7 +19,7 @@ model Region {
 model Race {
   id          Int         @id @default(autoincrement())
   name        String
-  faction     String
+  origine     String
   description String
   characters  Character[]
 }

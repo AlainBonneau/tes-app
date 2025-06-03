@@ -13,7 +13,7 @@ export default async function raceRoutes(app: FastifyInstance) {
   app.post<{
     Body: {
       name: string;
-      faction: string;
+      origine: string;
       description: string;
     };
   }>("/races", createRace);
@@ -21,7 +21,7 @@ export default async function raceRoutes(app: FastifyInstance) {
     Params: { id: string };
     Body: {
       name: string;
-      faction: string;
+      origine: string;
       description: string;
     };
   }>("/races/:id", updateRace);

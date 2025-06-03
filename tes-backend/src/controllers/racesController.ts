@@ -6,7 +6,7 @@ type GetByIdRequest = FastifyRequest<{ Params: { id: string } }>;
 type CreateRaceRequest = FastifyRequest<{
   Body: {
     name: string;
-    faction: string;
+    origine: string;
     description: string;
   };
 }>;
@@ -15,7 +15,7 @@ type UpdateRaceRequest = FastifyRequest<{
   Params: { id: string };
   Body: {
     name: string;
-    faction: string;
+    origine: string;
     description: string;
   };
 }>;
@@ -58,22 +58,22 @@ export async function createRace(
   request: CreateRaceRequest,
   reply: FastifyReply
 ) {
-  const { name, faction, description } = request.body;
+  const { name, origine, description } = request.body;
 
-  if (!name || !faction || !description) {
+  if (!name || !origine || !description) {
     return reply.status(400).send({
-      error: "Les champs name, faction et description sont obligatoires",
+      error: "Les champs name, origine et description sont obligatoires",
     });
   }
 
   try {
     const data: {
       name: string;
-      faction: string;
+      origine: string;
       description: string;
     } = {
       name,
-      faction,
+      origine,
       description,
     };
 
@@ -91,12 +91,12 @@ export async function updateRace(
   reply: FastifyReply
 ) {
   const id = parseInt(request.params.id, 10);
-  const { name, faction, description } = request.body;
+  const { name, origine, description } = request.body;
 
   try {
     const data: any = {};
     if (name) data.name = name;
-    if (faction) data.faction = faction;
+    if (origine) data.origine = origine;
     if (description) data.description = description;
 
     const updateRace = await request.server.prisma.race.update({
@@ -104,7 +104,7 @@ export async function updateRace(
       data,
     });
 
-    return reply.status(500).send(updateRace);
+    return reply.status(200).send(updateRace);
   } catch (error: any) {
     return reply.status(500).send({
       error: "Impossible de mettre à jour la race",
