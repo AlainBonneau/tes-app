@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 import { hash } from "crypto";
+import { error } from "console";
 
 type RegisterRequest = FastifyRequest<{
   Body: { email: string; username: string; password: string };
@@ -47,4 +48,46 @@ export async function registerUser(
       details: error.message,
     });
   }
+}
+
+export async function loginUser(request: LoginRequest, reply: FastifyReply) {
+  const { email, password } = request.body;
+
+  if (!email || !password) {
+    return reply.status(400).send({ error: "email et password requis" });
+  }
+
+  const user = await request.server.prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    return reply.status(401).send({ error: "Identifiant invalides" });
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+
+  if (!match) {
+    return reply.status(401).send({ error: "Identifiant invalides" });
+  }
+
+  const token = await (request.server as any).jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    },
+    { expiresIn: "24h" }
+  );
+
+  return reply.send({
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+    },
+  });
 }
