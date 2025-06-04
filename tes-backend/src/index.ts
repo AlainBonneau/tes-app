@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import dotenv from "dotenv";
 import prismaPlugin from "./plugins/prisma";
 import authPlugin from "./plugins/auth";
+import userRoutes from "./routes/users";
 import creatureRoutes from "./routes/creatures";
 import regionRoutes from "./routes/region";
 import raceRoutes from "./routes/race";
@@ -27,31 +28,8 @@ app.register(fastifyJwt, {
 // Middleware d'authentification + Autorisation administrateur
 app.register(authPlugin);
 
-// Décoration d’une fonction d’authentification (middleware)
-// app.decorate("authenticate", async (request: any, reply: any) => {
-//   try {
-//     await request.jwtVerify();
-//   } catch {
-//     return reply.status(401).send({ error: "Token invalide" });
-//   }
-// });
-
-// app.decorate(
-//   "authorizeAdmin",
-//   async (request: any, reply: any) => {
-//     try {
-//       await request.jwtVerify();
-//       const payload = request.user as { role: string };
-//       if (payload.role !== "admin") {
-//         return reply.status(403).send({ error: "Accès réservé aux administrateurs" });
-//       }
-//     } catch {
-//       return reply.status(401).send({ error: "Token invalide" });
-//     }
-//   }
-// );
-
 // Nos routes
+app.register(userRoutes);
 app.register(creatureRoutes);
 app.register(regionRoutes);
 app.register(raceRoutes);

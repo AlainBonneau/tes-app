@@ -15,7 +15,7 @@ export default async function userRoutes(app: FastifyInstance) {
   app.get("/users/me", { preHandler: [app.authenticate] }, getCurrentUser);
   app.post<{
     Body: { email: string; username: string; password: string };
-  }>("/users.register", registerUser);
+  }>("/users/register", registerUser);
   app.post<{
     Body: { email: string; password: string };
   }>("/users/login", loginUser);
