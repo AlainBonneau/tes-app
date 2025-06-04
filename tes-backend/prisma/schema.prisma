@@ -7,6 +7,40 @@ datasource db {
     url = env("DATABASE_URL")
 }
 
+// Model User, Post and Comment for the forum
+
+model User {
+  id       Int      @id @default(autoincrement())
+  email    String   @unique
+  username String
+  password String   // hashé
+  role     String   @default("user") // ou enum
+  posts    Post[]
+  comments Comment[]
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  createdAt DateTime  @default(now())
+  comments  Comment[]
+}
+
+model Comment {
+  id        Int       @id @default(autoincrement())
+  content   String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  post      Post      @relation(fields: [postId], references: [id])
+  postId    Int
+  createdAt DateTime  @default(now())
+}
+
+// Model region, character, and creature for the bestiary
+
 model Region {
   id          Int         @id @default(autoincrement())
   name        String
