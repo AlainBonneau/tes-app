@@ -1,7 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
-import { hash } from "crypto";
-import { error } from "console";
 
 type RegisterRequest = FastifyRequest<{
   Body: { email: string; username: string; password: string };
@@ -10,6 +8,29 @@ type RegisterRequest = FastifyRequest<{
 type LoginRequest = FastifyRequest<{
   Body: { email: string; password: string };
 }>;
+
+export async function getAllUsers(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  try {
+    const users = await request.server.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+      },
+    });
+
+    reply.send(users);
+  } catch (error: any) {
+    reply.status(500).send({
+      error: "Impossible de récupérer les utilisateurs.",
+      details: error.message,
+    });
+  }
+}
 
 export async function registerUser(
   request: RegisterRequest,
