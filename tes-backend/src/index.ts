@@ -5,6 +5,7 @@ import creatureRoutes from "./routes/creatures";
 import regionRoutes from "./routes/region";
 import raceRoutes from "./routes/race";
 import characterRoutes from "./routes/character";
+import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
 
@@ -18,13 +19,26 @@ app.get("/", async (request, reply) => {
 
 app.register(prismaPlugin);
 
+app.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET || "changez-moi-en-production",
+});
+
+// Décoration d’une fonction d’authentification (middleware)
+app.decorate("authenticate", async (request: any, reply: any) => {
+  try {
+    await request.jwtVerify();
+  } catch {
+    return reply.status(401).send({ error: "Token invalide" });
+  }
+});
+
 // Nos routes
 app.register(creatureRoutes);
 app.register(regionRoutes);
 app.register(raceRoutes);
 app.register(characterRoutes);
 
-// 3. Démarrage
+// Démarrage
 app.listen({ port }, (err, address) => {
   if (err) {
     app.log.error(err);

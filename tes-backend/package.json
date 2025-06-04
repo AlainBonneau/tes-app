@@ -12,12 +12,15 @@
   "type": "commonjs",
   "description": "",
   "dependencies": {
+    "@fastify/jwt": "^9.1.0",
     "@prisma/client": "^6.8.2",
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
     "fastify": "^5.3.3",
     "fastify-plugin": "^5.0.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.15.29",
     "prisma": "^6.8.2",
     "ts-node": "^10.9.2",
