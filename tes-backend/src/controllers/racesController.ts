@@ -47,6 +47,10 @@ export async function getRaceById(
       return reply.status(404).send({ error: "Race introuvable" });
     }
 
+    if (isNaN(id)) {
+      return reply.status(400).send({ error: "ID invalide" });
+    }
+
     reply.send(race);
   } catch (error: any) {
     console.error("Erreur lors de la récupération de la race :", error);
@@ -93,6 +97,10 @@ export async function updateRace(
   const id = parseInt(request.params.id, 10);
   const { name, origine, description } = request.body;
 
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
   try {
     const data: any = {};
     if (name) data.name = name;
@@ -118,6 +126,10 @@ export async function deleteRace(
   reply: FastifyReply
 ) {
   const id = parseInt(request.params.id, 10);
+
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
   try {
     await request.server.prisma.race.delete({ where: { id } });
     return reply.status(204).send();

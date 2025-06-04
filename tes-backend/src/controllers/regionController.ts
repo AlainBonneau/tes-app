@@ -45,6 +45,10 @@ export async function getRegionById(
       where: { id },
     });
 
+    if (isNaN(id)) {
+      return reply.status(400).send({ error: "ID invalide" });
+    }
+
     if (!region) {
       return reply.status(404).send({ error: "Région introuvable" });
     }
@@ -96,6 +100,10 @@ export async function updateRegion(
   const id = Number(request.params.id);
   const { name, description, imageUrl } = request.body;
 
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
   try {
     const data: any = {};
     if (name) data.name = name;
@@ -121,6 +129,10 @@ export async function deleteRegion(
   reply: FastifyReply
 ) {
   const id = parseInt(request.params.id, 10);
+
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
   try {
     await request.server.prisma.region.delete({ where: { id } });
     return reply.status(204).send();

@@ -13,6 +13,17 @@ type CreateCharacterRequest = FastifyRequest<{
   };
 }>;
 
+type UpdateCharacterRequest = FastifyRequest<{
+  Params: { id: string };
+  Body: {
+    name: string;
+    description: string;
+    imageUrl?: string;
+    regionId: number;
+    raceId: number;
+  };
+}>;
+
 // Fin du typage
 
 export async function getAllCharacters(
@@ -37,6 +48,10 @@ export async function getCharacterById(
     const character = await request.server.prisma.character.findUnique({
       where: { id },
     });
+
+    if (isNaN(id)) {
+      return reply.status(400).send({ error: "ID invalide" });
+    }
 
     if (!character) {
       return reply.status(404).send({ error: "Charactère introuvable" });
@@ -81,6 +96,39 @@ export async function createCharacter(
   } catch (error: any) {
     return reply.status(500).send({
       error: "Impossible de créer le personnage.",
+      details: error.message,
+    });
+  }
+}
+
+export async function updateCharacter(
+  request: UpdateCharacterRequest,
+  reply: FastifyReply
+) {
+  const id = parseInt(request.params.id, 10);
+  const { name, description, imageUrl, regionId, raceId } = request.body;
+
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
+  try {
+    const data: any = {};
+    if (name) data.name = name;
+    if (description) data.description = description;
+    if (imageUrl !== undefined) data.imageUrl = imageUrl;
+    if (regionId) data.region = { connect: { id: regionId } };
+    if (raceId) data.race = { connect: { id: raceId } };
+
+    const updatedCharacter = await request.server.prisma.character.update({
+      where: { id },
+      data,
+    });
+
+    return reply.status(200).send(updatedCharacter);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour le charactère.",
       details: error.message,
     });
   }

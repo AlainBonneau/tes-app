@@ -42,6 +42,10 @@ export async function getCreatureById(
     where: { id },
   });
 
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
   if (!creature) {
     return reply.status(404).send({ error: "Créature introuvable" });
   }
@@ -93,6 +97,10 @@ export async function updateCreature(
   const id = Number(request.params.id);
   const { name, type, description, regionId, imageUrl } = request.body;
 
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
   try {
     const data: any = {};
     if (name) data.name = name;
@@ -120,6 +128,10 @@ export async function deleteCreature(
   reply: FastifyReply
 ) {
   const id = parseInt(request.params.id, 10);
+
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
   try {
     await request.server.prisma.creature.delete({ where: { id } });
     return reply.status(204).send();
