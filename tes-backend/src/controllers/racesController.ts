@@ -41,14 +41,15 @@ export async function getRaceById(
 ) {
   try {
     const id = parseInt(request.params.id, 10);
+
+    if (isNaN(id)) {
+      return reply.status(400).send({ error: "ID invalide" });
+    }
+
     const race = await request.server.prisma.race.findUnique({ where: { id } });
 
     if (!race) {
       return reply.status(404).send({ error: "Race introuvable" });
-    }
-
-    if (isNaN(id)) {
-      return reply.status(400).send({ error: "ID invalide" });
     }
 
     reply.send(race);

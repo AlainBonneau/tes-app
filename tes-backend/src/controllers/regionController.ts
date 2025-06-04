@@ -41,13 +41,14 @@ export async function getRegionById(
 ) {
   try {
     const id = parseInt(request.params.id, 10);
-    const region = await request.server.prisma.region.findUnique({
-      where: { id },
-    });
 
     if (isNaN(id)) {
       return reply.status(400).send({ error: "ID invalide" });
     }
+
+    const region = await request.server.prisma.region.findUnique({
+      where: { id },
+    });
 
     if (!region) {
       return reply.status(404).send({ error: "Région introuvable" });
@@ -133,7 +134,7 @@ export async function deleteRegion(
   if (isNaN(id)) {
     return reply.status(400).send({ error: "ID invalide" });
   }
-  
+
   try {
     await request.server.prisma.region.delete({ where: { id } });
     return reply.status(204).send();

@@ -34,7 +34,7 @@ export async function getAllCharacters(
     const characters = await request.server.prisma.character.findMany();
     reply.send(characters);
   } catch (error: any) {
-    console.error("Erreur lors de la récupération des charactères :", error);
+    console.error("Erreur lors de la récupération des personnages :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
 }
@@ -45,21 +45,21 @@ export async function getCharacterById(
 ) {
   try {
     const id = parseInt(request.params.id, 10);
-    const character = await request.server.prisma.character.findUnique({
-      where: { id },
-    });
-
     if (isNaN(id)) {
       return reply.status(400).send({ error: "ID invalide" });
     }
 
+    const character = await request.server.prisma.character.findUnique({
+      where: { id },
+    });
+
     if (!character) {
-      return reply.status(404).send({ error: "Charactère introuvable" });
+      return reply.status(404).send({ error: "Personnage introuvable" });
     }
 
     reply.send(character);
   } catch (error: any) {
-    console.error("Erreur lors de la récupération du charactère :", error);
+    console.error("Erreur lors de la récupération du personnage :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
 }
@@ -128,7 +128,7 @@ export async function updateCharacter(
     return reply.status(200).send(updatedCharacter);
   } catch (error: any) {
     return reply.status(500).send({
-      error: "Impossible de mettre à jour le charactère.",
+      error: "Impossible de mettre à jour le personnage.",
       details: error.message,
     });
   }
@@ -148,6 +148,6 @@ export async function deleteCharacter(
     await request.server.prisma.character.delete({ where: { id } });
     return reply.status(204).send();
   } catch (error: any) {
-    return reply.status(404).send({ error: "Charactère non trouvée." });
+    return reply.status(404).send({ error: "Personnage non trouvée." });
   }
 }

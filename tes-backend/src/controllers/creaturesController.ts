@@ -38,13 +38,13 @@ export async function getCreatureById(
   reply: FastifyReply
 ) {
   const id = parseInt(request.params.id, 10);
-  const creature = await request.server.prisma.creature.findUnique({
-    where: { id },
-  });
-
   if (isNaN(id)) {
     return reply.status(400).send({ error: "ID invalide" });
   }
+
+  const creature = await request.server.prisma.creature.findUnique({
+    where: { id },
+  });
 
   if (!creature) {
     return reply.status(404).send({ error: "Créature introuvable" });

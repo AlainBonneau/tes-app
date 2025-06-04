@@ -7,7 +7,7 @@ import {
   deleteCharacter,
 } from "../controllers/charactersController";
 
-export default async function (app: FastifyInstance) {
+export default async function characterRoutes (app: FastifyInstance) {
   app.get("/caracteres", getAllCharacters);
   app.get<{ Params: { id: string } }>("/caracteres/:id", getCharacterById);
   app.post<{
