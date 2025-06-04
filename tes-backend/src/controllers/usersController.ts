@@ -32,6 +32,41 @@ export async function getAllUsers(
   }
 }
 
+export async function getCurrentUser(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  try {
+    const payload = (request as any).user as {
+      id: number;
+      email: string;
+      username: string;
+      role: string;
+    };
+
+    const user = await request.server.prisma.user.findUnique({
+      where: { id: payload.id },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+      },
+    });
+
+    if (!user) {
+      return reply.status(404).send({ error: "Utilisateur non trouvé." });
+    }
+
+    return reply.send(user);
+  } catch (err: any) {
+    return reply.status(500).send({
+      error: "Impossible de récupérer le profil.",
+      details: err.message,
+    });
+  }
+}
+
 export async function registerUser(
   request: RegisterRequest,
   reply: FastifyReply
