@@ -29,7 +29,7 @@ export async function getAllRegions(
   try {
     const regions = await request.server.prisma.region.findMany();
     reply.send(regions);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la récupération des régions :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
@@ -50,7 +50,7 @@ export async function getRegionById(
     }
 
     reply.send(region);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erreur lors de la récupération de la région :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
