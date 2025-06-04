@@ -133,3 +133,21 @@ export async function updateCharacter(
     });
   }
 }
+
+export async function deleteCharacter(
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  const id = parseInt(request.params.id, 10);
+
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
+  try {
+    await request.server.prisma.character.delete({ where: { id } });
+    return reply.status(204).send();
+  } catch (error: any) {
+    return reply.status(404).send({ error: "Charactère non trouvée." });
+  }
+}

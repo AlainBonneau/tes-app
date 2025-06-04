@@ -133,6 +133,7 @@ export async function deleteRegion(
   if (isNaN(id)) {
     return reply.status(400).send({ error: "ID invalide" });
   }
+  
   try {
     await request.server.prisma.region.delete({ where: { id } });
     return reply.status(204).send();
