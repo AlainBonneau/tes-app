@@ -2,11 +2,24 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 
 type RegisterRequest = FastifyRequest<{
-  Body: { email: string; username: string; password: string };
+  Body: {
+    email: string;
+    username: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+    description?: string;
+    birthdate?: Date;
+    role?: string;
+  };
 }>;
 
 type LoginRequest = FastifyRequest<{
-  Body: { email: string; password: string };
+  Body: {
+    email: string;
+    password: string;
+  };
 }>;
 
 export async function getAllUsers(
@@ -19,6 +32,12 @@ export async function getAllUsers(
         id: true,
         email: true,
         username: true,
+        birthdate: true,
+        createdAt: true,
+        firstName: true,
+        lastName: true,
+        imageUrl: true,
+        description: true,
         role: true,
       },
     });
@@ -41,6 +60,12 @@ export async function getCurrentUser(
       id: number;
       email: string;
       username: string;
+      firstName?: string;
+      lastName?: string;
+      imageUrl?: string;
+      description?: string;
+      createdAt: Date;
+      birthdate?: Date;
       role: string;
     };
 
@@ -50,6 +75,12 @@ export async function getCurrentUser(
         id: true,
         email: true,
         username: true,
+        firstName: true,
+        lastName: true,
+        imageUrl: true,
+        description: true,
+        birthdate: true,
+        createdAt: true,
         role: true,
       },
     });
@@ -71,12 +102,32 @@ export async function registerUser(
   request: RegisterRequest,
   reply: FastifyReply
 ) {
-  const { email, username, password } = request.body;
+  const {
+    email,
+    username,
+    password,
+    birthdate,
+    firstName,
+    lastName,
+    description,
+    imageUrl,
+  } = request.body;
 
   if (!email || !username || !password) {
     return reply
       .status(400)
       .send({ error: "email, username et password requis" });
+  }
+
+  // Vérification de l'unicité de l'email et du nom d'utilisateur
+  const existingUsername = await request.server.prisma.user.findUnique({
+    where: { username },
+  });
+
+  if (existingUsername) {
+    return reply
+      .status(409)
+      .send({ error: "Ce nom d'utilisateur est déjà pris." });
   }
 
   const existingEmail = await request.server.prisma.user.findUnique({
@@ -92,7 +143,16 @@ export async function registerUser(
 
   try {
     const newUser = await request.server.prisma.user.create({
-      data: { email, username, password: hashed },
+      data: {
+        email,
+        username,
+        password: hashed,
+        birthdate,
+        firstName,
+        lastName,
+        description,
+        imageUrl,
+      },
     });
 
     // On ne renvoie pas le hash dans la réponse
@@ -127,14 +187,21 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
     return reply.status(401).send({ error: "Identifiant invalides" });
   }
 
+  const TOKEN_EXPIRATION = "24h";
   const token = await (request.server as any).jwt.sign(
     {
       id: user.id,
       email: user.email,
       username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      imageUrl: user.imageUrl,
+      description: user.description,
+      birthdate: user.birthdate,
+      createdAt: user.createdAt,
       role: user.role,
     },
-    { expiresIn: "24h" }
+    { expiresIn: TOKEN_EXPIRATION }
   );
 
   return reply.send({
@@ -143,6 +210,12 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
       id: user.id,
       email: user.email,
       username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      imageUrl: user.imageUrl,
+      description: user.description,
+      birthdate: user.birthdate,
+      createdAt: user.createdAt,
       role: user.role,
     },
   });

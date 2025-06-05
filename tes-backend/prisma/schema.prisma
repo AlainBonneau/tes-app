@@ -12,7 +12,13 @@ datasource db {
 model User {
   id       Int      @id @default(autoincrement())
   email    String   @unique
-  username String
+  username String @unique
+  birthdate DateTime?
+  createdAt DateTime @default(now())
+  firstName String?
+  lastName  String?
+  imageUrl  String?
+  description String?
   password String   
   role     String   @default("user") 
   posts    Post[]
