@@ -151,7 +151,7 @@ export async function deletePost(
 
   try {
     await request.server.prisma.post.delete({ where: { id: postId } });
-    reply.status(404).send();
+    reply.status(204).send();
   } catch (error: any) {
     return reply.status(404).send({ error: "Poste non trouvée." });
   }
