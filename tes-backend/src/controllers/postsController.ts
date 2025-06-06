@@ -85,4 +85,44 @@ export async function createPost(
   }
 }
 
+export async function updatePost(
+  request: UpdatedPostRequest,
+  reply: FastifyReply
+) {
+  const postId = parseInt(request.params.id, 10);
+  const { title, content } = request.body;
+  const payload = (request as any).user as { id: number; role: string };
 
+  const existingPost = await request.server.prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true },
+  });
+
+  // Vérifier si le poste éxiste
+  if (!existingPost) {
+    return reply.status(404).send({ error: "Poste non trouvé" });
+  }
+
+  // Vérifier si l'utilisateur est administrateur
+  if (existingPost.authorId !== payload.id && payload.role !== "admin") {
+    return reply.status(403).send({ error: "Non autorisé" });
+  }
+
+  const data: Record<string, any> = {};
+  if (title !== undefined) data.title = title;
+  if (content !== undefined) data.content = content;
+
+  try {
+    const updatedPost = await request.server.prisma.post.update({
+      where: { id: postId },
+      data,
+    });
+
+    reply.send(updatedPost);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour le poste.",
+      details: error.message,
+    });
+  }
+}
