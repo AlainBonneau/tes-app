@@ -126,3 +126,33 @@ export async function updatePost(
     });
   }
 }
+
+export async function deletePost(
+  request: GetByIdPostRequest,
+  reply: FastifyReply
+) {
+  const postId = parseInt(request.params.id, 10);
+  const payload = (request as any).user as { id: number; role: string };
+
+  const existingPost = await request.server.prisma.post.findUnique({
+    where: { id: postId },
+    select: { authorId: true },
+  });
+
+  // Vérifier si le poste éxiste
+  if (!existingPost) {
+    return reply.status(404).send({ error: "Poste non trouvé" });
+  }
+
+  // Vérifier si l'utilisateur est administrateur
+  if (existingPost.authorId !== payload.id && payload.role !== "admin") {
+    return reply.status(403).send({ error: "Non autorisé" });
+  }
+
+  try {
+    await request.server.prisma.post.delete({ where: { id: postId } });
+    reply.status(404).send();
+  } catch (error: any) {
+    return reply.status(404).send({ error: "Poste non trouvée." });
+  }
+}
