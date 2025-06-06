@@ -28,3 +28,30 @@ export async function getAllPosts(
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
 }
+
+export async function getPostById(
+  request: GetByIdPostRequest,
+  reply: FastifyReply
+) {
+  try {
+    const id = parseInt(request.params.id, 10);
+    const post = await request.server.prisma.post.findUnique({
+      where: { id },
+      include: {
+        author: { select: { id: true, username: true } },
+        comments: {
+          include: { author: { select: { id: true, username: true } } },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+
+    if (!post) {
+      return reply.status(404).send({ error: "Poste non trouvé" });
+    }
+    reply.send(post);
+  } catch (error: any) {
+    console.error("Erreur lors de la récupération du poste :", error);
+    reply.status(500).send({ error: "Erreur interne du serveur" });
+  }
+}
