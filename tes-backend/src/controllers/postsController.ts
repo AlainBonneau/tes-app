@@ -55,3 +55,34 @@ export async function getPostById(
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
 }
+
+export async function createPost(
+  request: CreatedPostRequest,
+  reply: FastifyReply
+) {
+  const { title, content } = request.body;
+  if (!title || !content) {
+    return reply.status(400).send({ error: "titre et content requis" });
+  }
+
+  const payload = (request as any).user as { id: number };
+
+  try {
+    const post = await request.server.prisma.post.create({
+      data: {
+        title,
+        content,
+        author: { connect: { id: payload.id } },
+      },
+    });
+
+    return reply.status(201).send(post);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de créer le poste.",
+      details: error.message,
+    });
+  }
+}
+
+
