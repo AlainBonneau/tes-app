@@ -58,3 +58,32 @@ export async function createComment(
     });
   }
 }
+
+export async function deleteComment(
+  request: GetByIdCommentRequest,
+  reply: FastifyReply
+) {
+  const commentId = parseInt(request.params.id, 10);
+  const payload = (request as any).user as { id: number; role: string };
+
+  // Vérifier existence et droit : auteur ou admin
+  const existing = await request.server.prisma.comment.findUnique({
+    where: { id: commentId },
+    select: { authorId: true },
+  });
+  if (!existing) {
+    return reply.status(404).send({ error: "Commentaire non trouvé" });
+  }
+  if (existing.authorId !== payload.id && payload.role !== "admin") {
+    return reply.status(403).send({ error: "Non autorisé" });
+  }
+
+  try {
+    await request.server.prisma.comment.delete({ where: { id: commentId } });
+    reply.status(204).send();
+  } catch (err: any) {
+    reply
+      .status(500)
+      .send({ error: "Impossible de supprimer", details: err.message });
+  }
+}
