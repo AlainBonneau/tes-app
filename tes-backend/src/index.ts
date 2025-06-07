@@ -8,6 +8,7 @@ import regionRoutes from "./routes/region";
 import raceRoutes from "./routes/race";
 import characterRoutes from "./routes/character";
 import postRoutes from "./routes/posts";
+import commentRoutes from "./routes/comments";
 import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
@@ -36,6 +37,7 @@ app.register(regionRoutes);
 app.register(raceRoutes);
 app.register(characterRoutes);
 app.register(postRoutes);
+app.register(commentRoutes);
 
 // Démarrage
 app.listen({ port }, (err, address) => {
