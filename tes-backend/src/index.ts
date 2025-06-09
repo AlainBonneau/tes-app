@@ -30,6 +30,18 @@ app.register(fastifyJwt, {
 // Middleware d'authentification + Autorisation administrateur
 app.register(authPlugin);
 
+app.setErrorHandler((error, request, reply) => {
+  const status = (error.statusCode as number) || 500;
+  const err = error.name || "Error";
+  const message = error.message || "Une erreur est survenue";
+
+  reply.status(status).send({
+    statusCode: status,
+    error: err,
+    message,
+  });
+});
+
 // Nos routes
 app.register(userRoutes);
 app.register(creatureRoutes);
