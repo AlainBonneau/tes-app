@@ -7,6 +7,10 @@ type CreateCommentRequest = FastifyRequest<{
   Params: { postId: string };
   Body: { content: string };
 }>;
+type UpdateCommentRequest = FastifyRequest<{
+  Params: { id: string };
+  Body: { content: string };
+}>;
 // Fin du typage
 
 export async function getAllCommentsForPost(
@@ -59,6 +63,45 @@ export async function createComment(
   }
 }
 
+export async function updateComment(
+  request: UpdateCommentRequest,
+  reply: FastifyReply
+) {
+  const commentId = parseInt(request.params.id, 10);
+  const { content } = request.body;
+  const payload = (request as any).user as { id: number; role: string };
+
+  if (!content) {
+    return reply.status(400).send({ error: "Le champ content est requis." });
+  }
+
+  const existing = await request.server.prisma.comment.findUnique({
+    where: { id: commentId },
+    select: { authorId: true },
+  });
+
+  if (!existing) {
+    return reply.status(404).send({ error: "Commentaire non trouvé." });
+  }
+
+  if (existing.authorId !== payload.id && payload.role !== "admin") {
+    return reply.status(403).send({ error: "Non autorisé" });
+  }
+
+  try {
+    const updated = await request.server.prisma.comment.update({
+      where: { id: commentId },
+      data: { content },
+    });
+    reply.send(updated);
+  } catch (error: any) {
+    reply.status(500).send({
+      error: "Impossible de mettre à jour le commentaire",
+      details: error.message,
+    });
+  }
+}
+
 export async function deleteComment(
   request: GetByIdCommentRequest,
   reply: FastifyReply
@@ -71,9 +114,11 @@ export async function deleteComment(
     where: { id: commentId },
     select: { authorId: true },
   });
+
   if (!existing) {
     return reply.status(404).send({ error: "Commentaire non trouvé" });
   }
+
   if (existing.authorId !== payload.id && payload.role !== "admin") {
     return reply.status(403).send({ error: "Non autorisé" });
   }

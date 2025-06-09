@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import {
   getAllCommentsForPost,
   createComment,
+  updateComment,
   deleteComment,
 } from "../controllers/commentsController";
 
@@ -15,6 +16,12 @@ export default async function commentRoutes(app: FastifyInstance) {
     "/posts/:postId/comments",
     { preHandler: [app.authenticate] },
     createComment
+  );
+
+  app.patch<{ Params: { id: string }; Body: { content: string } }>(
+    "comments/:id",
+    { preHandler: [app.authenticate] },
+    updateComment
   );
 
   app.delete<{ Params: { id: string } }>(
