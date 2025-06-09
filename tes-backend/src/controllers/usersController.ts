@@ -89,7 +89,7 @@ export async function getCurrentUser(
       return reply.status(404).send({ error: "Utilisateur non trouvé." });
     }
 
-    return reply.send(user);
+    return reply.status(201).send(user);
   } catch (err: any) {
     return reply.status(500).send({
       error: "Impossible de récupérer le profil.",
@@ -127,7 +127,7 @@ export async function registerUser(
   if (existingUsername) {
     return reply
       .status(409)
-      .send({ error: "Ce nom d'utilisateur est déjà pris." });
+      .send({ error: "Ce nom d'utilisateur est déjà utilisé." });
   }
 
   const existingEmail = await request.server.prisma.user.findUnique({
@@ -204,7 +204,7 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
     { expiresIn: TOKEN_EXPIRATION }
   );
 
-  return reply.send({
+  return reply.status(200).send({
     token,
     user: {
       id: user.id,
