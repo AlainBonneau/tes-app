@@ -19,7 +19,7 @@ export default async function commentRoutes(app: FastifyInstance) {
   );
 
   app.patch<{ Params: { id: string }; Body: { content: string } }>(
-    "comments/:id",
+    "/comments/:id",
     { preHandler: [app.authenticate] },
     updateComment
   );
