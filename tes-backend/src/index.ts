@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import dotenv from "dotenv";
+import rateLimit from "@fastify/rate-limit";
 import prismaPlugin from "./plugins/prisma";
 import authPlugin from "./plugins/auth";
 import userRoutes from "./routes/users";
@@ -29,6 +30,11 @@ app.register(fastifyJwt, {
 
 // Middleware d'authentification + Autorisation administrateur
 app.register(authPlugin);
+
+app.register(rateLimit, {
+  max: 100,
+  timeWindow: "1 minute",
+});
 
 app.setErrorHandler((error, request, reply) => {
   const status = (error.statusCode as number) || 500;

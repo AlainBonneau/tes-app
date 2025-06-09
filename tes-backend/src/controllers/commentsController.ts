@@ -1,5 +1,4 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { get } from "http";
 
 // Début du typage
 type GetByIdCommentRequest = FastifyRequest<{ Params: { id: string } }>;
