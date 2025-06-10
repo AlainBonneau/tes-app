@@ -1,4 +1,3 @@
-// tests/creatures.test.ts
 import request from "supertest";
 import { buildApp } from "../src/app";
 
