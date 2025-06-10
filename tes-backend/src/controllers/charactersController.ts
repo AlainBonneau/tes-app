@@ -57,7 +57,7 @@ export async function getCharacterById(
       return reply.status(404).send({ error: "Personnage introuvable" });
     }
 
-    reply.send(character);
+    reply.status(200).send(character);
   } catch (error: any) {
     console.error("Erreur lors de la récupération du personnage :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });

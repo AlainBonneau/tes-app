@@ -8,8 +8,8 @@ import {
 } from "../controllers/charactersController";
 
 export default async function characterRoutes (app: FastifyInstance) {
-  app.get("/caracteres", getAllCharacters);
-  app.get<{ Params: { id: string } }>("/caracteres/:id", getCharacterById);
+  app.get("/characters", getAllCharacters);
+  app.get<{ Params: { id: string } }>("/characters/:id", getCharacterById);
   app.post<{
     Body: {
       name: string;
@@ -18,7 +18,7 @@ export default async function characterRoutes (app: FastifyInstance) {
       regionId: number;
       raceId: number;
     };
-  }>("/caracteres", createCharacter);
+  }>("/characters", createCharacter);
   app.patch<{
     Params: { id: string };
     Body: {
@@ -28,6 +28,6 @@ export default async function characterRoutes (app: FastifyInstance) {
       regionId: number;
       raceId: number;
     };
-  }>("/caracteres/:id", updateCharacter);
-  app.delete<{ Params: { id: string } }>("/caracteres/:id", deleteCharacter);
+  }>("/characters/:id", updateCharacter);
+  app.delete<{ Params: { id: string } }>("/characters/:id", deleteCharacter);
 }
