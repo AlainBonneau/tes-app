@@ -1,17 +1,28 @@
 // app/page.tsx
 "use client";
 import { motion } from "framer-motion";
+import api from "./api/axiosConfig";
 import BestiarySection from "./components/BestiarySection";
 import MyButton from "./components/MyButton";
 
 export default function Home() {
   function handleButtonClick() {
     console.log("Aventure commencée !");
+    fetchData();
+  }
+
+  async function fetchData() {
+    try {
+      const response = await api.get("/creatures");
+      console.log("Données récupérées :", response.data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données :", error);
+    }
   }
 
   return (
     <div className="app-container h-full w-full flex flex-col">
-       <section
+      <section
         className="
           relative
           h-screen
@@ -44,9 +55,9 @@ export default function Home() {
           <MyButton label="Commencer l'aventure" onClick={handleButtonClick} />
         </motion.div>
       </section>
-        <section className="flex items-center justify-center bg-gray-100">
-          <BestiarySection />
-        </section>
+      <section className="flex items-center justify-center bg-gray-100">
+        <BestiarySection />
+      </section>
     </div>
   );
 }

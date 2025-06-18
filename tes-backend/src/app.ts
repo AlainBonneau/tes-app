@@ -2,6 +2,7 @@
 import Fastify from "fastify";
 import dotenv from "dotenv";
 import rateLimit from "@fastify/rate-limit";
+import cors from "@fastify/cors";
 import prismaPlugin from "./plugins/prisma";
 import authPlugin from "./plugins/auth";
 import userRoutes from "./routes/users";
@@ -17,6 +18,12 @@ dotenv.config();
 
 export async function buildApp() {
   const app = Fastify({ logger: false });
+
+  // Configuration des cors
+  app.register(cors, {
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  });
 
   // 1) Plugins fondamentaux
   app.register(prismaPlugin);
