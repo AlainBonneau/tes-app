@@ -42,7 +42,7 @@ export default function BestiarySection() {
           />
           <h2 className="font-uncial text-gold text-5xl">Bestiaire</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex gap-6">
           {creatures.map((creature) => (
             <CreatureCard key={creature.id} creature={creature} />
           ))}
