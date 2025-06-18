@@ -16,7 +16,11 @@ export default async function regionRoutes(app: FastifyInstance) {
       description: string;
       imageUrl?: string;
     };
-  }>("/regions", createRegion);
+  }>(
+    "/regions",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    createRegion
+  );
   app.patch<{
     Params: { id: string };
     Body: {
@@ -24,6 +28,14 @@ export default async function regionRoutes(app: FastifyInstance) {
       description: string;
       imageUrl?: string;
     };
-  }>("/regions/:id", updateRegion);
-  app.delete<{ Params: { id: string } }>("/regions/:id", deleteRegion);
+  }>(
+    "/regions/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    updateRegion
+  );
+  app.delete<{ Params: { id: string } }>(
+    "/regions/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    deleteRegion
+  );
 }

@@ -7,7 +7,7 @@ import {
   deleteCharacter,
 } from "../controllers/charactersController";
 
-export default async function characterRoutes (app: FastifyInstance) {
+export default async function characterRoutes(app: FastifyInstance) {
   app.get("/characters", getAllCharacters);
   app.get<{ Params: { id: string } }>("/characters/:id", getCharacterById);
   app.post<{
@@ -18,7 +18,11 @@ export default async function characterRoutes (app: FastifyInstance) {
       regionId: number;
       raceId: number;
     };
-  }>("/characters", createCharacter);
+  }>(
+    "/characters",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    createCharacter
+  );
   app.patch<{
     Params: { id: string };
     Body: {
@@ -28,6 +32,14 @@ export default async function characterRoutes (app: FastifyInstance) {
       regionId: number;
       raceId: number;
     };
-  }>("/characters/:id", updateCharacter);
-  app.delete<{ Params: { id: string } }>("/characters/:id", deleteCharacter);
+  }>(
+    "/characters/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    updateCharacter
+  );
+  app.delete<{ Params: { id: string } }>(
+    "/characters/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    deleteCharacter
+  );
 }

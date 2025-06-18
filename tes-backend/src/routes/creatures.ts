@@ -18,7 +18,11 @@ export default async function creatureRoutes(app: FastifyInstance) {
       regionId?: number;
       imageUrl?: string;
     };
-  }>("/creatures", createCreature);
+  }>(
+    "/creatures",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    createCreature
+  );
   app.patch<{
     Params: { id: string };
     Body: {
@@ -28,6 +32,14 @@ export default async function creatureRoutes(app: FastifyInstance) {
       regionId?: number;
       imageUrl?: string;
     };
-  }>("/creatures/:id", updateCreature);
-  app.delete<{ Params: { id: string } }>("/creatures/:id", deleteCreature);
+  }>(
+    "/creatures/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    updateCreature
+  );
+  app.delete<{ Params: { id: string } }>(
+    "/creatures/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    deleteCreature
+  );
 }

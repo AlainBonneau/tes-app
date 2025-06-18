@@ -16,7 +16,11 @@ export default async function raceRoutes(app: FastifyInstance) {
       origine: string;
       description: string;
     };
-  }>("/races", createRace);
+  }>(
+    "/races",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    createRace
+  );
   app.patch<{
     Params: { id: string };
     Body: {
@@ -24,6 +28,14 @@ export default async function raceRoutes(app: FastifyInstance) {
       origine: string;
       description: string;
     };
-  }>("/races/:id", updateRace);
-  app.delete<{ Params: { id: string } }>("/races/:id", deleteRace);
+  }>(
+    "/races/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    updateRace
+  );
+  app.delete<{ Params: { id: string } }>(
+    "/races/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    deleteRace
+  );
 }

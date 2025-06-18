@@ -44,6 +44,9 @@ export async function getCreatureById(
 
   const creature = await request.server.prisma.creature.findUnique({
     where: { id },
+    include: {
+      region: true, // Inclure la région associée si nécessaire
+    },
   });
 
   if (!creature) {
