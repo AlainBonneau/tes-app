@@ -24,7 +24,7 @@ export default function Navbar() {
 
   return (
     <header>
-      <nav className="bg-dark text-parchment border-y-4 border-gold px-6 py-4 shadow-lg flex justify-center items-center tracking-wider">
+      <nav className="h-20 bg-dark text-parchment border-y-4 border-gold px-6 py-4 shadow-lg flex justify-center items-center tracking-wider">
         <div className="flex items-center gap-6 font-uncial uppercase">
             <Image src={tesLogo} alt="TES Logo" className="h-14 w-14" />
           {navLinks.map((link) => (

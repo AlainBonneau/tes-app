@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="fr">
-      <body className={`antialiased`}>
+      <body className="antialiased flex flex-col h-screen">
         <Navbar />
-        {/* Main content area */}
-        <main>{children}</main>
+        {/* Le main devient flex-1 pour remplir le reste */}
+        <main className="flex-1">{children}</main>
       </body>
     </html>
   );

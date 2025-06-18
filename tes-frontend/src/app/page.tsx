@@ -1,34 +1,45 @@
+// app/page.tsx
 "use client";
 import { motion } from "framer-motion";
-import backgroundImage from "../../public/assets/bg.jpg";
 import MyButton from "./components/MyButton";
 
 export default function Home() {
   function handleButtonClick() {
-    // Logique pour démarrer l'aventure
     console.log("Aventure commencée !");
   }
 
   return (
-    <main>
-      <section
-        className="top-section h-screen w-full bg-center bg-no-repeat bg-cover bg-black/60
-    bg-blend-overlay"
-        style={{ backgroundImage: `url(${backgroundImage.src})` }}
+    <section
+      className="
+        relative
+        flex flex-col items-center justify-center
+        h-full w-full
+        bg-[url('/assets/bg.jpg')]
+        bg-center bg-no-repeat bg-cover
+      "
+    >
+      <div className="absolute inset-0 bg-black/60" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative z-10 text-center space-y-6 font-cinzel"
       >
-        <div className="title-container font-cinzel text-center flex flex-col items-center justify-center h-full gap-6">
-          <h1 className="font-uncial text-gold text-5xl uppercase">
-            Explorez
-            <br /> L&apos;univers de
-            <br /> Tamriel
-          </h1>
-          <p className="text-white mt-4">
-            Bestiaire, Personnage, Lieux et secrets <br /> de l&apos;univers The
-            Elder Scroll
-          </p>
-          <MyButton label="Commencer l'aventure" onClick={handleButtonClick} />
-        </div>
-      </section>
-    </main>
+        <h1 className="font-uncial text-gold text-5xl uppercase">
+          Explorez
+          <br />
+          L&apos;univers de
+          <br />
+          Tamriel
+        </h1>
+        <p className="text-white">
+          Bestiaire, Personnages, Lieux et secrets
+          <br />
+          de l’univers The Elder Scroll
+        </p>
+        <MyButton label="Commencer l'aventure" onClick={handleButtonClick} />
+      </motion.div>
+    </section>
   );
 }
