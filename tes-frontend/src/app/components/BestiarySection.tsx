@@ -9,6 +9,7 @@ import api from "../api/axiosConfig";
 
 export default function BestiarySection() {
   const [creatures, setCreatures] = useState<Creature[]>([]);
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     (async function loadCreatures() {
@@ -27,7 +28,11 @@ export default function BestiarySection() {
         console.error("Erreur fetch creatures:", err);
       }
     })();
-  }, []);
+  }, [reload]);
+
+  function handleRandomCreature() {
+    setReload(!reload);
+  }
 
   return (
     <section className="w-full bg-dark py-16">
@@ -56,12 +61,15 @@ export default function BestiarySection() {
           ))}
         </div>
 
-        <MyButton
-          label="Voir le bestiaire"
-          onClick={() => {
-            window.location.href = "/bestiary";
-          }}
-        />
+        <div className="flex justify-center items-center gap-6">
+          <MyButton label="Autres créatures" onClick={() => handleRandomCreature()} />
+          <MyButton
+            label="Voir le bestiaire"
+            onClick={() => {
+              window.location.href = "/bestiary";
+            }}
+          />
+        </div>
       </div>
     </section>
   );
