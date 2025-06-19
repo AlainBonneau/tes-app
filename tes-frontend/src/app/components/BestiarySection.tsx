@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import CreatureCard from "./CreatureCard";
 import MyButton from "./MyButton";
 import { Creature } from "../types/creatures";
@@ -34,6 +35,15 @@ export default function BestiarySection() {
     setReload(!reload);
   }
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.4, ease: "easeOut" },
+    }),
+  };
+
   return (
     <section className="w-full bg-dark py-16">
       <div className="max-w-screen-xl mx-auto px-4 text-center uppercase space-y-12">
@@ -49,20 +59,25 @@ export default function BestiarySection() {
         </div>
 
         {/* Grille responsive */}
-        <div
-          className="grid w-full gap-6
-                        grid-cols-1
-                        sm:grid-cols-2
-                        md:grid-cols-3
-                        lg:grid-cols-4"
-        >
-          {creatures.map((creature) => (
-            <CreatureCard key={creature.id} creature={creature} />
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {creatures.map((creature, i) => (
+            <motion.div
+              key={creature.id}
+              custom={i}
+              initial="hidden"
+              animate="visible"
+              variants={cardVariants}
+            >
+              <CreatureCard creature={creature} />
+            </motion.div>
           ))}
         </div>
 
         <div className="flex justify-center items-center gap-6">
-          <MyButton label="Autres créatures" onClick={() => handleRandomCreature()} />
+          <MyButton
+            label="Autres créatures"
+            onClick={() => handleRandomCreature()}
+          />
           <MyButton
             label="Voir le bestiaire"
             onClick={() => {
