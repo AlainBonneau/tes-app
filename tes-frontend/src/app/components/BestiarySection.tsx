@@ -45,7 +45,7 @@ export default function BestiarySection() {
   };
 
   return (
-    <section className="w-full bg-dark py-16">
+    <section className="w-full bg-dark py-16" id="bestiary">
       <div className="max-w-screen-xl mx-auto px-4 text-center uppercase space-y-12">
         <div className="flex flex-col items-center gap-4">
           <Image

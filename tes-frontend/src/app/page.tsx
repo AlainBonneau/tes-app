@@ -7,12 +7,16 @@ import MyButton from "./components/MyButton";
 
 export default function Home() {
   function handleStartAdventure() {
-    console.log("Aventure commencée !");
+    const bestiarySection = document.getElementById("bestiary");
+    if (bestiarySection) {
+      bestiarySection.scrollIntoView({ behavior: "smooth" });
+    }
   }
 
   return (
     <div className="app-container h-full w-full flex flex-col">
-      <section className="
+      <section
+        className="
           relative h-screen flex items-center justify-center
           bg-[url('/assets/bg.jpg')] bg-center bg-cover
         "
@@ -25,13 +29,21 @@ export default function Home() {
           className="relative z-10 text-center space-y-6 font-cinzel"
         >
           <h1 className="font-uncial text-gold text-5xl uppercase">
-            Explorez<br/>L&apos;univers de<br/>Tamriel
+            Explorez
+            <br />
+            L&apos;univers de
+            <br />
+            Tamriel
           </h1>
           <p className="text-white">
-            Bestiaire, Personnages, Lieux et secrets<br/>
+            Bestiaire, Personnages, Lieux et secrets
+            <br />
             de l’univers The Elder Scroll
           </p>
-          <MyButton label="Commencer l'aventure" onClick={handleStartAdventure} />
+          <MyButton
+            label="Commencer l'aventure"
+            onClick={handleStartAdventure}
+          />
         </motion.div>
       </section>
 
