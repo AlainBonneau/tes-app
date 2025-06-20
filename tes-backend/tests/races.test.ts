@@ -1,14 +1,18 @@
 import request from "supertest";
+import { getAdminToken } from "./utils/getAdminToken";
 import { buildApp } from "../src/app";
 
 describe("Races API", () => {
   let app: Awaited<ReturnType<typeof buildApp>>;
   let server: import("http").Server;
+  let adminToken: string;
 
   beforeAll(async () => {
     app = await buildApp();
     await app.ready();
     server = app.server;
+
+    adminToken = await getAdminToken(app);
   });
 
   afterAll(async () => {
@@ -29,6 +33,7 @@ describe("Races API", () => {
     };
     const postRes = await request(server)
       .post("/races")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     expect(postRes.status).toBe(201);
@@ -48,6 +53,7 @@ describe("Races API", () => {
     };
     const postRes = await request(server)
       .post("/races")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     const id = postRes.body.id;
@@ -55,6 +61,7 @@ describe("Races API", () => {
     const update = { description: "Peaux-fines félines" };
     const patchRes = await request(server)
       .patch(`/races/${id}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(update)
       .set("Content-Type", "application/json");
     expect(patchRes.status).toBe(200);
@@ -69,11 +76,14 @@ describe("Races API", () => {
     };
     const postRes = await request(server)
       .post("/races")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     const id = postRes.body.id;
 
-    const delRes = await request(server).delete(`/races/${id}`);
+    const delRes = await request(server)
+      .delete(`/races/${id}`)
+      .set("Authorization", `Bearer ${adminToken}`);
     expect(delRes.status).toBe(204);
 
     const getRes = await request(server).get(`/races/${id}`);

@@ -1,4 +1,5 @@
 import request from "supertest";
+import { getAdminToken } from "./utils/getAdminToken";
 import { buildApp } from "../src/app";
 
 // Étend le timeout si besoin
@@ -7,15 +8,18 @@ jest.setTimeout(10000);
 describe("Creatures API", () => {
   let app: Awaited<ReturnType<typeof buildApp>>;
   let server: import("http").Server;
+  let adminToken: string;
 
   beforeAll(async () => {
     app = await buildApp();
-    await app.ready(); // ← attendre que Fastify initialise plugins & routes
-    server = app.server; // ← on récupère le serveur HTTP interne
+    await app.ready(); 
+    server = app.server;
+
+    adminToken = await getAdminToken(app);
   });
 
   afterAll(async () => {
-    await app.close(); // ← ferme Fastify et le serveur
+    await app.close(); 
   });
 
   it("GET /creatures doit renvoyer un tableau", async () => {
@@ -34,6 +38,7 @@ describe("Creatures API", () => {
     // Création
     const postRes = await request(server)
       .post("/creatures")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     expect(postRes.status).toBe(201);

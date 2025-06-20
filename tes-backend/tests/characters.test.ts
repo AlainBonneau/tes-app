@@ -1,4 +1,5 @@
 import request from "supertest";
+import { getAdminToken } from "./utils/getAdminToken";
 import { buildApp } from "../src/app";
 
 describe("Characters API", () => {
@@ -11,21 +12,7 @@ describe("Characters API", () => {
     await app.ready();
     server = app.server;
 
-    const user = await app.prisma.user.create({
-      data: {
-        email: "admin@test.com",
-        username: "admin",
-        password: "hashed",
-        role: "admin",
-      },
-    });
-
-    adminToken = (app as any).jwt.sign({
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      role: "admin",
-    });
+    adminToken = await getAdminToken(app);
   });
 
   afterAll(async () => {

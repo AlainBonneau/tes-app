@@ -1,14 +1,18 @@
 import request from "supertest";
+import { getAdminToken } from "./utils/getAdminToken";
 import { buildApp } from "../src/app";
 
 describe("Regions API", () => {
   let app: Awaited<ReturnType<typeof buildApp>>;
   let server: import("http").Server;
+  let adminToken: string;
 
   beforeAll(async () => {
     app = await buildApp();
     await app.ready();
     server = app.server;
+
+    adminToken = await getAdminToken(app);
   });
 
   afterAll(async () => {
@@ -29,6 +33,7 @@ describe("Regions API", () => {
     };
     const postRes = await request(server)
       .post("/regions")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     expect(postRes.status).toBe(201);
@@ -45,6 +50,7 @@ describe("Regions API", () => {
     const payload = { name: "OtherRegion", description: "Desc" };
     const postRes = await request(server)
       .post("/regions")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     const id = postRes.body.id;
@@ -52,6 +58,7 @@ describe("Regions API", () => {
     const update = { description: "Updated description" };
     const patchRes = await request(server)
       .patch(`/regions/${id}`)
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(update)
       .set("Content-Type", "application/json");
     expect(patchRes.status).toBe(200);
@@ -63,11 +70,14 @@ describe("Regions API", () => {
     const payload = { name: "TempRegion", description: "Temp" };
     const postRes = await request(server)
       .post("/regions")
+      .set("Authorization", `Bearer ${adminToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
     const id = postRes.body.id;
 
-    const delRes = await request(server).delete(`/regions/${id}`);
+    const delRes = await request(server)
+      .delete(`/regions/${id}`)
+      .set("Authorization", `Bearer ${adminToken}`);
     expect(delRes.status).toBe(204);
 
     const getRes = await request(server).get(`/regions/${id}`);
