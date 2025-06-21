@@ -1,0 +1,9 @@
+  .custom-gradient {
+    background: linear-gradient(
+      135deg,
+      #121212 0%,
+      #E1C699 30%,
+      #E1C699 70%,
+      #121212 100%
+    );
+  }

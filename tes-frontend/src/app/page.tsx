@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import BestiarySection from "./components/BestiarySection";
 import MyButton from "./components/MyButton";
+import "./page.css"
 
 export default function Home() {
   function handleStartAdventure() {
@@ -59,7 +60,7 @@ export default function Home() {
 
       <section
         id="bestiary"
-        className="relative w-full bg-gold flex flex-col items-center justify-center min-h-screen py-10"
+        className="custom-gradient relative w-full text-white flex flex-col items-center justify-center min-h-screen py-10"
       >
         {/* Titre */}
         <h2 className="relative z-10 font-uncial font-bold uppercase text-blood text-4xl md:text-5xl mb-8 px-4 text-center">
