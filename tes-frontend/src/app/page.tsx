@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import BestiarySection from "./components/BestiarySection";
 import MyButton from "./components/MyButton";
-import "./page.css"
+import "./page.css";
 
 export default function Home() {
+  // Fonction pour gérer le clic sur le bouton "Commencer l'aventure à l'accueil"
   function handleStartAdventure() {
     const bestiarySection = document.getElementById("bestiary");
     if (bestiarySection) {
@@ -15,6 +16,7 @@ export default function Home() {
     }
   }
 
+  // Animation pourla section Lieux
   const fadeSlide = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -22,6 +24,7 @@ export default function Home() {
 
   return (
     <div className="app-container h-full w-full flex flex-col">
+      {/* Section d'accueil avec image de fond et texte animé */}
       <section
         className="
           relative h-screen flex items-center justify-center
@@ -54,15 +57,16 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* Section Bestiaire dispoible dans les composants */}
       <section className="flex items-center justify-center bg-gray-100">
         <BestiarySection />
       </section>
 
+      {/* Section Lieux qui possède un background personnalisé dans le fichier page.css */}
       <section
         id="bestiary"
         className="custom-gradient relative w-full text-white flex flex-col items-center justify-center min-h-screen py-10"
       >
-        {/* Titre */}
         <h2 className="relative z-10 font-uncial font-bold uppercase text-blood text-4xl md:text-5xl mb-8 px-4 text-center">
           Lieux
         </h2>
