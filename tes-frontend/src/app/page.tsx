@@ -16,7 +16,7 @@ export default function Home() {
     }
   }
 
-  // Animation pourla section Lieux
+  // Animation pour la section Lieux
   const fadeSlide = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -57,7 +57,7 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Section Bestiaire dispoible dans les composants */}
+      {/* Section Bestiaire disponible dans les composants */}
       <section className="flex items-center justify-center bg-gray-100">
         <BestiarySection />
       </section>
@@ -85,12 +85,12 @@ export default function Home() {
               alt="Carte des lieux de Tamriel"
               width={600}
               height={360}
-              className="md:w-full h-auto object-cover rounded-2xl shadow-lg"
+              className="md:w-full h- object-cover rounded-2xl shadow-lg"
             />
           </motion.div>
 
           <motion.div
-            className="w-full md:w-1/2 bg-blood rounded-2xl shadow-lg p-6 md:p-8 flex flex-col justify-betweengap-4 md:gap-6"
+            className="w-full md:w-1/2 bg-blood rounded-2xl shadow-lg p-6 md:p-8 flex flex-col justify-between gap-4 md:gap-6"
             variants={fadeSlide}
             initial="hidden"
             whileInView={"visible"}
@@ -108,6 +108,53 @@ export default function Home() {
             <button
               className=" bg-gold text-dark text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-gold/80 transition cursor-pointer"
               onClick={() => (window.location.href = "/map")}
+            >
+              Explorer
+            </button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Section Taverne */}
+      <section className="tavern-section min-h-screen w-full bg-blood px-4 py-10 flex flex-col items-center justify-center">
+        <h2 className="text-gold font-uncial font-bold uppercase text-4xl md:text-5xl text-center mb-12">
+          Rejoignez la taverne
+        </h2>
+
+        {/* Conteneur image + texte */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-10 w-full max-w-6xl">
+          <motion.div
+            className="w-full md:w-1/2 flex justify-center"
+            variants={fadeSlide}
+            initial="hidden"
+            whileInView="visible"
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <Image
+              src="/assets/tavern.png"
+              alt="Carte de la taverne"
+              width={500}
+              height={300}
+              className="w-full max-w-xs sm:max-w-sm md:max-w-lg h-auto object-cover rounded-2xl shadow-lg"
+            />
+          </motion.div>
+          <motion.div
+            className="w-full md:w-1/2 bg-gold rounded-2xl shadow-lg p-6 md:p-8 flex flex-col items-center justify-between gap-6 text-center"
+            variants={fadeSlide}
+            initial="hidden"
+            whileInView="visible"
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <h3 className="text-blood text-base md:text-xl font-cinzel font-black mb-4">
+              Entrez dans la taverne !
+            </h3>
+            <p className="text-dark font-cinzel font-bold text-base md:text-lg leading-relaxed">
+              Discutez avec d&apos;autres aventuriers, partagez vos découvertes
+              et laissez vos messages sur le mur des héros.
+            </p>
+            <button
+              className="bg-blood text-gold text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-blood/80 transition cursor-pointer"
+              onClick={() => (window.location.href = "/tavern")}
             >
               Explorer
             </button>
