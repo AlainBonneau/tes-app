@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -160,6 +159,19 @@ export default function Home() {
             </button>
           </motion.div>
         </div>
+      </section>
+
+      {/* Section Bibliothèque */}
+      <section className="library h-[50vh] w-full bg-[url('/assets/library.webp')] bg-center bg-cover flex flex-col items-center justify-center text-center relative">
+        <h2 className="text-parchment font-uncial font-bold uppercase text-4xl md:text-5xl text-center mb-12">
+          Bibliothèque
+        </h2>
+        <button
+          className=" bg-parchment text-dark text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-gold/80 transition cursor-pointer"
+          onClick={() => (window.location.href = "/library")}
+        >
+          Rejoindre la bibliothèque
+        </button>
       </section>
     </div>
   );
