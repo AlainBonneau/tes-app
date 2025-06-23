@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import CreatureCard from "./CreatureCard";
@@ -11,6 +12,8 @@ import api from "../api/axiosConfig";
 export default function BestiarySection() {
   const [creatures, setCreatures] = useState<Creature[]>([]);
   const [reload, setReload] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     (async function loadCreatures() {
@@ -80,9 +83,7 @@ export default function BestiarySection() {
           />
           <MyButton
             label="Voir le bestiaire"
-            onClick={() => {
-              window.location.href = "/bestiary";
-            }}
+            onClick={() => router.push("/bestiary")}
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "@/app/features/auth/authSlice";
 import { RootState } from "@/app/store";
@@ -9,6 +10,7 @@ import api from "../api/axiosConfig";
 export default function LoginRegisterPage() {
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
+  const router = useRouter();
 
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -41,7 +43,7 @@ export default function LoginRegisterPage() {
       );
       const { token, user } = res.data;
       dispatch(login({ token, user }));
-      window.location.href = "/";
+      router.push("/"); // Redirect to home after login
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
@@ -88,7 +90,7 @@ export default function LoginRegisterPage() {
   };
 
   if (auth.isAuthenticated) {
-    window.location.href = "/";
+    router.push("/"); 
     return null;
   }
 

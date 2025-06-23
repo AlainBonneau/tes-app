@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import BestiarySection from "./components/BestiarySection";
@@ -7,6 +8,7 @@ import MyButton from "./components/MyButton";
 import "./page.css";
 
 export default function Home() {
+  const router = useRouter();
   // Fonction pour gérer le clic sur le bouton "Commencer l'aventure à l'accueil"
   function handleStartAdventure() {
     const bestiarySection = document.getElementById("bestiary");
@@ -106,7 +108,7 @@ export default function Home() {
 
             <button
               className=" bg-gold text-dark text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-gold/80 transition cursor-pointer"
-              onClick={() => (window.location.href = "/map")}
+              onClick={() => router.push("/places")}
             >
               Explorer
             </button>
@@ -153,7 +155,7 @@ export default function Home() {
             </p>
             <button
               className="bg-blood text-gold text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-blood/80 transition cursor-pointer"
-              onClick={() => (window.location.href = "/tavern")}
+              onClick={() => router.push("/tavern")}
             >
               Explorer
             </button>
@@ -168,7 +170,7 @@ export default function Home() {
         </h2>
         <button
           className=" bg-parchment text-dark text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-gold/80 transition cursor-pointer"
-          onClick={() => (window.location.href = "/library")}
+          onClick={() => router.push("/library")}
         >
           Rejoindre la bibliothèque
         </button>
