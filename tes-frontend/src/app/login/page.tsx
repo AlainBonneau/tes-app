@@ -129,7 +129,7 @@ export default function LoginRegisterPage() {
               />
               <button
                 type="submit"
-                className="bg-gold text-blood font-cinzel font-bold rounded py-3 px-6 hover:bg-gold/80 transition disabled:opacity-60"
+                className="bg-gold text-blood font-cinzel font-bold rounded py-3 px-6 hover:bg-gold/80 transition disabled:opacity-60 cursor-pointer"
                 disabled={loading}
               >
                 {loading ? "Connexion..." : "Se connecter"}
@@ -220,7 +220,7 @@ export default function LoginRegisterPage() {
               />
               <button
                 type="submit"
-                className="bg-gold text-blood font-cinzel font-bold rounded py-3 px-6 hover:bg-gold/80 transition disabled:opacity-60"
+                className="bg-gold text-blood font-cinzel font-bold rounded py-3 px-6 hover:bg-gold/80 transition disabled:opacity-60 cursor-pointer"
                 disabled={loading}
               >
                 {loading ? "Inscription..." : "S'inscrire"}
