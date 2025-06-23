@@ -2,8 +2,8 @@
 
 export default function Footer() {
   return (
-    <footer className="w-full h-[50vh] bg-dark text-gold border-t-2 border-gold font-cinzel py-6 px-4">
-      <div className=" mx-auto flex flex-col md:flex-row items-center md:items-stretch justify-between gap-8 md:gap-0">
+    <footer className="w-full bg-dark text-gold border-t-2 border-gold font-cinzel py-6 px-4">
+      <div className="min-h-[20vh] mx-auto flex flex-col md:flex-row items-center md:items-stretch justify-between gap-8 md:gap-0">
         {/* About */}
         <div className="w-full md:w-1/3 flex flex-col justify-center items-center text-center gap-2 mb-4 md:mb-0">
           <p className="font-bold">About</p>
