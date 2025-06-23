@@ -4,72 +4,242 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "@/app/features/auth/authSlice";
 import { RootState } from "@/app/store";
+import api from "../api/axiosConfig";
 
-export default function LoginPage() {
+export default function LoginRegisterPage() {
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Login state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // Register state
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regUsername, setRegUsername] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [profileUrl, setProfileUrl] = useState("");
+  const [description, setDescription] = useState("");
+
+  // Form submission handlers
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
-
-    // Appel à ton API backend
-    const res = await fetch("http://localhost:3001/api/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (res.ok) {
-      const { token, user } = await res.json();
+    try {
+      const res = await api.post(
+        "/users/login",
+        { email, password },
+        { headers: { "Content-Type": "application/json" } }
+      );
+      const { token, user } = res.data;
       dispatch(login({ token, user }));
-      // Optionnel : redirige vers l’accueil ou dashboard
       window.location.href = "/";
-    } else {
-      setError("Identifiants incorrects");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Identifiants incorrects");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      await api.post(
+        "/users/register",
+        {
+          email: regEmail,
+          password: regPassword,
+          username: regUsername,
+          birthdate: birthdate || undefined,
+          firstName,
+          lastName,
+          imageUrl: profileUrl,
+          description,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      setIsLogin(true);
+      setError("Inscription réussie ! Vous pouvez maintenant vous connecter.");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (auth.isAuthenticated) {
+    window.location.href = "/";
+    return null;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-dark">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-parchment p-8 rounded-lg shadow-lg flex flex-col gap-6 min-w-[300px] w-full max-w-md"
-      >
-        <h2 className="text-2xl font-bold text-center text-dark">Connexion</h2>
-        {error && <p className="text-red-600 text-center">{error}</p>}
-        <input
-          type="email"
-          placeholder="Email"
-          className="p-3 rounded border border-gold"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          className="p-3 rounded border border-gold"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button
-          type="submit"
-          className="bg-gold text-dark font-bold rounded py-3 px-6 hover:bg-gold/80 transition"
-        >
-          Se connecter
-        </button>
-      </form>
-      {auth.isAuthenticated && (
-        <p className="mt-4 text-gold">
-          Connecté en tant que {auth.user?.username}
-        </p>
-      )}
+    <div className="flex flex-col items-center min-h-screen bg-gold">
+      <div className="bg-blood h-[20vh] w-full flex items-center justify-center">
+        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center mb-8">
+          {isLogin ? "Connexion" : "Inscription"}
+        </h1>
+      </div>
+      <div className="flex flex-col items-center justify-center w-full flex-1 py-6">
+        <div className="bg-blood w-full max-w-md p-8 rounded-2xl shadow-lg">
+          {error && (
+            <div className="mb-4 text-center text-red-500">{error}</div>
+          )}
+          {isLogin ? (
+            <form className="flex flex-col gap-6" onSubmit={handleLogin}>
+              <input
+                type="email"
+                placeholder="Email"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+              <input
+                type="password"
+                placeholder="Mot de passe"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
+              <button
+                type="submit"
+                className="bg-gold text-blood font-cinzel font-bold rounded py-3 px-6 hover:bg-gold/80 transition disabled:opacity-60"
+                disabled={loading}
+              >
+                {loading ? "Connexion..." : "Se connecter"}
+              </button>
+              <div className="flex justify-between text-xs text-parchment">
+                <span
+                  className="underline hover:text-gold cursor-pointer"
+                  onClick={() => alert("Pas encore implémenté 😉")}
+                >
+                  Mot de passe oublié ?
+                </span>
+                <span>
+                  Pas de compte ?{" "}
+                  <span
+                    className="underline hover:text-gold cursor-pointer"
+                    onClick={() => {
+                      setIsLogin(false);
+                      setError("");
+                    }}
+                  >
+                    Inscrivez-vous
+                  </span>
+                </span>
+              </div>
+            </form>
+          ) : (
+            <form className="flex flex-col gap-5" onSubmit={handleRegister}>
+              <input
+                type="email"
+                placeholder="Email *"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={regEmail}
+                onChange={(e) => setRegEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+              <input
+                type="password"
+                placeholder="Mot de passe *"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={regPassword}
+                onChange={(e) => setRegPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+              />
+              <input
+                type="text"
+                placeholder="Pseudo *"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={regUsername}
+                onChange={(e) => setRegUsername(e.target.value)}
+                required
+              />
+              <input
+                type="date"
+                placeholder="Date de naissance"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={birthdate}
+                onChange={(e) => setBirthdate(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Prénom"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Nom"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+              <input
+                type="url"
+                placeholder="Photo de profil (lien)"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                value={profileUrl}
+                onChange={(e) => setProfileUrl(e.target.value)}
+              />
+              <textarea
+                placeholder="Description"
+                className="p-3 rounded border border-gold bg-white text-dark"
+                rows={3}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="bg-gold text-blood font-cinzel font-bold rounded py-3 px-6 hover:bg-gold/80 transition disabled:opacity-60"
+                disabled={loading}
+              >
+                {loading ? "Inscription..." : "S'inscrire"}
+              </button>
+              <div className="flex justify-center text-xs text-parchment mt-2">
+                <span>
+                  Déjà un compte ?{" "}
+                  <span
+                    className="underline hover:text-gold cursor-pointer"
+                    onClick={() => {
+                      setIsLogin(true);
+                      setError("");
+                    }}
+                  >
+                    Se connecter
+                  </span>
+                </span>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

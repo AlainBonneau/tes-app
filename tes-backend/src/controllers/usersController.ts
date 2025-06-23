@@ -141,20 +141,22 @@ export async function registerUser(
   const saltRound = 10;
   const hashed = await bcrypt.hash(password, saltRound);
 
-  try {
-    const newUser = await request.server.prisma.user.create({
-      data: {
-        email,
-        username,
-        password: hashed,
-        birthdate,
-        firstName,
-        lastName,
-        description,
-        imageUrl,
-      },
-    });
+  const data: any = {
+    email,
+    username,
+    password: hashed,
+    firstName,
+    lastName,
+    description,
+    imageUrl,
+  };
 
+  if (birthdate) {
+    data.birthdate = new Date(birthdate);
+  }
+
+  try {
+    const newUser = await request.server.prisma.user.create({ data });
     // On ne renvoie pas le hash dans la réponse
     const { password: _, ...userWithoutPassword } = newUser;
     reply.status(201).send(userWithoutPassword);
