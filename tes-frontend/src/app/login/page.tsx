@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "@/app/features/auth/authSlice";
@@ -30,7 +30,7 @@ export default function LoginRegisterPage() {
   const [profileUrl, setProfileUrl] = useState("");
   const [description, setDescription] = useState("");
 
-  // Form submission handlers
+  // Login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -43,7 +43,7 @@ export default function LoginRegisterPage() {
       );
       const { token, user } = res.data;
       dispatch(login({ token, user }));
-      router.push("/"); // Redirect to home after login
+      router.push("/");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
@@ -89,15 +89,16 @@ export default function LoginRegisterPage() {
     }
   };
 
-  if (auth.isAuthenticated) {
-    router.push("/"); 
-    return null;
-  }
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      router.push("/");
+    }
+  }, [auth.isAuthenticated, router]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gold">
       <div className="bg-blood h-[20vh] w-full flex items-center justify-center">
-        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
           {isLogin ? "Connexion" : "Inscription"}
         </h1>
       </div>

@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import { login } from "@/app/features/auth/authSlice";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
@@ -12,21 +16,29 @@ const navLinks = [
   { href: "/bestiary", label: "Bestiaire" },
   { href: "/map", label: "Carte" },
   { href: "/tavern", label: "Taverne" },
-  {
-    href: "/login",
-    label: "Connexion",
-    className:
-      "bg-blood text-parchment py-2 px-4 rounded-lg border border-gold hover:text-gold transition",
-  },
 ];
 
 export default function Navbar() {
+  const dispatch = useDispatch();
+  const auth = useSelector((state: RootState) => state.auth);
+  const isLoggedIn = !!auth.token;
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const menuVariants = {
     hidden: { opacity: 0, y: -30 },
     visible: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -30 },
+  };
+
+  console.log("isLoggedIn", isLoggedIn);
+
+  const handleLogout = () => {
+    dispatch(
+      login({ token: "", user: { id: "", username: "", email: "", role: "" } })
+    );
+    setOpen(false);
+    router.push("/login");
   };
 
   return (
@@ -36,7 +48,6 @@ export default function Navbar() {
           <Link href="/" className=" hidden items-center pr-4  md:block">
             <Image src={tesLogo} alt="TES Logo" width={56} height={56} />
           </Link>
-
           {/* Liens desktop */}
           <div className="hidden md:flex items-center gap-6 font-uncial uppercase tracking-wide">
             {navLinks.map((link) => (
@@ -50,8 +61,23 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {/* Connexion/Déconnexion dynamique */}
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="bg-blood text-parchment py-2 px-4 rounded-lg border border-gold hover:text-gold transition cursor-pointer"
+              >
+                Déconnexion
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-blood text-parchment py-2 px-4 rounded-lg border border-gold hover:text-gold transition cursor-pointer"
+              >
+                Connexion
+              </Link>
+            )}
           </div>
-
           {/* Burger mobile */}
           <button
             className="md:hidden p-2"
@@ -62,7 +88,6 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
-
       {/* Menu mobile */}
       <AnimatePresence>
         {open && (
@@ -72,11 +97,7 @@ export default function Navbar() {
             exit="exit"
             variants={menuVariants}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="
-        md:hidden
-        absolute top-0 left-0 w-full h-screen
-        bg-dark
-      "
+            className="md:hidden absolute top-0 left-0 w-full h-screen bg-dark"
           >
             <div className="flex flex-col items-center justify-center h-full space-y-6 font-uncial uppercase">
               {navLinks.map((link) => (
@@ -91,6 +112,23 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {/* Connexion/Déconnexion Mobile */}
+              {isLoggedIn ? (
+                <button
+                  onClick={handleLogout}
+                  className="bg-blood text-parchment py-2 px-8 rounded-lg border border-gold hover:text-gold transition text-2xl"
+                >
+                  Déconnexion
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="bg-blood text-parchment py-2 px-8 rounded-lg border border-gold hover:text-gold transition text-2xl"
+                  onClick={() => setOpen(false)}
+                >
+                  Connexion
+                </Link>
+              )}
 
               <button
                 onClick={() => setOpen(false)}
