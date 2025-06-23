@@ -1,3 +1,5 @@
+"use client";
+
 export default function Footer() {
   return (
     <footer className="h-[50vh] w-full bg-dark text-gold border-2 border-gold font-cinzel py-6 flex items-center justify-between px-4">

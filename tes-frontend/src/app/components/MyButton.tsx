@@ -1,3 +1,5 @@
+"use client";
+
 function MyButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
