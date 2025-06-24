@@ -119,6 +119,16 @@ export default function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              {/* Lien vers le profil mobile */}
+              {isLoggedIn && (
+                <Link
+                  href="/profil"
+                  className="text-2xl text-parchment hover:text-gold transition"
+                  onClick={() => setOpen(false)}
+                >
+                  Profil
+                </Link>
+              )}
               {/* Connexion/Déconnexion Mobile */}
               {isLoggedIn ? (
                 <button

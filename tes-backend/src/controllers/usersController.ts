@@ -22,6 +22,16 @@ type LoginRequest = FastifyRequest<{
   };
 }>;
 
+type updateUserRequest = FastifyRequest<{
+  Body: {
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+    description?: string;
+    birthdate?: Date;
+  };
+}>;
+
 export async function getAllUsers(
   request: FastifyRequest,
   reply: FastifyReply
@@ -221,4 +231,56 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
       role: user.role,
     },
   });
+}
+
+export async function updateUser(
+  request: updateUserRequest,
+  reply: FastifyReply
+) {
+  const payload = (request as any).user as {
+    id: number;
+    email: string;
+    username: string;
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+    description?: string;
+    birthdate?: Date;
+    role: string;
+  };
+
+  const { firstName, lastName, imageUrl, description, birthdate } =
+    request.body;
+
+  try {
+    const updatedUser = await request.server.prisma.user.update({
+      where: { id: payload.id },
+      data: {
+        firstName,
+        lastName,
+        imageUrl,
+        description,
+        birthdate: birthdate ? new Date(birthdate) : undefined,
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        imageUrl: true,
+        description: true,
+        birthdate: true,
+        createdAt: true,
+        role: true,
+      },
+    });
+
+    return reply.status(200).send(updatedUser);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour le profil.",
+      details: error.message,
+    });
+  }
 }
