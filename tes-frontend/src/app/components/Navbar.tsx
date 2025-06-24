@@ -31,8 +31,6 @@ export default function Navbar() {
     exit: { opacity: 0, y: -30 },
   };
 
-  console.log("isLoggedIn", isLoggedIn);
-
   const handleLogout = () => {
     dispatch(
       login({ token: "", user: { id: "", username: "", email: "", role: "" } })
@@ -61,6 +59,15 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {/* Lien vers le profil */}
+            {isLoggedIn && (
+              <Link
+                href="/profil"
+                className="text-parchment hover:text-gold transition"
+              >
+                Profil
+              </Link>
+            )}
             {/* Connexion/Déconnexion dynamique */}
             {isLoggedIn ? (
               <button
