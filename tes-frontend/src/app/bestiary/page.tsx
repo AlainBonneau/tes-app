@@ -1,47 +1,34 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
-
-const creatures = [
-  {
-    id: 1,
-    name: "Draugr",
-    region: "Skyrim",
-    type: "Mort-vivant",
-    imageUrl:
-      "https://raw.githubusercontent.com/AlainBonneau/tes-img-hosting/refs/heads/main/bestiary/ice-troll.png",
-  },
-  {
-    id: 2,
-    name: "Clannfear",
-    region: "Oblivion",
-    type: "Daedra",
-    imageUrl:
-      "https://raw.githubusercontent.com/AlainBonneau/tes-img-hosting/refs/heads/main/bestiary/ice-troll.png",
-  },
-  {
-    id: 3,
-    name: "Netch",
-    region: "Morrowind",
-    type: "Créature volante",
-    imageUrl:
-      "https://raw.githubusercontent.com/AlainBonneau/tes-img-hosting/refs/heads/main/bestiary/ice-troll.png",
-  },
-];
-
-const typeList = Array.from(new Set(creatures.map((c) => c.type)));
-const regionList = Array.from(new Set(creatures.map((c) => c.region)));
+import React, { useState, useEffect, useMemo } from "react";
+import BestiaryCard from "../components/BestiaryCard";
+import api from "../api/axiosConfig";
+import type { Creature } from "../types/creatures";
 
 export default function BestiaryPage() {
-  const [search, setSearch] = useState("");
+  const [creatures, setCreatures] = useState<Creature[]>([]);
+  const [search, setSearch] = useState<string>("");
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterRegion, setFilterRegion] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
-  // Recherche et filtres combinés
+  useEffect(() => {
+    setPage(1);
+  }, [search, filterType, filterRegion]);
+
+  const typeList = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Array.from(new Set(creatures.map((c: any) => c.type)));
+  }, [creatures]);
+
+  const regionList = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return Array.from(new Set(creatures.map((c: any) => c.regionId)));
+  }, [creatures]);
+
   const filteredCreatures = useMemo(() => {
-    return creatures.filter((c) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return creatures.filter((c: any) => {
       const matchesType = filterType ? c.type === filterType : true;
       const matchesRegion = filterRegion ? c.region === filterRegion : true;
       const matchesSearch = c.name
@@ -49,14 +36,37 @@ export default function BestiaryPage() {
         .includes(search.trim().toLowerCase());
       return matchesType && matchesRegion && matchesSearch;
     });
-  }, [search, filterType, filterRegion]);
+  }, [creatures, search, filterType, filterRegion]);
+
+  const pageSize = 9;
+  const totalPages = Math.ceil(filteredCreatures.length / pageSize);
+
+  const paginatedCreatures = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredCreatures.slice(start, start + pageSize);
+  }, [filteredCreatures, page, pageSize]);
+
+  useEffect(() => {
+    // Chargement des données depuis l'API
+    async function fetchCreatures() {
+      try {
+        const response = await api.get("/creatures");
+        setCreatures(response.data);
+      } catch (error) {
+        console.error("Erreur de chargement des créatures :", error);
+      }
+    }
+    fetchCreatures();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#e1c699] via-[#f0e3c2] to-[#3a2e1e] font-serif text-[#3A2E1E] px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gold via-parchment to-[#3a2e1e] font-serif text-[#3A2E1E]">
       {/* Titre */}
-      <h1 className="text-4xl text-center font-bold mb-8 text-blood tracking-wider font-uncial drop-shadow">
-        BESTIAIRE
-      </h1>
+      <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
+          Bestiaire
+        </h1>
+      </div>
 
       {/* Filtres */}
       <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
@@ -118,51 +128,43 @@ export default function BestiaryPage() {
 
       {/* Cartes des monstres */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {filteredCreatures.length > 0 ? (
-          filteredCreatures.map((creature, i) => (
-            <motion.div
-              key={creature.id}
-              className="bg-parchment rounded-2xl shadow-xl border-2 border-gold overflow-hidden hover:scale-105 transition-transform cursor-pointer flex flex-col"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.1, duration: 0.5 }}
-              whileHover={{
-                scale: 1.06,
-                boxShadow: "0 8px 40px #8B3A3A33",
-                borderColor: "#a38b66",
-              }}
-            >
-              <Image
-                width={300}
-                height={200}
-                src={creature.imageUrl}
-                alt={creature.name}
-                className="w-full h-48 object-cover border-b-2 border-gold"
-              />
-              <div className="p-4 flex flex-col flex-1">
-                <h2 className="text-xl font-bold text-blood font-cinzel uppercase mb-2 tracking-wide">
-                  {creature.name}
-                </h2>
-                <div className="flex-1">
-                  <p className="text-sm">
-                    <span className="font-bold text-gold">Région :</span>{" "}
-                    {creature.region}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-bold text-gold">Type :</span>{" "}
-                    {creature.type}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+        {paginatedCreatures.length > 0 ? (
+          paginatedCreatures.map((creature, i) => (
+            <BestiaryCard key={creature.id} creature={creature} i={i} />
           ))
         ) : (
           <div className="col-span-full text-center py-12 text-blood text-xl font-uncial">
             <span className="inline-block bg-parchment rounded-lg px-8 py-4 border-2 border-gold shadow">
-              🦎 Aucun monstre ne correspond à votre recherche...
+              Aucun monstre ne correspond à votre recherche...
             </span>
           </div>
         )}
+      </div>
+
+      <div className="flex justify-center gap-4 mt-8">
+        <button
+          disabled={page === 1}
+          className={`px-6 py-2 rounded font-cinzel bg-blood border text-gold border-gold hover:bg-gold/80 transition ${
+            page === 1 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
+        >
+          Précédent
+        </button>
+        <span className="font-bold">
+          {page} / {totalPages || 1}
+        </span>
+        <button
+          disabled={page === totalPages || totalPages === 0}
+          className={`px-6 py-2 rounded font-cinzel bg-blood text-gold border border-gold hover:bg-gold/80 transition ${
+            page === totalPages || totalPages === 0
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+        >
+          Suivant
+        </button>
       </div>
     </div>
   );
