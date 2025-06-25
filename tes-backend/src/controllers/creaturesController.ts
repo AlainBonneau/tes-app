@@ -29,7 +29,11 @@ export async function getAllCreatures(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const creatures = await request.server.prisma.creature.findMany();
+  const creatures = await request.server.prisma.creature.findMany({
+    include: {
+      region: true,
+    },
+  });
   reply.send(creatures);
 }
 

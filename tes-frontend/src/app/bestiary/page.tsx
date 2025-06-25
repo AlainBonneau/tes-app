@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import BestiaryCard from "../components/BestiaryCard";
+import Loader from "../components/Loader";
 import api from "../api/axiosConfig";
 import type { Creature } from "../types/creatures";
 
@@ -11,26 +12,43 @@ export default function BestiaryPage() {
   const [filterType, setFilterType] = useState<string | null>(null);
   const [filterRegion, setFilterRegion] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchCreatures() {
+      try {
+        setLoading(true);
+        const response = await api.get("/creatures");
+        setCreatures(response.data);
+      } catch (error) {
+        console.error("Erreur de chargement des créatures :", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCreatures();
+  }, []);
 
   useEffect(() => {
     setPage(1);
   }, [search, filterType, filterRegion]);
 
   const typeList = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Array.from(new Set(creatures.map((c: any) => c.type)));
+    return Array.from(new Set(creatures.map((c) => c.type)));
   }, [creatures]);
 
-  const regionList = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return Array.from(new Set(creatures.map((c: any) => c.regionId)));
-  }, [creatures]);
+  const regionList = useMemo(
+    () =>
+      Array.from(new Set(creatures.map((c) => c.region?.name).filter(Boolean))),
+    [creatures]
+  );
 
   const filteredCreatures = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return creatures.filter((c: any) => {
+    return creatures.filter((c) => {
       const matchesType = filterType ? c.type === filterType : true;
-      const matchesRegion = filterRegion ? c.region === filterRegion : true;
+      const matchesRegion = filterRegion
+        ? c.region?.name === filterRegion
+        : true;
       const matchesSearch = c.name
         .toLowerCase()
         .includes(search.trim().toLowerCase());
@@ -45,19 +63,6 @@ export default function BestiaryPage() {
     const start = (page - 1) * pageSize;
     return filteredCreatures.slice(start, start + pageSize);
   }, [filteredCreatures, page, pageSize]);
-
-  useEffect(() => {
-    // Chargement des données depuis l'API
-    async function fetchCreatures() {
-      try {
-        const response = await api.get("/creatures");
-        setCreatures(response.data);
-      } catch (error) {
-        console.error("Erreur de chargement des créatures :", error);
-      }
-    }
-    fetchCreatures();
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gold via-parchment to-[#3a2e1e] font-serif text-[#3A2E1E]">
@@ -127,21 +132,25 @@ export default function BestiaryPage() {
       </div>
 
       {/* Cartes des monstres */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {paginatedCreatures.length > 0 ? (
-          paginatedCreatures.map((creature, i) => (
-            <BestiaryCard key={creature.id} creature={creature} i={i} />
-          ))
-        ) : (
-          <div className="col-span-full text-center py-12 text-blood text-xl font-uncial">
-            <span className="inline-block bg-parchment rounded-lg px-8 py-4 border-2 border-gold shadow">
-              Aucun monstre ne correspond à votre recherche...
-            </span>
-          </div>
-        )}
-      </div>
+      {loading ? (
+        <Loader text="Chargement des créatures..." />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {paginatedCreatures.length > 0 ? (
+            paginatedCreatures.map((creature, i) => (
+              <BestiaryCard key={creature.id} creature={creature} i={i} />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 text-blood text-xl font-uncial">
+              <span className="inline-block bg-parchment rounded-lg px-8 py-4 border-2 border-gold shadow">
+                Aucun monstre ne correspond à votre recherche...
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
-      <div className="flex justify-center gap-4 mt-8">
+      <div className="flex justify-center gap-4 pt-8 pb-8">
         <button
           disabled={page === 1}
           className={`px-6 py-2 rounded font-cinzel bg-blood border text-gold border-gold hover:bg-gold/80 transition ${

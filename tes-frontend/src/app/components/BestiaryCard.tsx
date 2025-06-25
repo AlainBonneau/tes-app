@@ -26,7 +26,7 @@ export default function BestiaryCard({
         height={200}
         src={creature.imageUrl || "/images/default-creature.png"}
         alt={creature.name}
-        className="w-full h-48 object-cover border-b-2 border-gold"
+        className="w-full h-72 object-cover border-b-2 border-gold"
       />
       <div className="p-4 flex flex-col flex-1">
         <h2 className="text-xl font-bold text-blood font-cinzel uppercase mb-2 tracking-wide">
@@ -35,10 +35,15 @@ export default function BestiaryCard({
         <div className="flex-1">
           <p className="text-sm">
             <span className="font-bold text-gold">Région :</span>{" "}
-            {creature.regionId}
+            {creature?.region?.name || "Inconnue"}
           </p>
           <p className="text-sm">
             <span className="font-bold text-gold">Type :</span> {creature.type}
+          </p>
+          <p className="text-sm mt-2 text-blood">
+            {creature.description.length > 100
+              ? creature.description.slice(0, 100) + "..."
+              : creature.description}
           </p>
         </div>
       </div>
