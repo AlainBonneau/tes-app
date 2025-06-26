@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import BestiaryCard from "../components/BestiaryCard";
 import Loader from "../components/Loader";
 import api from "../api/axiosConfig";
@@ -138,7 +139,9 @@ export default function BestiaryPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {paginatedCreatures.length > 0 ? (
             paginatedCreatures.map((creature, i) => (
-              <BestiaryCard key={creature.id} creature={creature} i={i} />
+              <Link key={creature.id} href={`/bestiary/${creature.id}`}>
+                <BestiaryCard creature={creature} i={i} />
+              </Link>
             ))
           ) : (
             <div className="col-span-full text-center py-12 text-blood text-xl font-uncial">
