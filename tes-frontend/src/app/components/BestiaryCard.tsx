@@ -16,7 +16,6 @@ export default function BestiaryCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: i * 0.07, duration: 0.5 }}
       whileHover={{
-        scale: 1.06,
         boxShadow: "0 8px 40px #8B3A3A33",
         borderColor: "#a38b66",
       }}
