@@ -128,14 +128,14 @@ export default function ProfilePage() {
       </div>
 
       <section className="max-w-4xl mx-auto p-6 flex flex-col md:flex-row gap-8 items-center mt-8">
-        {/* Avatar et Badge */}
+        {/* Section Avatar & Badge */}
         <motion.section
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.7 }}
-          className="flex flex-col items-center bg-[#fff5dfcc] p-6 rounded-2xl shadow-xl w-full md:w-1/3 border-2 border-sandstone relative"
+          className="flex flex-col items-center bg-blood p-6 rounded-2xl shadow-xl w-full md:w-1/3 border-2 border-sandstone relative"
         >
-          <div className="w-32 h-32 rounded-full border-4 border-gold overflow-hidden mb-3 bg-[#d3ba89] shadow-md">
+          <div className="w-32 h-32 rounded-full border-4 border-gold overflow-hidden mb-3 bg-parchment shadow-md">
             <Image
               width={128}
               height={128}
@@ -147,97 +147,101 @@ export default function ProfilePage() {
           <motion.div
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            className="bg-gold px-4 py-1 rounded-xl font-bold text-[#2B1B10] mb-2 mt-1 shadow"
+            className="bg-gold px-4 py-1 rounded-xl font-bold text-blood mb-2 mt-1 shadow"
           >
             {role}
           </motion.div>
-          <div className="text-xl font-extrabold tracking-wider mb-1">
+          <div className="text-xl font-extrabold tracking-wider mb-1 text-parchment">
             {username}
           </div>
-          <p className="text-center text-sm italic mb-2">
+          <p className="text-center text-sm italic mb-2 text-parchment opacity-90">
             Aventurier et érudit du passé, toujours en quête de connaissances
             anciennes.
           </p>
         </motion.section>
 
-        {/* Informations détaillées */}
+        {/* Section Infos détaillées */}
         <motion.section
           initial={{ x: 60, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.7 }}
-          className="bg-[#fff5dfcc] p-6 rounded-2xl shadow-xl w-full md:w-2/3 flex flex-col gap-6 border-2 border-sandstone"
+          className="bg-blood p-6 rounded-2xl shadow-xl w-full md:w-2/3 flex flex-col gap-6 border-2 border-sandstone text-parchment"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block font-semibold mb-1">Nom</label>
+              <label className="block font-semibold mb-1 text-gold">Nom</label>
               <input
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly={!editMode}
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Prénom</label>
+              <label className="block font-semibold mb-1 text-gold">
+                Prénom
+              </label>
               <input
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly={!editMode}
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Email</label>
+              <label className="block font-semibold mb-1 text-gold">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">
+              <label className="block font-semibold mb-1 text-gold">
                 Date de naissance
               </label>
               <input
                 type="date"
                 value={birthdate}
                 onChange={(e) => setBirthdate(e.target.value)}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly={!editMode}
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">Rôle</label>
+              <label className="block font-semibold mb-1 text-gold">Rôle</label>
               <input
                 type="text"
                 value={role}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly
               />
             </div>
             <div>
-              <label className="block font-semibold mb-1">
+              <label className="block font-semibold mb-1 text-gold">
                 Date d&apos;inscription
               </label>
               <input
                 type="date"
                 value={registrationDate}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block font-semibold mb-1">
+              <label className="block font-semibold mb-1 text-gold">
                 Photo de profil (lien)
               </label>
               <input
                 type="url"
                 value={avatar}
                 onChange={(e) => setAvatar(e.target.value)}
-                className="w-full p-2 border border-sandstone bg-white rounded"
+                className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
                 readOnly={!editMode}
                 placeholder="https://..."
               />
@@ -245,10 +249,12 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="block font-semibold mb-1">Description</label>
+            <label className="block font-semibold mb-1 text-gold">
+              Description
+            </label>
             <textarea
               rows={4}
-              className="w-full p-2 border border-sandstone bg-white rounded"
+              className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               readOnly={!editMode}
@@ -258,8 +264,8 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row gap-4 justify-end items-center">
             {!editMode ? (
               <motion.button
-                whileHover={{ scale: 1.07, boxShadow: "0px 0px 8px #a17447" }}
-                className="bg-rune text-[#E1C699] px-6 py-2 rounded font-bold uppercase tracking-wider shadow hover:brightness-110 transition cursor-pointer"
+                whileHover={{ scale: 1.07, boxShadow: "0px 0px 8px #c9a36b" }}
+                className="bg-rune text-gold px-6 py-2 rounded font-bold uppercase tracking-wider shadow hover:brightness-110 transition cursor-pointer"
                 onClick={() => setEditMode(true)}
               >
                 Modifier le profil
@@ -276,7 +282,7 @@ export default function ProfilePage() {
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
-                  className="bg-rune text-[#E1C699] px-6 py-2 rounded font-bold uppercase tracking-wider shadow hover:brightness-110 transition cursor-pointer"
+                  className="bg-rune text-gold px-6 py-2 rounded font-bold uppercase tracking-wider shadow hover:brightness-110 transition cursor-pointer"
                   onClick={handleCancel}
                   disabled={saving}
                 >
@@ -285,8 +291,8 @@ export default function ProfilePage() {
               </>
             )}
             <motion.button
-              whileHover={{ scale: 1.07, boxShadow: "0px 0px 8px #a17447" }}
-              className="bg-rune text-[#E1C699] px-6 py-2 rounded font-bold uppercase tracking-wider shadow hover:brightness-110 transition cursor-pointer"
+              whileHover={{ scale: 1.07, boxShadow: "0px 0px 8px #c9a36b" }}
+              className="bg-rune text-gold px-6 py-2 rounded font-bold uppercase tracking-wider shadow hover:brightness-110 transition cursor-pointer"
               onClick={() => alert("Fonctionnalité à venir !")}
             >
               Changer le mot de passe
