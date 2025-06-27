@@ -1,31 +1,15 @@
 "use client";
 
-import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
-import { RootState } from "@/app/store";
 import { motion } from "framer-motion";
-import { ShieldCheck, BookOpen } from "lucide-react";
-import AuthGuard from "../components/AuthGard";
+import { BookOpen } from "lucide-react";
+import AuthGuard from "../components/AuthGuard";
 
 export default function AdminPage() {
-  const auth = useSelector((state: RootState) => state.auth);
-  const router = useRouter();
-
-  // Toujours loader tant que pas hydraté
-  const isAdmin = auth?.user?.role?.toLowerCase() === "admin";
-
-  // Tant qu'on attend que la redirection ait lieu, on retourne rien
-  if (!auth.token || !isAdmin) {
-    return null;
-  }
-
   return (
-    // AuthGuard pour protéger la page, on utilise adminOnly pour vérifier le rôle admin
     <AuthGuard adminOnly>
-      <div className="min-h-screen bg-blood text-parchment font-serif">
-        <div className="bg-blood h-[20vh] w-full flex items-center justify-center border-b-4 border-gold shadow-lg">
-          <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center tracking-wide flex items-center gap-2">
-            <ShieldCheck className="inline w-8 h-8 text-gold" />
+      <div className="min-h-screen bg-gold text-parchment font-serif">
+        <div className="bg-blood h-[20vh] w-full flex items-center justify-center">
+          <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
             Administration
           </h1>
         </div>
@@ -47,7 +31,7 @@ export default function AdminPage() {
                   backgroundColor: "#e1c69933",
                 }}
                 className="flex items-center gap-3 bg-rune text-gold px-6 py-4 rounded-xl font-bold uppercase tracking-wide border-2 border-sandstone shadow-md transition cursor-pointer text-lg hover:bg-gold/20"
-                onClick={() => router.push("/admin/bestiaire")}
+                onClick={() => (window.location.href = "/admin/bestiaire")}
               >
                 <BookOpen className="w-6 h-6" />
                 Administration bestiaire

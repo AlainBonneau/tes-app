@@ -72,6 +72,15 @@ export default function Navbar() {
                 Profil
               </Link>
             )}
+            {/* Lien vers l'administration */}
+            {isLoggedIn && auth.user?.role === "admin" && (
+              <Link
+                href="/admin"
+                className="text-parchment hover:text-gold transition"
+              >
+                Admin
+              </Link>
+            )}
             {/* Connexion/Déconnexion dynamique */}
             {isLoggedIn ? (
               <button
@@ -143,6 +152,7 @@ export default function Navbar() {
                   Administration
                 </Link>
               )}
+
               {/* Connexion/Déconnexion Mobile */}
               {isLoggedIn ? (
                 <button
