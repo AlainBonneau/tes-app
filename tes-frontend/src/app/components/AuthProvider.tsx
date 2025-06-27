@@ -1,10 +1,13 @@
 "use client";
-
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { restoreSession } from "@/app/features/auth/authSlice";
+import { restoreSession } from "../features/auth/authSlice";
 
-export function AuthInit({ children }: { children: React.ReactNode }) {
+export default function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const dispatch = useDispatch();
 
   useEffect(() => {

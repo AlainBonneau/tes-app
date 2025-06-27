@@ -25,6 +25,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
+  if (!auth.hydrated) {
+    return null;
+  }
+
   const menuVariants = {
     hidden: { opacity: 0, y: -30 },
     visible: { opacity: 1, y: 0 },
@@ -127,6 +131,16 @@ export default function Navbar() {
                   onClick={() => setOpen(false)}
                 >
                   Profil
+                </Link>
+              )}
+              {/* // Bouton administration */}
+              {isLoggedIn && auth.user?.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className="text-2xl text-parchment hover:text-gold transition"
+                  onClick={() => setOpen(false)}
+                >
+                  Administration
                 </Link>
               )}
               {/* Connexion/Déconnexion Mobile */}
