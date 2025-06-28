@@ -70,14 +70,19 @@ export default function AdminBestiaryPage() {
     }
   };
 
+  // Tester le delete après la création
   const handleDelete = async (id: number) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cette créature ?")) return;
     try {
-      await api.delete(`/creatures/${id}`);
+      await api.delete(`/creatures/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setCreatures((prev) => prev.filter((c) => c.id !== id));
-    } catch (err) {
-      console.error("Erreur lors de la suppression de la créature :", err);
-      alert("Erreur lors de la suppression");
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la créature :", error);
+      alert("Erreur lors de la suppression de la créature");
     }
   };
 
