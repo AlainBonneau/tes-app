@@ -31,7 +31,7 @@ export default function AdminPage() {
                   backgroundColor: "#e1c69933",
                 }}
                 className="flex items-center gap-3 bg-rune text-gold px-6 py-4 rounded-xl font-bold uppercase tracking-wide border-2 border-sandstone shadow-md transition cursor-pointer text-lg hover:bg-gold/20"
-                onClick={() => (window.location.href = "/admin/bestiaire")}
+                onClick={() => (window.location.href = "/admin/bestiary")}
               >
                 <BookOpen className="w-6 h-6" />
                 Administration bestiaire
