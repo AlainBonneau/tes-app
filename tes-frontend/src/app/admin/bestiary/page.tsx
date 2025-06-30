@@ -22,6 +22,7 @@ export default function AdminBestiaryPage() {
 
   const router = useRouter();
 
+  // Charger les créatures au chargement de la page
   useEffect(() => {
     async function fetchCreatures() {
       try {
@@ -38,11 +39,13 @@ export default function AdminBestiaryPage() {
     fetchCreatures();
   }, [saving]);
 
+  // Fonction pour ouvrir le modal d'édition
   const openEditModal = (creature: Creature) => {
     setEditForm({ ...creature });
     setEditModalOpen(true);
   };
 
+  // Fonction pour gérer les changements dans le formulaire d'édition
   const handleEditChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -52,6 +55,7 @@ export default function AdminBestiaryPage() {
     }));
   };
 
+  // Fonction pour soumettre le formulaire d'édition
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -71,7 +75,7 @@ export default function AdminBestiaryPage() {
     }
   };
 
-  // Tester le delete après la création
+  // Fonction pour supprimer une créature
   const handleDelete = async (id: number) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cette créature ?")) return;
     try {
@@ -138,7 +142,10 @@ export default function AdminBestiaryPage() {
                         >
                           Éditer
                         </button>
-                        <button className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs">
+                        <button
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                          onClick={() => handleDelete(creature.id)}
+                        >
                           Supprimer
                         </button>
                       </td>
@@ -243,7 +250,7 @@ export default function AdminBestiaryPage() {
                 />
                 <input
                   name="imageUrl"
-                  value={editForm.imageUrl}
+                  value={editForm.imageUrl || ""}
                   onChange={handleEditChange}
                   placeholder="Lien image"
                   className="p-2 rounded border border-gold"
