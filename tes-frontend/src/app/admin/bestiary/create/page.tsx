@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
+import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import { useRouter } from "next/navigation";
 import type { Region } from "@/app/types/creatures";
@@ -82,17 +83,18 @@ export default function CreateCreaturePage() {
   }
 
   return (
-    <div className="min-h-screen bg-parchment flex flex-col items-center justify-center">
-      <div className="w-full  flex flex-col items-center">
-        {/* Header */}
-        <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
-            Administration - Bestiaire
-          </h1>
-        </div>
-        {/* Formulaire */}
-        <form
-          className="
+    <AuthGuard adminOnly>
+      <div className="min-h-screen bg-parchment flex flex-col items-center justify-center">
+        <div className="w-full  flex flex-col items-center">
+          {/* Header */}
+          <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
+            <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
+              Administration - Bestiaire
+            </h1>
+          </div>
+          {/* Formulaire */}
+          <form
+            className="
           w-full max-w-3xl
           bg-blood/95
           mb-10
@@ -103,62 +105,62 @@ export default function CreateCreaturePage() {
           flex flex-col gap-5
           backdrop-blur-md
           "
-          onSubmit={handleSubmit}
-        >
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            placeholder="Nom"
-            className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-            required
-          />
-          <input
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            placeholder="Type"
-            className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-            required
-          />
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-            rows={3}
-            required
-          />
-          <select
-            name="regionId"
-            value={form.regionId}
-            onChange={handleChange}
-            className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-            required
+            onSubmit={handleSubmit}
           >
-            <option value="">Sélectionner une région</option>
-            {regions.map((region) => (
-              <option key={region.id} value={region.id}>
-                {region.name}
-              </option>
-            ))}
-          </select>
-          <input
-            name="imageUrl"
-            value={form.imageUrl}
-            onChange={handleChange}
-            placeholder="Lien image"
-            className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-          />
-          {error && (
-            <div className="text-red-600 text-center mb-2 font-semibold bg-parchment/80 rounded-lg py-2">
-              {error}
-            </div>
-          )}
-          <button
-            type="submit"
-            className="
+            <input
+              name="name"
+              value={form.name}
+              onChange={handleChange}
+              placeholder="Nom"
+              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
+              required
+            />
+            <input
+              name="type"
+              value={form.type}
+              onChange={handleChange}
+              placeholder="Type"
+              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
+              required
+            />
+            <textarea
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              placeholder="Description"
+              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
+              rows={3}
+              required
+            />
+            <select
+              name="regionId"
+              value={form.regionId}
+              onChange={handleChange}
+              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
+              required
+            >
+              <option value="">Sélectionner une région</option>
+              {regions.map((region) => (
+                <option key={region.id} value={region.id}>
+                  {region.name}
+                </option>
+              ))}
+            </select>
+            <input
+              name="imageUrl"
+              value={form.imageUrl}
+              onChange={handleChange}
+              placeholder="Lien image"
+              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
+            />
+            {error && (
+              <div className="text-red-600 text-center mb-2 font-semibold bg-parchment/80 rounded-lg py-2">
+                {error}
+              </div>
+            )}
+            <button
+              type="submit"
+              className="
             mt-4
             bg-gold
             text-blood
@@ -173,12 +175,13 @@ export default function CreateCreaturePage() {
             tracking-widest
             cursor-pointer
           "
-            disabled={saving}
-          >
-            {saving ? "Création..." : "Créer"}
-          </button>
-        </form>
+              disabled={saving}
+            >
+              {saving ? "Création..." : "Créer"}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 }
