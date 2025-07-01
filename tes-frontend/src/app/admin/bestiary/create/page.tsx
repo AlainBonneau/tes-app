@@ -77,14 +77,14 @@ export default function CreateCreaturePage() {
 
   return (
     <AuthGuard adminOnly>
-      <div className="min-h-screen bg-parchment flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-parchment flex flex-col items-center">
+        {/* Header */}
+        <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
+          <h1 className="text-2xl md:text-4xl font-uncial uppercase text-gold text-center">
+            Administration - Création de créature
+          </h1>
+        </div>
         <div className="w-full  flex flex-col items-center">
-          {/* Header */}
-          <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
-              Administration - Bestiaire
-            </h1>
-          </div>
           {/* Formulaire */}
           <form
             className="
