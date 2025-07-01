@@ -4,12 +4,15 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
-import type { Creature } from "@/app/types/creatures";
+import EditCreatureModal from "./EditCreatureModal";
 import MyButton from "@/app/components/MyButton";
 import Loader from "@/app/components/Loader";
+import type { Creature } from "@/app/types/creatures";
+import type { Region } from "@/app/types/creatures";
 
 export default function AdminBestiaryPage() {
   const [creatures, setCreatures] = useState<Creature[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Creature>>({});
@@ -17,8 +20,19 @@ export default function AdminBestiaryPage() {
 
   const router = useRouter();
 
-  // Charger les créatures au chargement de la page
+  // Charger les créatures et les régions au chargement de la page
   useEffect(() => {
+    async function fetchRegions() {
+      try {
+        const res = await api.get("/regions");
+        setRegions(res.data);
+      } catch (err) {
+        console.error("Erreur de chargement des régions :", err);
+        alert("Erreur lors du chargement des régions");
+      }
+    }
+    fetchRegions();
+
     async function fetchCreatures() {
       try {
         setLoading(true);
@@ -42,11 +56,14 @@ export default function AdminBestiaryPage() {
 
   // Fonction pour gérer les changements dans le formulaire d'édition
   const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
-    setEditForm((form: Partial<Creature>) => ({
+    const { name, value, type } = e.target;
+    setEditForm((form) => ({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: type === "number" ? Number(value) : value,
     }));
   };
 
@@ -55,7 +72,11 @@ export default function AdminBestiaryPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.patch(`/creatures/${editForm.id}`, editForm, {
+      const dataToSend = {
+        ...editForm,
+        regionId: editForm.regionId ? Number(editForm.regionId) : null,
+      };
+      await api.patch(`/creatures/${editForm.id}`, dataToSend, {
         withCredentials: true,
       });
       setEditModalOpen(false);
@@ -199,72 +220,15 @@ export default function AdminBestiaryPage() {
 
         {/* Modal d'édition */}
         {editModalOpen && (
-          <div className="fixed z-50 inset-0 flex items-center justify-center bg-black/60">
-            <div className="bg-parchment border-2 border-blood p-8 rounded-xl shadow-xl w-full max-w-lg mx-4">
-              <h2 className="text-xl font-bold text-blood mb-6">
-                Modifier la créature
-              </h2>
-              <form className="flex flex-col gap-4" onSubmit={handleEditSubmit}>
-                <input
-                  name="name"
-                  value={editForm.name}
-                  onChange={handleEditChange}
-                  placeholder="Nom"
-                  className="p-2 rounded border border-gold"
-                  required
-                />
-                <input
-                  name="type"
-                  value={editForm.type}
-                  onChange={handleEditChange}
-                  placeholder="Type"
-                  className="p-2 rounded border border-gold"
-                  required
-                />
-                <textarea
-                  name="description"
-                  value={editForm.description}
-                  onChange={handleEditChange}
-                  placeholder="Description"
-                  className="p-2 rounded border border-gold"
-                  rows={3}
-                  required
-                />
-                <input
-                  name="regionId"
-                  value={editForm.regionId}
-                  onChange={handleEditChange}
-                  placeholder="ID de région"
-                  className="p-2 rounded border border-gold"
-                  type="number"
-                />
-                <input
-                  name="imageUrl"
-                  value={editForm.imageUrl || ""}
-                  onChange={handleEditChange}
-                  placeholder="Lien image"
-                  className="p-2 rounded border border-gold"
-                />
-                <div className="flex gap-4 mt-4 justify-end">
-                  <button
-                    type="button"
-                    className="bg-blood text-gold px-4 py-2 rounded hover:bg-blood/80"
-                    onClick={() => setEditModalOpen(false)}
-                    disabled={saving}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-gold text-blood px-4 py-2 rounded hover:bg-gold/80 font-bold"
-                    disabled={saving}
-                  >
-                    {saving ? "Enregistrement..." : "Enregistrer"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+          <EditCreatureModal
+            open={editModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            form={editForm}
+            onChange={handleEditChange}
+            onSubmit={handleEditSubmit}
+            saving={saving}
+            regions={regions}
+          />
         )}
       </div>
     </AuthGuard>

@@ -65,7 +65,7 @@ export async function createCreature(
 ) {
   const { name, type, description, regionId, imageUrl } = request.body;
 
-  if (!name || !type || !description) {
+  if (!name || !type || !description || !regionId) {
     return reply.status(400).send({
       error: "Les champs name, type et description sont obligatoires.",
     });

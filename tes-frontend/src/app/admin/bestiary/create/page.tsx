@@ -104,7 +104,7 @@ export default function CreateCreaturePage() {
               name="name"
               value={form.name}
               onChange={handleChange}
-              placeholder="Nom"
+              placeholder="Nom *"
               className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
               required
             />
@@ -112,7 +112,7 @@ export default function CreateCreaturePage() {
               name="type"
               value={form.type}
               onChange={handleChange}
-              placeholder="Type"
+              placeholder="Type *"
               className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
               required
             />
@@ -120,7 +120,7 @@ export default function CreateCreaturePage() {
               name="description"
               value={form.description}
               onChange={handleChange}
-              placeholder="Description"
+              placeholder="Description *"
               className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
               rows={3}
               required
@@ -132,7 +132,7 @@ export default function CreateCreaturePage() {
               className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
               required
             >
-              <option value="">Sélectionner une région</option>
+              <option value="">Sélectionner une région *</option>
               {regions.map((region) => (
                 <option key={region.id} value={region.id}>
                   {region.name}
