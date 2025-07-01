@@ -1,5 +1,6 @@
 // src/app.ts
 import Fastify from "fastify";
+import fastifyCookie from "@fastify/cookie";
 import dotenv from "dotenv";
 import rateLimit from "@fastify/rate-limit";
 import cors from "@fastify/cors";
@@ -21,15 +22,27 @@ export async function buildApp() {
 
   // Configuration des cors
   app.register(cors, {
-    origin: "*",
+    origin: "http://localhost:3000",
+    credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  });
+
+  // Configuration des cookies
+  app.register(fastifyCookie, {
+    secret: process.env.SIGNED_COOKIE, // for signed cookies (optional)
+    parseOptions: {}, // options for parsing cookies
   });
 
   // 1) Plugins fondamentaux
   app.register(prismaPlugin);
   app.register(fastifyJwt, {
     secret: process.env.JWT_SECRET || "test-secret",
+    cookie: {
+      cookieName: "token",
+      signed: false,
+    },
   });
+
   app.register(authPlugin);
   app.register(rateLimit, { max: 100, timeWindow: "1 minute" });
 

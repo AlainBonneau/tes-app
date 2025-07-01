@@ -5,6 +5,7 @@ import {
   registerUser,
   loginUser,
   updateUser,
+  logoutUser,
 } from "../controllers/usersController";
 
 export default async function userRoutes(app: FastifyInstance) {
@@ -39,4 +40,5 @@ export default async function userRoutes(app: FastifyInstance) {
       birthdate?: Date;
     };
   }>("/users/me", { preHandler: [app.authenticate] }, updateUser);
+  app.post("/users/logout", { preHandler: [app.authenticate] }, logoutUser);
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "@/app/features/auth/authSlice";
+import { setUser } from "@/app/features/auth/authSlice";
 import { RootState } from "@/app/store";
 import api from "../api/axiosConfig";
 
@@ -36,13 +36,17 @@ export default function LoginRegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.post(
+      await api.post(
         "/users/login",
         { email, password },
-        { headers: { "Content-Type": "application/json" } }
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
       );
-      const { token, user } = res.data;
-      dispatch(login({ token, user }));
+      // Cookie httpOnly est posé, va chercher le user courant
+      const res = await api.get("/users/me", { withCredentials: true });
+      dispatch(setUser(res.data));
       router.push("/");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -73,9 +77,7 @@ export default function LoginRegisterPage() {
           imageUrl: profileUrl,
           description,
         },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
+        { headers: { "Content-Type": "application/json" } }
       );
       setIsLogin(true);
       setError("Inscription réussie ! Vous pouvez maintenant vous connecter.");
@@ -83,12 +85,15 @@ export default function LoginRegisterPage() {
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
+      } else {
+        setError("Erreur lors de l'inscription");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Si déjà connecté, redirige vers /
   useEffect(() => {
     if (auth.isAuthenticated) {
       router.push("/");

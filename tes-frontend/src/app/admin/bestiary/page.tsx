@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import type { Creature } from "@/app/types/creatures";
@@ -17,9 +15,6 @@ export default function AdminBestiaryPage() {
   const [editForm, setEditForm] = useState<Partial<Creature>>({});
   const [saving, setSaving] = useState(false);
 
-  const auth = useSelector((state: RootState) => state.auth);
-  const token = auth.token;
-
   const router = useRouter();
 
   // Charger les créatures au chargement de la page
@@ -27,7 +22,7 @@ export default function AdminBestiaryPage() {
     async function fetchCreatures() {
       try {
         setLoading(true);
-        const res = await api.get("/creatures");
+        const res = await api.get("/creatures", { withCredentials: true });
         setCreatures(res.data);
       } catch (error) {
         console.error("Erreur lors du chargement des créatures :", error);
@@ -61,10 +56,7 @@ export default function AdminBestiaryPage() {
     setSaving(true);
     try {
       await api.patch(`/creatures/${editForm.id}`, editForm, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        withCredentials: true,
       });
       setEditModalOpen(false);
     } catch (err) {
@@ -80,9 +72,7 @@ export default function AdminBestiaryPage() {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cette créature ?")) return;
     try {
       await api.delete(`/creatures/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true,
       });
       setCreatures((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {

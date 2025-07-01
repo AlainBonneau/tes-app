@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { login } from "@/app/features/auth/authSlice";
+import api from "../api/axiosConfig";
+import { logout } from "../features/auth/authSlice";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X } from "lucide-react";
@@ -21,7 +22,7 @@ const navLinks = [
 export default function Navbar() {
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
-  const isLoggedIn = !!auth.token;
+  const isLoggedIn = auth.isAuthenticated;
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -35,11 +36,9 @@ export default function Navbar() {
     exit: { opacity: 0, y: -30 },
   };
 
-  const handleLogout = () => {
-    dispatch(
-      login({ token: "", user: { id: "", username: "", email: "", role: "" } })
-    );
-    setOpen(false);
+  const handleLogout = async () => {
+    await api.post("/users/logout", {}, { withCredentials: true });
+    dispatch(logout());
     router.push("/login");
   };
 

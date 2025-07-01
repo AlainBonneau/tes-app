@@ -51,7 +51,6 @@ export async function getAllUsers(
         role: true,
       },
     });
-
     reply.send(users);
   } catch (error: any) {
     reply.status(500).send({
@@ -70,12 +69,12 @@ export async function getCurrentUser(
       id: number;
       email: string;
       username: string;
-      firstName?: string;
-      lastName?: string;
-      imageUrl?: string;
-      description?: string;
+      firstName: string;
+      lastName: string;
+      imageUrl: string;
+      description: string;
+      birthdate: Date;
       createdAt: Date;
-      birthdate?: Date;
       role: string;
     };
 
@@ -99,7 +98,7 @@ export async function getCurrentUser(
       return reply.status(404).send({ error: "Utilisateur non trouvé." });
     }
 
-    return reply.status(201).send(user);
+    return reply.status(200).send(user);
   } catch (err: any) {
     return reply.status(500).send({
       error: "Impossible de récupérer le profil.",
@@ -129,28 +128,22 @@ export async function registerUser(
       .send({ error: "email, username et password requis" });
   }
 
-  // Vérification de l'unicité de l'email et du nom d'utilisateur
   const existingUsername = await request.server.prisma.user.findUnique({
     where: { username },
   });
-
   if (existingUsername) {
     return reply
       .status(409)
       .send({ error: "Ce nom d'utilisateur est déjà utilisé." });
   }
-
   const existingEmail = await request.server.prisma.user.findUnique({
     where: { email },
   });
-
   if (existingEmail) {
     return reply.status(409).send({ error: "Cet email est déjà utilisé." });
   }
 
-  const saltRound = 10;
-  const hashed = await bcrypt.hash(password, saltRound);
-
+  const hashed = await bcrypt.hash(password, 10);
   const data: any = {
     email,
     username,
@@ -160,14 +153,10 @@ export async function registerUser(
     description,
     imageUrl,
   };
-
-  if (birthdate) {
-    data.birthdate = new Date(birthdate);
-  }
+  if (birthdate) data.birthdate = new Date(birthdate);
 
   try {
     const newUser = await request.server.prisma.user.create({ data });
-    // On ne renvoie pas le hash dans la réponse
     const { password: _, ...userWithoutPassword } = newUser;
     reply.status(201).send(userWithoutPassword);
   } catch (error: any) {
@@ -188,15 +177,13 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
   const user = await request.server.prisma.user.findUnique({
     where: { email },
   });
-
   if (!user) {
-    return reply.status(401).send({ error: "Identifiant invalides" });
+    return reply.status(401).send({ error: "Identifiants invalides" });
   }
 
   const match = await bcrypt.compare(password, user.password);
-
   if (!match) {
-    return reply.status(401).send({ error: "Identifiant invalides" });
+    return reply.status(401).send({ error: "Identifiants invalides" });
   }
 
   const TOKEN_EXPIRATION = "24h";
@@ -216,38 +203,35 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
     { expiresIn: TOKEN_EXPIRATION }
   );
 
-  return reply.status(200).send({
-    token,
-    user: {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      imageUrl: user.imageUrl,
-      description: user.description,
-      birthdate: user.birthdate,
-      createdAt: user.createdAt,
-      role: user.role,
-    },
-  });
+  reply
+    .setCookie("token", token, {
+      httpOnly: true,
+      // secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24,
+    })
+    .send({
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        imageUrl: user.imageUrl,
+        description: user.description,
+        birthdate: user.birthdate,
+        createdAt: user.createdAt,
+        role: user.role,
+      },
+    });
 }
 
 export async function updateUser(
   request: updateUserRequest,
   reply: FastifyReply
 ) {
-  const payload = (request as any).user as {
-    id: number;
-    email: string;
-    username: string;
-    firstName?: string;
-    lastName?: string;
-    imageUrl?: string;
-    description?: string;
-    birthdate?: Date;
-    role: string;
-  };
+  const payload = (request as any).user as { id: number };
 
   const { firstName, lastName, imageUrl, description, birthdate } =
     request.body;
@@ -275,7 +259,6 @@ export async function updateUser(
         role: true,
       },
     });
-
     return reply.status(200).send(updatedUser);
   } catch (error: any) {
     return reply.status(500).send({
@@ -283,4 +266,14 @@ export async function updateUser(
       details: error.message,
     });
   }
+}
+
+export async function logoutUser(request: FastifyRequest, reply: FastifyReply) {
+  reply
+    .clearCookie("token", {
+      path: "/",
+      // secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    })
+    .send({ message: "Déconnexion réussie" });
 }

@@ -1,7 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import { useRouter } from "next/navigation";
@@ -9,8 +7,6 @@ import type { Region } from "@/app/types/creatures";
 
 export default function CreateCreaturePage() {
   const router = useRouter();
-  const auth = useSelector((state: RootState) => state.auth);
-  const token = auth.token;
   const [form, setForm] = useState({
     name: "",
     type: "",
@@ -57,10 +53,7 @@ export default function CreateCreaturePage() {
         regionId: form.regionId ? Number(form.regionId) : undefined,
       };
       const response = await api.post("/creatures", payload, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true,
       });
       if (response.status === 201) {
         router.push("/admin/bestiary");

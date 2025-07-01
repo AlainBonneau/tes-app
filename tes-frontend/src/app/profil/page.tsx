@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
 
   const auth = useSelector((state: RootState) => state.auth);
-  const isLoggedIn = !!auth.token;
+  const isLoggedIn = auth.isAuthenticated;
 
   // Récupération des données utilisateur
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function ProfilePage() {
       if (!isLoggedIn) return;
       try {
         const response = await api.get("/users/me", {
-          headers: { Authorization: `Bearer ${auth.token}` },
+          withCredentials: true,
         });
         const user = response.data;
         setEmail(user.email);
@@ -64,7 +64,7 @@ export default function ProfilePage() {
       }
     };
     fetchUserData();
-  }, [auth.token, isLoggedIn]);
+  }, [auth.user, isLoggedIn]);
 
   // Gérer l'annulation de l'édition
   const handleCancel = () => {
@@ -91,7 +91,7 @@ export default function ProfilePage() {
           description,
         },
         {
-          headers: { Authorization: `Bearer ${auth.token}` },
+          withCredentials: true,
         }
       );
       setOriginalProfile({

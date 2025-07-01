@@ -1,7 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { restoreSession } from "../features/auth/authSlice";
+import { setUser, setHydrated } from "../features/auth/authSlice";
+import api from "../api/axiosConfig";
 
 export default function AuthProvider({
   children,
@@ -11,7 +12,11 @@ export default function AuthProvider({
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(restoreSession());
+    api
+      .get("/users/me", { withCredentials: true })
+      .then((res) => dispatch(setUser(res.data)))
+      .catch(() => dispatch(setUser(null)))
+      .finally(() => dispatch(setHydrated()));
   }, [dispatch]);
 
   return <>{children}</>;

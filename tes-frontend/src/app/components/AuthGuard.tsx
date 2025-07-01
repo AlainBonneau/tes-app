@@ -27,7 +27,7 @@ export default function AuthGuard({
   const router = useRouter();
 
   // On vérifie l’auth (et le rôle si demandé)
-  const isLoggedIn = !!auth.token && !!auth.user;
+  const isLoggedIn = auth.isAuthenticated;
   const isAdmin = auth.user?.role?.toLowerCase() === "admin";
 
   useEffect(() => {
