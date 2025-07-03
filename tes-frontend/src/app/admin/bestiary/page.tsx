@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import EditCreatureModal from "./EditCreatureModal";
+import BestiaryPagination from "./BestiaryPagination";
 import MyButton from "@/app/components/MyButton";
 import Loader from "@/app/components/Loader";
 import type { Creature } from "@/app/types/creatures";
@@ -17,6 +18,7 @@ export default function AdminBestiaryPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Creature>>({});
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
 
   const router = useRouter();
@@ -48,6 +50,10 @@ export default function AdminBestiaryPage() {
     }
     fetchCreatures();
   }, [saving]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   // Fonction pour ouvrir le modal d'édition
   const openEditModal = (creature: Creature) => {
@@ -89,10 +95,15 @@ export default function AdminBestiaryPage() {
     }
   };
 
-  // Fonction pour filtrer les créatures par nom
+  // Fonction pour filtrer les créatures par nom et pagination
   const filteredCreatures = creatures.filter((creature) =>
     creature.name.toLowerCase().includes(search.toLowerCase())
   );
+  const pageSize = 9;
+  const totalPages = Math.ceil(filteredCreatures.length / pageSize);
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedCreatures = filteredCreatures.slice(startIndex, endIndex);
 
   // Fonction pour supprimer une créature
   const handleDelete = async (id: number) => {
@@ -151,7 +162,7 @@ export default function AdminBestiaryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredCreatures.map((creature) => (
+                  {paginatedCreatures.map((creature) => (
                     <tr
                       key={creature.id}
                       className="border-t hover:bg-gold/20 transitionv text-center"
@@ -177,7 +188,7 @@ export default function AdminBestiaryPage() {
                       </td>
                     </tr>
                   ))}
-                  {filteredCreatures.length === 0 && (
+                  {paginatedCreatures.length === 0 && (
                     <tr>
                       <td colSpan={5} className="text-center py-4 text-blood">
                         Aucun monstre trouvé.
@@ -190,12 +201,12 @@ export default function AdminBestiaryPage() {
 
             {/* Cartes Mobile */}
             <div className="block sm:hidden space-y-4 mt-4 px-2">
-              {filteredCreatures.length === 0 && (
+              {paginatedCreatures.length === 0 && (
                 <div className="text-center py-4 text-blood bg-parchment rounded-xl border border-gold">
                   Aucun monstre trouvé.
                 </div>
               )}
-              {filteredCreatures.map((creature) => (
+              {paginatedCreatures.map((creature) => (
                 <div
                   key={creature.id}
                   className="rounded-xl bg-parchment border border-gold p-4 shadow flex flex-col gap-2"
@@ -232,6 +243,13 @@ export default function AdminBestiaryPage() {
             </div>
           </>
         )}
+
+        {/* Pagination */}
+        <BestiaryPagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
 
         {/* Modal d'édition */}
         {editModalOpen && (
