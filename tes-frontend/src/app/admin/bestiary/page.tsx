@@ -16,6 +16,7 @@ export default function AdminBestiaryPage() {
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Creature>>({});
+  const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
   const router = useRouter();
@@ -88,6 +89,11 @@ export default function AdminBestiaryPage() {
     }
   };
 
+  // Fonction pour filtrer les créatures par nom
+  const filteredCreatures = creatures.filter((creature) =>
+    creature.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   // Fonction pour supprimer une créature
   const handleDelete = async (id: number) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cette créature ?")) return;
@@ -117,6 +123,17 @@ export default function AdminBestiaryPage() {
             onClick={() => router.push("/admin/bestiary/create")}
           />
         </div>
+        <div className="w-full">
+          <div className="flex justify-end items-center p-4">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="p-2 border border-sandstone bg-parchment text-blood rounded"
+              placeholder="Rechercher une créature..."
+            />
+          </div>
+        </div>
 
         {loading ? (
           <Loader text="Chargement des créatures..." />
@@ -127,7 +144,6 @@ export default function AdminBestiaryPage() {
               <table className="min-w-full border border-gold shadow-lg rounded-xl bg-parchment">
                 <thead className="bg-blood text-gold">
                   <tr>
-                    <th className="py-2 px-3">ID</th>
                     <th className="py-2 px-3">Nom</th>
                     <th className="py-2 px-3">Type</th>
                     <th className="py-2 px-3">Région</th>
@@ -135,12 +151,11 @@ export default function AdminBestiaryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {creatures.map((creature) => (
+                  {filteredCreatures.map((creature) => (
                     <tr
                       key={creature.id}
-                      className="border-t hover:bg-gold/20 transition"
+                      className="border-t hover:bg-gold/20 transitionv text-center"
                     >
-                      <td className="py-2 px-3 text-center">{creature.id}</td>
                       <td className="py-2 px-3 font-bold">{creature.name}</td>
                       <td className="py-2 px-3">{creature.type}</td>
                       <td className="py-2 px-3">
@@ -162,7 +177,7 @@ export default function AdminBestiaryPage() {
                       </td>
                     </tr>
                   ))}
-                  {creatures.length === 0 && (
+                  {filteredCreatures.length === 0 && (
                     <tr>
                       <td colSpan={5} className="text-center py-4 text-blood">
                         Aucun monstre trouvé.
@@ -175,12 +190,12 @@ export default function AdminBestiaryPage() {
 
             {/* Cartes Mobile */}
             <div className="block sm:hidden space-y-4 mt-4 px-2">
-              {creatures.length === 0 && (
+              {filteredCreatures.length === 0 && (
                 <div className="text-center py-4 text-blood bg-parchment rounded-xl border border-gold">
                   Aucun monstre trouvé.
                 </div>
               )}
-              {creatures.map((creature) => (
+              {filteredCreatures.map((creature) => (
                 <div
                   key={creature.id}
                   className="rounded-xl bg-parchment border border-gold p-4 shadow flex flex-col gap-2"
