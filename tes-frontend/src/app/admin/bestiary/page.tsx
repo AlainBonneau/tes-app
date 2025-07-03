@@ -51,6 +51,7 @@ export default function AdminBestiaryPage() {
     fetchCreatures();
   }, [saving]);
 
+  // Réinitialiser la page à 1 lorsque la recherche change
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -234,7 +235,10 @@ export default function AdminBestiaryPage() {
                     >
                       Éditer
                     </button>
-                    <button className="flex-1 px-2 py-2 bg-gold text-blood rounded hover:bg-gold/80 text-xs">
+                    <button
+                      className="flex-1 px-2 py-2 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                      onClick={() => handleDelete(creature.id)}
+                    >
                       Supprimer
                     </button>
                   </div>
