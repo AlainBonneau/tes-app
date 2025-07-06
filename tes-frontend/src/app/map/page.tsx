@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
 
+// Infos régions (inchangé)
 const regions = [
   {
     id: "skyrim",
@@ -16,57 +18,68 @@ const regions = [
   },
 ];
 
+const ORIGINAL_WIDTH = 1200;
+const ORIGINAL_HEIGHT = 800;
+
 export default function TamrielMap() {
   const [selected, setSelected] = useState("skyrim");
+  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-4">Carte interactive de Tamriel</h1>
-      <svg
-        viewBox="0 0 600 300"
-        width={600}
-        height={300}
-        className="mb-6"
-        style={{ background: "#f3e5ca" }}
+    <div className="bg-gold flex flex-col items-center">
+      <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
+          Carte
+        </h1>
+      </div>
+      <div
+        ref={containerRef}
+        className="relative mb-6 w-full max-w-4xl"
+        style={{
+          aspectRatio: `${ORIGINAL_WIDTH} / ${ORIGINAL_HEIGHT}`,
+        }}
       >
-        {/* Région Skyrim */}
-        <path
-          id="skyrim"
-          d="M70,80 L170,60 L190,130 L110,160 Z"
-          fill={selected === "skyrim" ? "#c0b283" : "#b3cde0"}
-          stroke="#555"
-          strokeWidth={2}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSelected("skyrim")}
+        {/* Image de fond */}
+        <Image
+          src="/assets/tamriel.svg"
+          alt="Carte de Tamriel"
+          fill
+          className="absolute top-0 left-0 w-full h-full pointer-events-none select-none-lg"
+          draggable={false}
+          style={{ objectFit: "contain" }}
         />
-        {/* Région Cyrodiil */}
-        <path
-          id="cyrodiil"
-          d="M200,140 L300,120 L320,200 L220,220 Z"
-          fill={selected === "cyrodiil" ? "#c0b283" : "#b3cde0"}
-          stroke="#555"
-          strokeWidth={2}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSelected("cyrodiil")}
-        />
-        {/* Région Morrowind */}
-        <path
-          id="morrowind"
-          d="M350,90 L470,100 L460,200 L370,170 Z"
-          fill={selected === "morrowind" ? "#c0b283" : "#b3cde0"}
-          stroke="#555"
-          strokeWidth={2}
-          style={{ cursor: "pointer" }}
-          onClick={() => setSelected("morrowind")}
-        />
-        {/* Tu peux rajouter d'autres régions facilement */}
-      </svg>
-      {/* Affichage dynamique des infos */}
-      <div className="w-full max-w-lg bg-white/90 shadow-lg p-6 rounded-xl">
-        <h2 className="text-xl font-bold mb-2">
+        {/* SVG interactif en overlay */}
+        <svg
+          viewBox={`0 0 ${ORIGINAL_WIDTH} ${ORIGINAL_HEIGHT}`}
+          width="100%"
+          height="100%"
+          className="absolute top-0 left-0"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {/* Skyrim */}
+          <polygon
+            points="1010,248 1152,324 1010,320"
+            fill={
+              selected === "skyrim"
+                ? "rgba(192,178,131,0.6)"
+                : "rgba(179,205,224,0.4)"
+            }
+            stroke="#555"
+            strokeWidth={3}
+            style={{ cursor: "pointer", transition: "fill 0.2s" }}
+            onClick={() => setSelected("skyrim")}
+          />
+          {/* ... autres régions ... */}
+        </svg>
+      </div>
+      {/* Infos dynamiques */}
+      <div className="w-full max-w-lg bg-white/90 shadow-lg p-6 rounded-xl mb-4">
+        <h2 className="text-xl font-bold mb-2 text-center">
           {regions.find((r) => r.id === selected)?.name}
         </h2>
-        <p>{regions.find((r) => r.id === selected)?.desc}</p>
+        <p className="text-center">
+          {regions.find((r) => r.id === selected)?.desc}
+        </p>
       </div>
     </div>
   );
