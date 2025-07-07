@@ -1,20 +1,30 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
 
-// Infos régions (inchangé)
+// Importer les données des régions depuis l'api (à faire plus tard)
 const regions = [
   {
     id: "skyrim",
     name: "Bordeciel (Skyrim)",
     desc: "Région du nord de Tamriel, patrie des Nordiques.",
+    x: 600,
+    y: 150,
   },
-  { id: "cyrodiil", name: "Cyrodiil", desc: "Cœur de l’Empire de Tamriel." },
+  {
+    id: "cyrodiil",
+    name: "Cyrodiil",
+    desc: "Cœur de l’Empire de Tamriel.",
+    x: 800,
+    y: 480,
+  },
   {
     id: "morrowind",
     name: "Morrowind",
     desc: "Terre ancestrale des Dunmers (Elfes noirs).",
+    x: 1050,
+    y: 100,
   },
 ];
 
@@ -23,7 +33,6 @@ const ORIGINAL_HEIGHT = 800;
 
 export default function TamrielMap() {
   const [selected, setSelected] = useState("skyrim");
-  const containerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="bg-gold flex flex-col items-center">
@@ -33,43 +42,38 @@ export default function TamrielMap() {
         </h1>
       </div>
       <div
-        ref={containerRef}
-        className="relative mb-6 w-full max-w-4xl"
+        className="relative mb-6 w-full max-w-6xl"
         style={{
           aspectRatio: `${ORIGINAL_WIDTH} / ${ORIGINAL_HEIGHT}`,
         }}
       >
         {/* Image de fond */}
         <Image
-          src="/assets/tamriel.svg"
+          src="/assets/tamriel.png"
           alt="Carte de Tamriel"
           fill
-          className="absolute top-0 left-0 w-full h-full pointer-events-none select-none-lg"
+          className="absolute top-0 left-0 w-full h-full pointer-events-none select-none"
           draggable={false}
           style={{ objectFit: "contain" }}
         />
-        {/* SVG interactif en overlay */}
+        {/* SVG pour les points cliquables */}
         <svg
           viewBox={`0 0 ${ORIGINAL_WIDTH} ${ORIGINAL_HEIGHT}`}
-          width="100%"
-          height="100%"
-          className="absolute top-0 left-0"
-          preserveAspectRatio="xMidYMid meet"
+          className="absolute top-0 left-0 w-full h-full"
         >
-          {/* Skyrim */}
-          <polygon
-            points="1010,248 1152,324 1010,320"
-            fill={
-              selected === "skyrim"
-                ? "rgba(192,178,131,0.6)"
-                : "rgba(179,205,224,0.4)"
-            }
-            stroke="#555"
-            strokeWidth={3}
-            style={{ cursor: "pointer", transition: "fill 0.2s" }}
-            onClick={() => setSelected("skyrim")}
-          />
-          {/* ... autres régions ... */}
+          {regions.map((region) => (
+            <circle
+              key={region.id}
+              cx={region.x}
+              cy={region.y}
+              r={selected === region.id ? 20 : 13}
+              fill={selected === region.id ? "#b3cde0" : "#fff"}
+              stroke="#222"
+              strokeWidth={selected === region.id ? 5 : 3}
+              style={{ cursor: "pointer", transition: "all 0.2s" }}
+              onClick={() => setSelected(region.id)}
+            />
+          ))}
         </svg>
       </div>
       {/* Infos dynamiques */}
