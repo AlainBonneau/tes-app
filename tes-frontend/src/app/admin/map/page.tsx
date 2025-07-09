@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import AuthGuard from "@/app/components/AuthGuard";
 import Image from "next/image";
 import api from "@/app/api/axiosConfig";
 import type { Region } from "@/app/types/region";
@@ -99,175 +100,177 @@ export default function AdminRegionsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gold text-dark pb-16">
-      <div className="bg-blood h-[20vh] w-full flex items-center justify-center">
-        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
-          Administration - Régions
-        </h1>
-      </div>
+    <AuthGuard adminOnly>
+      <div className="min-h-screen bg-gold text-dark pb-16">
+        <div className="bg-blood h-[20vh] w-full flex items-center justify-center">
+          <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
+            Administration - Régions
+          </h1>
+        </div>
 
-      {/* Bouton ajout + recherche */}
-      <div className="max-w-6xl mx-auto py-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <MyButton
-          label="Ajouter une région"
-          onClick={() => router.push("/admin/map/create")}
-        />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="p-2 border border-sandstone bg-parchment text-blood rounded w-full md:w-64"
-          placeholder="Rechercher une région..."
-        />
-      </div>
+        {/* Bouton ajout + recherche */}
+        <div className="max-w-6xl mx-auto py-8 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+          <MyButton
+            label="Ajouter une région"
+            onClick={() => router.push("/admin/map/create")}
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="p-2 border border-sandstone bg-parchment text-blood rounded w-full md:w-64"
+            placeholder="Rechercher une région..."
+          />
+        </div>
 
-      {/* Affichage des régions */}
-      {loading ? (
-        <Loader text="Chargement des régions..." />
-      ) : (
-        <>
-          <div className="hidden sm:block w-full overflow-x-auto">
-            <table className="min-w-full border border-gold shadow-lg rounded-xl bg-parchment">
-              <thead className="bg-blood text-gold">
-                <tr>
-                  <th className="py-2 px-3">Nom</th>
-                  <th className="py-2 px-3">X</th>
-                  <th className="py-2 px-3">Y</th>
-                  <th className="py-2 px-3">Image</th>
-                  <th className="py-2 px-3">Description</th>
-                  <th className="py-2 px-3">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedRegions.map((region) => (
-                  <tr
-                    key={region.id}
-                    className="border-t text-center hover:bg-gold/20 transition"
-                  >
-                    <td className="py-2 px-3 font-bold">{region.name}</td>
-                    <td className="py-2 px-3">{region.x}</td>
-                    <td className="py-2 px-3">{region.y}</td>
-                    <td className="py-2 px-3">
-                      {region.imageUrl ? (
-                        <Image
-                          width={48}
-                          height={48}
-                          src={region.imageUrl}
-                          alt=""
-                          className="w-12 h-12 object-cover rounded border border-gold"
-                        />
-                      ) : (
-                        <span className="text-gray-400 italic">-</span>
-                      )}
-                    </td>
-                    <td className="py-2 px-3">
-                      {region.description.slice(0, 60)}...
-                    </td>
-                    <td className="py-2 px-3 flex gap-2 justify-center">
-                      <button
-                        className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
-                        onClick={() => openEditModal(region)}
-                      >
-                        Éditer
-                      </button>
-                      <button
-                        className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
-                        onClick={() => handleDelete(region.id!)}
-                      >
-                        Supprimer
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {paginatedRegions.length === 0 && (
+        {/* Affichage des régions */}
+        {loading ? (
+          <Loader text="Chargement des régions..." />
+        ) : (
+          <>
+            <div className="hidden sm:block w-full overflow-x-auto">
+              <table className="min-w-full border border-gold shadow-lg rounded-xl bg-parchment">
+                <thead className="bg-blood text-gold">
                   <tr>
-                    <td colSpan={6} className="text-center py-4 text-blood">
-                      Aucune région trouvée.
-                    </td>
+                    <th className="py-2 px-3">Nom</th>
+                    <th className="py-2 px-3">X</th>
+                    <th className="py-2 px-3">Y</th>
+                    <th className="py-2 px-3">Image</th>
+                    <th className="py-2 px-3">Description</th>
+                    <th className="py-2 px-3">Actions</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Affichage mobile */}
-          <div className="block sm:hidden space-y-4 mt-4 px-2">
-            {paginatedRegions.length === 0 && (
-              <div className="text-center py-4 text-blood bg-parchment rounded-xl border border-gold">
-                Aucune région trouvée.
-              </div>
-            )}
-            {paginatedRegions.map((region) => (
-              <div
-                key={region.id}
-                className="rounded-xl bg-parchment border border-gold p-4 shadow flex flex-col gap-2"
-              >
-                <div>
-                  <span className="font-bold text-blood">Nom:</span>{" "}
-                  {region.name}
-                </div>
-                <div>
-                  <span className="font-bold text-blood">X:</span> {region.x}
-                </div>
-                <div>
-                  <span className="font-bold text-blood">Y:</span> {region.y}
-                </div>
-                <div>
-                  <span className="font-bold text-blood">Image:</span>{" "}
-                  {region.imageUrl ? (
-                    <Image
-                      width={64}
-                      height={64}
-                      src={region.imageUrl}
-                      alt=""
-                      className="w-16 h-16 object-cover rounded border border-gold inline-block"
-                    />
-                  ) : (
-                    <span className="text-gray-400 italic">-</span>
+                </thead>
+                <tbody>
+                  {paginatedRegions.map((region) => (
+                    <tr
+                      key={region.id}
+                      className="border-t text-center hover:bg-gold/20 transition"
+                    >
+                      <td className="py-2 px-3 font-bold">{region.name}</td>
+                      <td className="py-2 px-3">{region.x}</td>
+                      <td className="py-2 px-3">{region.y}</td>
+                      <td className="py-2 px-3">
+                        {region.imageUrl ? (
+                          <Image
+                            width={48}
+                            height={48}
+                            src={region.imageUrl}
+                            alt=""
+                            className="w-12 h-12 object-cover rounded border border-gold"
+                          />
+                        ) : (
+                          <span className="text-gray-400 italic">-</span>
+                        )}
+                      </td>
+                      <td className="py-2 px-3">
+                        {region.description.slice(0, 60)}...
+                      </td>
+                      <td className="py-2 px-3 flex gap-2 justify-center">
+                        <button
+                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                          onClick={() => openEditModal(region)}
+                        >
+                          Éditer
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                          onClick={() => handleDelete(region.id!)}
+                        >
+                          Supprimer
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {paginatedRegions.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="text-center py-4 text-blood">
+                        Aucune région trouvée.
+                      </td>
+                    </tr>
                   )}
-                </div>
-                <div>
-                  <span className="font-bold text-blood">Description:</span>{" "}
-                  {region.description.slice(0, 60)}...
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <button
-                    className="flex-1 px-2 py-2 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
-                    onClick={() => openEditModal(region)}
-                  >
-                    Éditer
-                  </button>
-                  <button
-                    className="flex-1 px-2 py-2 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
-                    onClick={() => handleDelete(region.id!)}
-                  >
-                    Supprimer
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+                </tbody>
+              </table>
+            </div>
 
-      {/* Pagination */}
-      <RegionPagination
-        page={page}
-        totalPages={totalPages}
-        onPageChange={setPage}
-      />
+            {/* Affichage mobile */}
+            <div className="block sm:hidden space-y-4 mt-4 px-2">
+              {paginatedRegions.length === 0 && (
+                <div className="text-center py-4 text-blood bg-parchment rounded-xl border border-gold">
+                  Aucune région trouvée.
+                </div>
+              )}
+              {paginatedRegions.map((region) => (
+                <div
+                  key={region.id}
+                  className="rounded-xl bg-parchment border border-gold p-4 shadow flex flex-col gap-2"
+                >
+                  <div>
+                    <span className="font-bold text-blood">Nom:</span>{" "}
+                    {region.name}
+                  </div>
+                  <div>
+                    <span className="font-bold text-blood">X:</span> {region.x}
+                  </div>
+                  <div>
+                    <span className="font-bold text-blood">Y:</span> {region.y}
+                  </div>
+                  <div>
+                    <span className="font-bold text-blood">Image:</span>{" "}
+                    {region.imageUrl ? (
+                      <Image
+                        width={64}
+                        height={64}
+                        src={region.imageUrl}
+                        alt=""
+                        className="w-16 h-16 object-cover rounded border border-gold inline-block"
+                      />
+                    ) : (
+                      <span className="text-gray-400 italic">-</span>
+                    )}
+                  </div>
+                  <div>
+                    <span className="font-bold text-blood">Description:</span>{" "}
+                    {region.description.slice(0, 60)}...
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      className="flex-1 px-2 py-2 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                      onClick={() => openEditModal(region)}
+                    >
+                      Éditer
+                    </button>
+                    <button
+                      className="flex-1 px-2 py-2 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                      onClick={() => handleDelete(region.id!)}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
-      {/* Modal édition */}
-      {editModalOpen && (
-        <EditRegionModal
-          open={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
-          form={editForm}
-          onChange={handleEditChange}
-          onSubmit={handleEditSubmit}
-          saving={saving}
+        {/* Pagination */}
+        <RegionPagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
         />
-      )}
-    </div>
+
+        {/* Modal édition */}
+        {editModalOpen && (
+          <EditRegionModal
+            open={editModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            form={editForm}
+            onChange={handleEditChange}
+            onSubmit={handleEditSubmit}
+            saving={saving}
+          />
+        )}
+      </div>
+    </AuthGuard>
   );
 }

@@ -1,10 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { BookOpen } from "lucide-react";
 import AuthGuard from "../components/AuthGuard";
 
 export default function AdminPage() {
+  const router = useRouter();
+
   return (
     <AuthGuard adminOnly>
       <div className="min-h-screen bg-gold text-parchment font-serif">
@@ -31,10 +34,24 @@ export default function AdminPage() {
                   backgroundColor: "#e1c69933",
                 }}
                 className="flex items-center gap-3 bg-rune text-gold px-6 py-4 rounded-xl font-bold uppercase tracking-wide border-2 border-sandstone shadow-md transition cursor-pointer text-lg hover:bg-gold/20"
-                onClick={() => (window.location.href = "/admin/bestiary")}
+                onClick={() => router.push("/admin/bestiary")}
               >
                 <BookOpen className="w-6 h-6" />
                 Administration bestiaire
+              </motion.button>
+            </div>
+            <div className="w-full flex flex-col md:flex-row gap-6 justify-center">
+              <motion.button
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0px 0px 12px #e1c699",
+                  backgroundColor: "#e1c69933",
+                }}
+                className="flex items-center gap-3 bg-rune text-gold px-6 py-4 rounded-xl font-bold uppercase tracking-wide border-2 border-sandstone shadow-md transition cursor-pointer text-lg hover:bg-gold/20"
+                onClick={() => router.push("/admin/map")}
+              >
+                <BookOpen className="w-6 h-6" />
+                Administration régions
               </motion.button>
             </div>
           </motion.div>
