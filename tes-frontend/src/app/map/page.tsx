@@ -5,51 +5,26 @@ import Image from "next/image";
 import api from "../api/axiosConfig";
 import type { Region } from "../types/region";
 
-type RegionWithCoords = Region & {
-  x: number;
-  y: number;
-};
-
-type RegionPositions = {
-  [key: number]: { x: number; y: number };
-};
-
 const ORIGINAL_WIDTH = 1200;
 const ORIGINAL_HEIGHT = 800;
 
-// Mapping ID  x, y pour chaque région
-const regionPositions: RegionPositions = {
-  1: { x: 600, y: 150 }, // Bordeciel
-  2: { x: 500, y: 400 }, // Cyrodiil
-  3: { x: 900, y: 335 }, // Morrowind
-  4: { x: 150, y: 350 }, // Martelfell
-  5: { x: 200, y: 200 }, // Hauteroche
-  6: { x: 300, y: 700 }, // Val-Boisé
-  7: { x: 1100, y: 600 }, // Archipel de l’Automne
-  8: { x: 900, y: 750 }, // Elsweyr
-  9: { x: 1150, y: 400 }, // Marais Noir
-};
-
 export default function TamrielMap() {
   const [selected, setSelected] = useState<number | null>(null);
-  const [regions, setRegions] = useState<RegionWithCoords[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
 
   useEffect(() => {
     const fetchRegions = async () => {
       try {
         const response = await api.get("/regions");
-        const withCoords: RegionWithCoords[] = (response.data as Region[])
-          .map((region: Region) => ({
-            ...region,
-            x: regionPositions[region.id]?.x,
-            y: regionPositions[region.id]?.y,
-          }))
-          .filter(
-            (region): region is RegionWithCoords =>
-              region.x !== undefined && region.y !== undefined
-          );
-        setRegions(withCoords);
-        setSelected(withCoords[0]?.id || null);
+        const filtered = (response.data as Region[]).filter(
+          (region) =>
+            typeof region.x === "number" &&
+            typeof region.y === "number" &&
+            !isNaN(region.x) &&
+            !isNaN(region.y)
+        );
+        setRegions(filtered);
+        setSelected(filtered[0]?.id ?? null);
       } catch (error) {
         console.error("Erreur lors de la récupération des régions :", error);
       }
@@ -90,7 +65,7 @@ export default function TamrielMap() {
               cx={region.x}
               cy={region.y}
               r={selected === region.id ? 13 : 10}
-              fill={selected === region.id ? "#5a2a2a" : "#5a2a2a"}
+              fill="#5a2a2a"
               stroke="#222"
               strokeWidth={selected === region.id ? 5 : 3}
               style={{ cursor: "pointer", transition: "all 0.2s" }}
