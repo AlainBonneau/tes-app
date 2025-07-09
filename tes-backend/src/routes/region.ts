@@ -14,6 +14,8 @@ export default async function regionRoutes(app: FastifyInstance) {
     Body: {
       name: string;
       description: string;
+      x?: number;
+      y?: number;
       imageUrl?: string;
     };
   }>(
@@ -26,6 +28,8 @@ export default async function regionRoutes(app: FastifyInstance) {
     Body: {
       name: string;
       description: string;
+      x?: number;
+      y?: number;
       imageUrl?: string;
     };
   }>(

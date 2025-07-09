@@ -1,6 +1,8 @@
-export interface Region {
-  id: number;
+export type Region = {
+  id: number | null;
   name: string;
   description: string;
-  imageUrl?: string;
-}
+  x: number;
+  y: number;
+  imageUrl: string | null;
+};
