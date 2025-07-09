@@ -7,6 +7,8 @@ type CreateRegionRequest = FastifyRequest<{
   Body: {
     name: string;
     description: string;
+    x?: number;
+    y?: number;
     imageUrl?: string;
   };
 }>;
@@ -16,6 +18,8 @@ type UpdateRegionRequest = FastifyRequest<{
   Body: {
     name: string;
     description: string;
+    x?: number;
+    y?: number;
     imageUrl?: string;
   };
 }>;
@@ -65,7 +69,7 @@ export async function createRegion(
   request: CreateRegionRequest,
   reply: FastifyReply
 ) {
-  const { name, description, imageUrl } = request.body;
+  const { name, description, x, y, imageUrl } = request.body;
 
   if (!name || !description) {
     return reply
@@ -77,12 +81,16 @@ export async function createRegion(
     const data: {
       name: string;
       description: string;
+      x?: number;
+      y?: number;
       imageUrl?: string | null;
     } = {
       name,
       description,
     };
 
+    if (x !== undefined) data.x = x;
+    if (y !== undefined) data.y = y;
     if (imageUrl) data.imageUrl = imageUrl;
 
     const newRegion = await request.server.prisma.region.create({ data });
@@ -99,7 +107,7 @@ export async function updateRegion(
   reply: FastifyReply
 ) {
   const id = Number(request.params.id);
-  const { name, description, imageUrl } = request.body;
+  const { name, description, x, y, imageUrl } = request.body;
 
   if (isNaN(id)) {
     return reply.status(400).send({ error: "ID invalide" });
@@ -109,6 +117,8 @@ export async function updateRegion(
     const data: any = {};
     if (name) data.name = name;
     if (description) data.description = description;
+    if (x !== undefined) data.x = x;
+    if (y !== undefined) data.y = y;
     if (imageUrl !== undefined) data.imageUrl = imageUrl;
 
     const updateRegion = await request.server.prisma.region.update({

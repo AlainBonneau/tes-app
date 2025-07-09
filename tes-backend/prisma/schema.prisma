@@ -52,6 +52,8 @@ model Region {
   name        String
   description String
   imageUrl    String?
+  x           Int?
+  y           Int?
   creatures   Creature[]
   characters  Character[]
 }
