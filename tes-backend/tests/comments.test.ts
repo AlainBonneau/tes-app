@@ -55,17 +55,17 @@ describe("Comments API", () => {
     // Create region & race & post for comments
     const regionRes = await request(server)
       .post("/regions")
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "R", description: "D", imageUrl: "" });
     const raceRes = await request(server)
       .post("/races")
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "Rc", origine: "O", description: "D" });
     const regionId = regionRes.body.id;
     const raceId = raceRes.body.id;
     const postRes = await request(server)
       .post("/posts")
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ title: "Title", content: "Body" });
     postId = postRes.body.id;
   });
@@ -85,7 +85,7 @@ describe("Comments API", () => {
   it("POST /posts/9999/comments returns 404", async () => {
     const res = await request(server)
       .post("/posts/9999/comments")
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ content: "Hello" });
     expect(res.status).toBe(404);
   });
@@ -100,7 +100,7 @@ describe("Comments API", () => {
   it("POST /posts/:postId/comments with token succeeds", async () => {
     const res = await request(server)
       .post(`/posts/${postId}/comments`)
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ content: "First comment" });
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("id");
@@ -117,7 +117,7 @@ describe("Comments API", () => {
   it("PATCH /comments/:id by non-author fails", async () => {
     const res = await request(server)
       .patch(`/comments/${commentId}`)
-      .set("Authorization", `Bearer ${otherToken}`)
+      .set("Cookie", `token=${otherToken}`)
       .send({ content: "Hack" });
     expect(res.status).toBe(403);
   });
@@ -125,7 +125,7 @@ describe("Comments API", () => {
   it("PATCH /comments/:id by author succeeds", async () => {
     const res = await request(server)
       .patch(`/comments/${commentId}`)
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ content: "Edited comment" });
     expect(res.status).toBe(200);
     expect(res.body.content).toBe("Edited comment");
@@ -134,7 +134,7 @@ describe("Comments API", () => {
   it("PATCH /comments/9999 returns 404", async () => {
     const res = await request(server)
       .patch("/comments/9999")
-      .set("Authorization", `Bearer ${authorToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ content: "X" });
     expect(res.status).toBe(404);
   });
@@ -143,20 +143,20 @@ describe("Comments API", () => {
     // create a second comment by other user
     const res2 = await request(server)
       .post(`/posts/${postId}/comments`)
-      .set("Authorization", `Bearer ${otherToken}`)
+      .set("Cookie", `token=${otherToken}`)
       .send({ content: "Other comment" });
     const otherCommentId = res2.body.id;
 
     const res = await request(server)
       .delete(`/comments/${otherCommentId}`)
-      .set("Authorization", `Bearer ${authorToken}`);
+      .set("Cookie", `token=${authorToken}`);
     expect(res.status).toBe(403);
   });
 
   it("DELETE /comments/:id by author succeeds", async () => {
     const res = await request(server)
       .delete(`/comments/${commentId}`)
-      .set("Authorization", `Bearer ${authorToken}`);
+      .set("Cookie", `token=${authorToken}`);
     expect(res.status).toBe(204);
   });
 
@@ -164,20 +164,20 @@ describe("Comments API", () => {
     // create a fresh comment
     const fresh = await request(server)
       .post(`/posts/${postId}/comments`)
-      .set("Authorization", `Bearer ${otherToken}`)
+      .set("Cookie", `token=${otherToken}`)
       .send({ content: "Fresh" });
     const freshId = fresh.body.id;
 
     const res = await request(server)
       .delete(`/comments/${freshId}`)
-      .set("Authorization", `Bearer ${adminToken}`);
+      .set("Cookie", `token=${adminToken}`);
     expect(res.status).toBe(204);
   });
 
   it("DELETE /comments/9999 returns 404", async () => {
     const res = await request(server)
       .delete("/comments/9999")
-      .set("Authorization", `Bearer ${authorToken}`);
+      .set("Cookie", `token=${authorToken}`);
     expect(res.status).toBe(404);
   });
 });

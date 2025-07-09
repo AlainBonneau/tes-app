@@ -224,6 +224,7 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
         createdAt: user.createdAt,
         role: user.role,
       },
+      token,
     });
 }
 

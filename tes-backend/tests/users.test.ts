@@ -92,7 +92,7 @@ describe("Users API", () => {
     const res = await request(server)
       .get("/users/me")
       .set("Authorization", `Bearer ${userToken}`);
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     expect(res.body.email).toBe(testUser.email);
   });
 

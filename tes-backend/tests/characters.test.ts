@@ -6,6 +6,7 @@ describe("Characters API", () => {
   let app: Awaited<ReturnType<typeof buildApp>>;
   let server: import("http").Server;
   let adminToken: string;
+  let authorToken: string;
 
   beforeAll(async () => {
     app = await buildApp();
@@ -13,6 +14,7 @@ describe("Characters API", () => {
     server = app.server;
 
     adminToken = await getAdminToken(app);
+    authorToken = await getAdminToken(app);
   });
 
   afterAll(async () => {
@@ -29,7 +31,7 @@ describe("Characters API", () => {
     // -> Create a region
     const regionRes = await request(server)
       .post("/regions")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "TestRegion", description: "Desc", imageUrl: "http://img" })
       .set("Content-Type", "application/json");
     expect(regionRes.status).toBe(201);
@@ -38,7 +40,7 @@ describe("Characters API", () => {
     // -> Create a race
     const raceRes = await request(server)
       .post("/races")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "TestRace", origine: "Origine", description: "Desc" })
       .set("Content-Type", "application/json");
     expect(raceRes.status).toBe(201);
@@ -55,7 +57,7 @@ describe("Characters API", () => {
 
     const postRes = await request(server)
       .post("/characters")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send(payload)
       .set("Content-Type", "application/json");
 
@@ -73,12 +75,12 @@ describe("Characters API", () => {
     // -> Setup fresh region & race
     const regionRes = await request(server)
       .post("/regions")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "PatchRegion", description: "Desc", imageUrl: "" })
       .set("Content-Type", "application/json");
     const raceRes = await request(server)
       .post("/races")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "PatchRace", origine: "Origine", description: "Desc" })
       .set("Content-Type", "application/json");
     const regionId = regionRes.body.id;
@@ -87,7 +89,7 @@ describe("Characters API", () => {
     // -> Create character
     const postRes = await request(server)
       .post("/characters")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send({ name: "ToUpdate", description: "Desc", regionId, raceId })
       .set("Content-Type", "application/json");
     const id = postRes.body.id;
@@ -96,7 +98,7 @@ describe("Characters API", () => {
     const update = { description: "Updated Desc" };
     const patchRes = await request(server)
       .patch(`/characters/${id}`)
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${authorToken}`)
       .send(update)
       .set("Content-Type", "application/json");
     expect(patchRes.status).toBe(200);
@@ -106,12 +108,12 @@ describe("Characters API", () => {
   it("DELETE /characters/:id deletes character", async () => {
     const regionRes = await request(server)
       .post("/regions")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${adminToken}`)
       .send({ name: "DelRegion", description: "D", imageUrl: "" })
       .set("Content-Type", "application/json");
     const raceRes = await request(server)
       .post("/races")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${adminToken}`)
       .send({ name: "DelRace", origine: "O", description: "D" })
       .set("Content-Type", "application/json");
     const regionId = regionRes.body.id;
@@ -119,14 +121,14 @@ describe("Characters API", () => {
 
     const postRes = await request(server)
       .post("/characters")
-      .set("Authorization", `Bearer ${adminToken}`)
+      .set("Cookie", `token=${adminToken}`)
       .send({ name: "ToDelete", description: "D", regionId, raceId })
       .set("Content-Type", "application/json");
     const id = postRes.body.id;
 
     const delRes = await request(server)
       .delete(`/characters/${id}`)
-      .set("Authorization", `Bearer ${adminToken}`);
+      .set("Cookie", `token=${adminToken}`);
     expect(delRes.status).toBe(204);
 
     const getRes = await request(server).get(`/characters/${id}`);
