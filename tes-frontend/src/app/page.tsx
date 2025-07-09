@@ -108,7 +108,7 @@ export default function Home() {
 
             <button
               className=" bg-gold text-dark text-sm font-cinzel font-black md:text-base py-2 px-6 md:py-3 md:px-8 rounded hover:bg-gold/80 transition cursor-pointer"
-              onClick={() => router.push("/places")}
+              onClick={() => router.push("/map")}
             >
               Explorer
             </button>
