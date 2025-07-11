@@ -39,6 +39,9 @@ export default function TamrielMap() {
           Carte
         </h1>
       </div>
+      <div className="p-6 text-center">
+        <h3 className="font-cinzel font-bold text-blood text-2xl">Cliquez sur une zone de la carte pour voir les informations</h3>
+      </div>
       <div
         className="relative mb-6 w-full max-w-6xl"
         style={{
