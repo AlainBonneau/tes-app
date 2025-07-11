@@ -137,7 +137,7 @@ export default function TamrielMap() {
             <h2 className="text-xl font-bold mb-2 text-center font-cinzel">
               {regions.find((r) => r.id === selected)?.name}
             </h2>
-            <p className="text-center font-sans text-lg">
+            <p className="text-center font-sans">
               {regions.find((r) => r.id === selected)?.description}
             </p>
           </motion.div>
