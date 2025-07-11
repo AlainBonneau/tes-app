@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import api from "../api/axiosConfig";
@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import tesLogo from "../../../public/assets/tes-logo.png";
 
 const navLinks = [
-  { href: "/", label: "Accueil", className: "underline text-parchment" },
+  { href: "/", label: "Accueil" },
   { href: "/bestiary", label: "Bestiaire" },
   { href: "/map", label: "Carte" },
   { href: "/tavern", label: "Taverne" },
@@ -25,6 +25,7 @@ export default function Navbar() {
   const isLoggedIn = auth.isAuthenticated;
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   if (!auth.hydrated) {
     return null;
@@ -36,11 +37,16 @@ export default function Navbar() {
     exit: { opacity: 0, y: -30 },
   };
 
+  // Fonction pour gérer la déconnexion
   const handleLogout = async () => {
     await api.post("/users/logout", {}, { withCredentials: true });
     dispatch(logout());
     router.push("/login");
   };
+
+  // Fonction pour vérifier si le lien est actif
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <header className="relative z-50">
@@ -55,9 +61,14 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`${
-                  link.className || "text-parchment"
-                } hover:text-gold transition`}
+                className={`
+                  text-parchment hover:text-gold transition
+                  ${
+                    isActive(link.href)
+                      ? "underline decoration-gold decoration-2 underline-offset-8"
+                      : ""
+                  }
+                `}
               >
                 {link.label}
               </Link>
@@ -66,7 +77,11 @@ export default function Navbar() {
             {isLoggedIn && (
               <Link
                 href="/profil"
-                className="text-parchment hover:text-gold transition"
+                className={`text-parchment hover:text-gold transition ${
+                  isActive("/profil")
+                    ? "underline decoration-gold decoration-2 underline-offset-8"
+                    : ""
+                }`}
               >
                 Profil
               </Link>
@@ -75,12 +90,16 @@ export default function Navbar() {
             {isLoggedIn && auth.user?.role === "admin" && (
               <Link
                 href="/admin"
-                className="text-parchment hover:text-gold transition"
+                className={`text-parchment hover:text-gold transition ${
+                  isActive("/admin")
+                    ? "underline decoration-gold decoration-2 underline-offset-8"
+                    : ""
+                }`}
               >
                 Admin
               </Link>
             )}
-            {/* Connexion/Déconnexion dynamique */}
+            {/* Bouton de connexion/déconnexion */}
             {isLoggedIn ? (
               <button
                 onClick={handleLogout}
@@ -91,7 +110,11 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="bg-blood text-parchment py-2 px-4 rounded-lg border border-gold hover:text-gold transition cursor-pointer"
+                className={`bg-blood text-parchment py-2 px-4 rounded-lg border border-gold hover:text-gold transition cursor-pointer ${
+                  isActive("/login")
+                    ? "underline decoration-gold decoration-2 underline-offset-8"
+                    : ""
+                }`}
               >
                 Connexion
               </Link>
@@ -123,9 +146,14 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-2xl ${
-                    link.className ?? "text-parchment"
-                  } hover:text-gold transition`}
+                  className={`
+                    text-2xl text-parchment hover:text-gold transition
+                    ${
+                      isActive(link.href)
+                        ? "underline decoration-gold decoration-2 underline-offset-8"
+                        : ""
+                    }
+                  `}
                   onClick={() => setOpen(false)}
                 >
                   {link.label}
@@ -135,7 +163,11 @@ export default function Navbar() {
               {isLoggedIn && (
                 <Link
                   href="/profil"
-                  className="text-2xl text-parchment hover:text-gold transition"
+                  className={`text-2xl text-parchment hover:text-gold transition ${
+                    isActive("/profil")
+                      ? "underline decoration-gold decoration-2 underline-offset-8"
+                      : ""
+                  }`}
                   onClick={() => setOpen(false)}
                 >
                   Profil
@@ -145,7 +177,11 @@ export default function Navbar() {
               {isLoggedIn && auth.user?.role === "admin" && (
                 <Link
                   href="/admin"
-                  className="text-2xl text-parchment hover:text-gold transition"
+                  className={`text-2xl text-parchment hover:text-gold transition ${
+                    isActive("/admin")
+                      ? "underline decoration-gold decoration-2 underline-offset-8"
+                      : ""
+                  }`}
                   onClick={() => setOpen(false)}
                 >
                   Administration
@@ -163,7 +199,11 @@ export default function Navbar() {
               ) : (
                 <Link
                   href="/login"
-                  className="bg-blood text-parchment py-2 px-8 rounded-lg border border-gold hover:text-gold transition text-2xl"
+                  className={`bg-blood text-parchment py-2 px-8 rounded-lg border border-gold hover:text-gold transition text-2xl ${
+                    isActive("/login")
+                      ? "underline decoration-gold decoration-2 underline-offset-8"
+                      : ""
+                  }`}
                   onClick={() => setOpen(false)}
                 >
                   Connexion
