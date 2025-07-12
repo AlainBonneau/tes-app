@@ -32,6 +32,17 @@ type updateUserRequest = FastifyRequest<{
   };
 }>;
 
+type updateUserRequestWithRole = FastifyRequest<{
+  Body: {
+    firstName?: string;
+    lastName?: string;
+    imageUrl?: string;
+    description?: string;
+    birthdate?: Date;
+    role?: string;
+  };
+}>;
+
 export async function getAllUsers(
   request: FastifyRequest,
   reply: FastifyReply
@@ -264,6 +275,56 @@ export async function updateUser(
   } catch (error: any) {
     return reply.status(500).send({
       error: "Impossible de mettre à jour le profil.",
+      details: error.message,
+    });
+  }
+}
+
+export async function updateUserById(
+  request: updateUserRequestWithRole,
+  reply: FastifyReply
+) {
+  const id = Number((request.params as { id: string | number }).id);
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
+  const payload = (request as any).user as { id: number; role: string };
+  if (payload.role !== "admin") {
+    return reply.status(403).send({ error: "Accès interdit" });
+  }
+
+  const { firstName, lastName, imageUrl, description, birthdate, role } =
+    request.body;
+
+  try {
+    const updatedUser = await request.server.prisma.user.update({
+      where: { id },
+      data: {
+        firstName,
+        lastName,
+        imageUrl,
+        description,
+        birthdate: birthdate ? new Date(birthdate) : undefined,
+        role,
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        imageUrl: true,
+        description: true,
+        birthdate: true,
+        createdAt: true,
+        role: true,
+      },
+    });
+    return reply.status(200).send(updatedUser);
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour l'utilisateur.",
       details: error.message,
     });
   }
