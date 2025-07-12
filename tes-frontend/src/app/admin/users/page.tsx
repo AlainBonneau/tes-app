@@ -58,7 +58,9 @@ export default function AdminUsersPage() {
 
   // Gestion des changements dans le formulaire d'édition
   const handleEditChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setEditForm((form) => ({

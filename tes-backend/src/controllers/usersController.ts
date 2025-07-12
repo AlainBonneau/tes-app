@@ -34,6 +34,7 @@ type updateUserRequest = FastifyRequest<{
 
 type updateUserRequestWithRole = FastifyRequest<{
   Body: {
+    username?: string;
     firstName?: string;
     lastName?: string;
     imageUrl?: string;
@@ -294,13 +295,21 @@ export async function updateUserById(
     return reply.status(403).send({ error: "Accès interdit" });
   }
 
-  const { firstName, lastName, imageUrl, description, birthdate, role } =
-    request.body;
+  const {
+    username,
+    firstName,
+    lastName,
+    imageUrl,
+    description,
+    birthdate,
+    role,
+  } = request.body;
 
   try {
     const updatedUser = await request.server.prisma.user.update({
       where: { id },
       data: {
+        username,
         firstName,
         lastName,
         imageUrl,
