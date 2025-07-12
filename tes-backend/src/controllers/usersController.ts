@@ -348,3 +348,28 @@ export async function logoutUser(request: FastifyRequest, reply: FastifyReply) {
     })
     .send({ message: "Déconnexion réussie" });
 }
+
+export async function deleteUser(
+  request: FastifyRequest<{ Params: { id: number } }>,
+  reply: FastifyReply
+) {
+  const payload = (request as any).user as { id: number; role: string };
+  if (payload.role !== "admin") {
+    return reply.status(403).send({ error: "Accès interdit" });
+  }
+
+  const id = Number(request.params.id);
+  if (isNaN(id)) {
+    return reply.status(400).send({ error: "ID invalide" });
+  }
+
+  try {
+    await request.server.prisma.user.delete({ where: { id } });
+    return reply.status(204).send();
+  } catch (error: any) {
+    return reply.status(500).send({
+      error: "Impossible de supprimer l'utilisateur.",
+      details: error.message,
+    });
+  }
+}

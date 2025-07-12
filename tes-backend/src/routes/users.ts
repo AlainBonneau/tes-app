@@ -7,6 +7,7 @@ import {
   updateUser,
   updateUserById,
   logoutUser,
+  deleteUser,
 } from "../controllers/usersController";
 
 export default async function userRoutes(app: FastifyInstance) {
@@ -57,4 +58,11 @@ export default async function userRoutes(app: FastifyInstance) {
     updateUserById
   );
   app.post("/users/logout", { preHandler: [app.authenticate] }, logoutUser);
+  app.delete<{
+    Params: { id: number };
+  }>(
+    "/users/:id",
+    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    deleteUser
+  );
 }
