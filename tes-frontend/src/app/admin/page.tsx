@@ -21,6 +21,11 @@ const adminLinks = [
     href: "/admin/users",
     icon: Users,
   },
+  {
+    label: "Administration livres",
+    href: "/admin/books",
+    icon: BookOpen,
+  },
 ];
 
 export default function AdminPage() {
