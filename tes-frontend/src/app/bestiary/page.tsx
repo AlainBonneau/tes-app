@@ -66,7 +66,7 @@ export default function BestiaryPage() {
   }, [filteredCreatures, page, pageSize]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gold via-parchment to-[#3a2e1e] font-serif text-[#3A2E1E]">
+    <div className="min-h-screen bg-gold font-serif text-[#3A2E1E]">
       {/* Titre */}
       <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-8">
         <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">

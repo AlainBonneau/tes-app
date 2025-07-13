@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import BestiarySection from "./components/BestiarySection";
 import MyButton from "./components/MyButton";
-import "./page.css";
 
 export default function Home() {
   const router = useRouter();
@@ -63,10 +62,10 @@ export default function Home() {
         <BestiarySection />
       </section>
 
-      {/* Section Lieux qui possède un background personnalisé dans le fichier page.css */}
+      {/* Section Lieux  */}
       <section
         id="bestiary"
-        className="custom-gradient relative w-full text-white flex flex-col items-center justify-center min-h-screen py-10"
+        className="custom-gradient relative bg-gold w-full text-white flex flex-col items-center justify-center min-h-screen py-10"
       >
         <h2 className="relative z-10 font-uncial font-bold uppercase text-blood text-4xl md:text-5xl mb-8 px-4 text-center">
           Lieux

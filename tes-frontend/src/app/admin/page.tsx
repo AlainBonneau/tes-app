@@ -54,7 +54,7 @@ export default function AdminPage() {
                     boxShadow: "0px 0px 16px #e1c699",
                     backgroundColor: "#e1c69933",
                   }}
-                  className="flex items-center justify-center gap-3 bg-rune text-gold px-6 py-5 rounded-xl font-bold uppercase tracking-wide border-2 border-sandstone shadow-md transition text-lg hover:bg-gold/20 hover:text-parchment"
+                  className="flex items-center justify-center gap-3 bg-rune text-gold px-6 py-5 rounded-xl font-bold uppercase tracking-wide border-2 border-sandstone shadow-md transition text-lg hover:bg-gold/20 hover:text-parchment cursor-pointer"
                   onClick={() => router.push(href)}
                 >
                   <Icon className="w-7 h-7" />

@@ -114,7 +114,7 @@ export default function ProfilePage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-gold via-parchment to-[#3a2e1e] text-[#3A2E1E] font-serif">
+      <div className="min-h-screen bg-gold text-[#3A2E1E] font-serif">
         <div className="bg-blood h-[20vh] w-full flex items-center justify-center">
           <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
             Profil
