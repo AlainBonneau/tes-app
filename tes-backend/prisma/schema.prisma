@@ -83,6 +83,15 @@ model Creature {
   type        String
   description String
   imageUrl    String?
-  region      Region?   @relation(fields: [regionId], references: [id]) // rendre la relation optionnelle
-  regionId    Int?                                      // changer en Int?
+  region      Region?   @relation(fields: [regionId], references: [id]) 
+  regionId    Int?                                      
+}
+
+model Book {
+  id        Int     @id @default(autoincrement())
+  title     String
+  author    String?
+  summary   String?
+  imageUrl  String?
+  content   String
 }
