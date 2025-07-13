@@ -2,16 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
-import Link from "next/link";
+import BookModal from "./LibraryPage";
 import Image from "next/image";
 import api from "@/app/api/axiosConfig";
 import type { Book } from "../types/book";
 import Loader from "@/app/components/Loader";
+import { AnimatePresence } from "framer-motion";
 
 export default function LibraryPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
+  const [modalBook, setModalBook] = useState<Book | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchBooks() {
@@ -27,6 +30,28 @@ export default function LibraryPage() {
     }
     fetchBooks();
   }, [showToast]);
+
+  const handleOpenModal = async (book: Book) => {
+    if (!book.content) {
+      // Si le contenu du livre n'est pas chargé, on va le chercher :
+      try {
+        const res = await api.get(`/books/${book.id}`);
+        setModalBook(res.data);
+      } catch (err) {
+        console.error("Erreur lors du chargement du livre :", err);
+        showToast("Impossible de charger le livre", "error");
+        return;
+      }
+    } else {
+      setModalBook(book);
+    }
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setTimeout(() => setModalBook(null), 300);
+  };
 
   return (
     <div className="min-h-screen bg-gold flex flex-col items-center">
@@ -44,18 +69,21 @@ export default function LibraryPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 pb-20">
             {books.map((book) => (
-              <Link
+              <button
                 key={book.id}
-                href={`/library/${book.id}`}
+                onClick={() => handleOpenModal(book)}
                 className="
-                  bg-parchment/90 border-2 border-gold rounded-2xl shadow-md p-4
+                  bg-parchment/90 border-2 border-book rounded-2xl shadow-md p-4
                   flex flex-col gap-3 hover:scale-105 hover:shadow-xl transition
-                  cursor-pointer group
+                  cursor-pointer group outline-none
+                  focus:ring-2 focus:ring-book
                 "
+                tabIndex={0}
+                aria-label={`Ouvrir le livre ${book.title}`}
               >
-                <div className="w-full aspect-[3/4] bg-stone/10 rounded-xl flex items-center justify-center mb-2 overflow-hidden">
+                <div className="w-full aspect-[3/4] bg-stone/10 rounded-xl flex items-center justify-center mb-2 overflow-hidden border-2 border-book">
                   <Image
-                    src={book.imageUrl || "/assets/book-placeholder.png"}
+                    src={book.imageUrl || "/assets/default-book.png"}
                     alt={book.title}
                     width={180}
                     height={240}
@@ -67,13 +95,13 @@ export default function LibraryPage() {
                     {book.title}
                   </h3>
                   <p className="text-sm text-sandstone italic text-center">
-                    {book.author}
+                    {book.author ? book.author : "Auteur inconnu"}
                   </p>
                   <p className="text-[15px] text-stone mt-2 text-center line-clamp-3">
                     {book.summary}
                   </p>
                 </div>
-              </Link>
+              </button>
             ))}
             {books.length === 0 && (
               <div className="col-span-full text-center text-blood font-bold mt-16">
@@ -83,6 +111,16 @@ export default function LibraryPage() {
           </div>
         )}
       </div>
+      {/* Modal */}
+      <AnimatePresence>
+        {modalOpen && (
+          <BookModal
+            book={modalBook}
+            open={modalOpen}
+            onClose={handleCloseModal}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
