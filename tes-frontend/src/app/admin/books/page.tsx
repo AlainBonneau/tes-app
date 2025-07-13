@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Loader from "@/app/components/Loader";
 import api from "@/app/api/axiosConfig";
+import EditBookModal from "./EditBookModal";
 import type { Book } from "@/app/types/book";
 import Image from "next/image";
 
@@ -10,20 +12,27 @@ export default function AdminBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [search, setSearch] = useState<string>("");
   const [page, setPage] = useState(1);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState<Partial<Book>>({});
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchBooks() {
-      try {
-        setLoading(true);
-        const res = await api.get("/books", { withCredentials: true });
-        setBooks(res.data);
-      } catch (err) {
-        console.error("Erreur lors du chargement des livres :", err);
-      } finally {
-        setLoading(false);
-      }
+  const router = useRouter();
+
+  // Charge les livres depuis l'API
+  const fetchBooks = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/books", { withCredentials: true });
+      setBooks(res.data);
+    } catch (err) {
+      console.error("Erreur lors du chargement des livres :", err);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchBooks();
   }, []);
 
@@ -31,7 +40,7 @@ export default function AdminBooksPage() {
     setPage(1);
   }, [search]);
 
-  // Recherche
+  // Filtre les livres selon la recherche
   const filteredBooks = useMemo(() => {
     return books.filter((book) => {
       const query = search.trim().toLowerCase();
@@ -51,6 +60,57 @@ export default function AdminBooksPage() {
     return filteredBooks.slice(start, start + pageSize);
   }, [filteredBooks, page, pageSize]);
 
+  // Ouvre le modal pour édition ou création de livre
+  const handleEditBook = (book: Book) => {
+    setEditForm(book);
+    setEditModalOpen(true);
+  };
+
+  // Gère les changements dans le formulaire d'édition
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setEditForm((f) => ({
+      ...f,
+      [name]: value,
+    }));
+  };
+
+  // Soumet le formulaire d'édition
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      if (editForm.id) {
+        // Edition
+        await api.put(`/books/${editForm.id}`, editForm, {
+          withCredentials: true,
+        });
+      }
+      setEditModalOpen(false);
+      setEditForm({});
+      await fetchBooks();
+    } catch (err) {
+      alert("Erreur lors de la sauvegarde du livre.");
+      console.error(err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Supprime un livre
+  const handleDeleteBook = async (id: number) => {
+    if (!confirm("Supprimer ce livre ?")) return;
+    try {
+      await api.delete(`/books/${id}`, { withCredentials: true });
+      await fetchBooks();
+    } catch (err) {
+      alert("Erreur lors de la suppression.");
+      console.error(err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gold font-serif text-[#3A2E1E]">
       <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-8">
@@ -59,13 +119,11 @@ export default function AdminBooksPage() {
         </h1>
       </div>
 
-      {/* Barre actions */}
+      {/* En-tête et barre de recherche */}
       <div className="flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto mb-8 gap-3 px-2">
         <button
           className="bg-blood text-gold px-4 py-2 rounded font-cinzel border border-gold hover:bg-blood/90 transition font-bold shadow cursor-pointer"
-          onClick={() => {
-            // Ajoute ici la navigation vers /admin/books/create
-          }}
+          onClick={() => router.push("/admin/books/create")}
         >
           Ajouter un livre
         </button>
@@ -92,7 +150,7 @@ export default function AdminBooksPage() {
         <Loader text="Chargement des livres..." />
       ) : (
         <div>
-          {/* Table pour écran sm+ */}
+          {/* Table responsive desktop */}
           <div className="hidden sm:block overflow-x-auto max-w-6xl mx-auto rounded-lg shadow">
             <table className="min-w-full border border-gold bg-parchment rounded-xl text-sm">
               <thead className="bg-blood text-gold">
@@ -125,10 +183,16 @@ export default function AdminBooksPage() {
                       {book.summary}
                     </td>
                     <td className="py-2 px-3 flex gap-2 justify-center">
-                      <button className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs">
+                      <button
+                        className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                        onClick={() => handleEditBook(book)}
+                      >
                         Éditer
                       </button>
-                      <button className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs">
+                      <button
+                        className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                        onClick={() => handleDeleteBook(book.id!)}
+                      >
                         Supprimer
                       </button>
                     </td>
@@ -144,6 +208,7 @@ export default function AdminBooksPage() {
               </tbody>
             </table>
           </div>
+
           {/* Cartes responsive mobile */}
           <div className="block sm:hidden space-y-4 max-w-2xl w-full px-2 mx-auto mt-4">
             {paginatedBooks.length === 0 && (
@@ -174,10 +239,16 @@ export default function AdminBooksPage() {
                     {book.summary}
                   </div>
                   <div className="flex gap-2 mt-3">
-                    <button className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs w-full">
+                    <button
+                      className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs w-full"
+                      onClick={() => handleEditBook(book)}
+                    >
                       Éditer
                     </button>
-                    <button className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs w-full">
+                    <button
+                      className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs w-full"
+                      onClick={() => handleDeleteBook(book.id!)}
+                    >
                       Supprimer
                     </button>
                   </div>
@@ -214,6 +285,16 @@ export default function AdminBooksPage() {
           Suivant
         </button>
       </div>
+
+      {/* Modal d'édition */}
+      <EditBookModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        form={editForm}
+        onChange={handleEditChange}
+        onSubmit={handleEditSubmit}
+        saving={saving}
+      />
     </div>
   );
 }
