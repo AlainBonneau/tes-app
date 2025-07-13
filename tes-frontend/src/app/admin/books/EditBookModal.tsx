@@ -53,14 +53,12 @@ export default function EditBookModal({
             placeholder="Auteur (facultatif)"
             className="p-2 rounded border border-gold bg-parchment/90"
           />
-          <textarea
+          <input
             name="summary"
             value={form.summary ?? ""}
             onChange={onChange}
             placeholder="Résumé"
             className="p-2 rounded border border-gold bg-parchment/90"
-            rows={3}
-            required
           />
           <input
             name="imageUrl"
@@ -68,6 +66,15 @@ export default function EditBookModal({
             onChange={onChange}
             placeholder="Lien de l’image (facultatif)"
             className="p-2 rounded border border-gold bg-parchment/90"
+          />
+          <textarea
+            name="content"
+            value={form.content ?? ""}
+            onChange={onChange}
+            placeholder="Contenu du livre"
+            className="p-2 rounded border border-gold bg-parchment/90"
+            rows={6}
+            required
           />
           <div className="flex gap-2 mt-2 justify-end">
             <button

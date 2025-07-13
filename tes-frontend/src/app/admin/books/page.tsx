@@ -83,8 +83,7 @@ export default function AdminBooksPage() {
     setSaving(true);
     try {
       if (editForm.id) {
-        // Edition
-        await api.put(`/books/${editForm.id}`, editForm, {
+        await api.patch(`/books/${editForm.id}`, editForm, {
           withCredentials: true,
         });
       }
@@ -110,6 +109,14 @@ export default function AdminBooksPage() {
       console.error(err);
     }
   };
+
+  // Prévisualise le contenu du livre
+  function previewContent(content?: string, wordLimit = 12) {
+    if (!content) return "";
+    const words = content.split(/\s+/);
+    if (words.length <= wordLimit) return content;
+    return words.slice(0, wordLimit).join(" ") + "…";
+  }
 
   return (
     <div className="min-h-screen bg-gold font-serif text-[#3A2E1E]">
@@ -159,6 +166,7 @@ export default function AdminBooksPage() {
                   <th className="py-2 px-3">Titre</th>
                   <th className="py-2 px-3">Auteur</th>
                   <th className="py-2 px-3">Résumé</th>
+                  <th className="py-2 px-3">Contenu</th>
                   <th className="py-2 px-3">Actions</th>
                 </tr>
               </thead>
@@ -182,15 +190,19 @@ export default function AdminBooksPage() {
                     <td className="py-2 px-3 text-xs text-stone max-w-[200px] truncate">
                       {book.summary}
                     </td>
+                    <td className="text-xs text-stone max-w-[200px] truncate">
+                      {previewContent(book.content)}
+                    </td>
+
                     <td className="py-2 px-3 flex gap-2 justify-center">
                       <button
-                        className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                        className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"
                         onClick={() => handleEditBook(book)}
                       >
                         Éditer
                       </button>
                       <button
-                        className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                        className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs cursor-pointer"
                         onClick={() => handleDeleteBook(book.id!)}
                       >
                         Supprimer
@@ -238,6 +250,10 @@ export default function AdminBooksPage() {
                   <div className="text-xs text-stone mt-1 line-clamp-4">
                     {book.summary}
                   </div>
+                  <div className="text-xs text-stone mt-2">
+                    {previewContent(book.content)}
+                  </div>
+
                   <div className="flex gap-2 mt-3">
                     <button
                       className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs w-full"
