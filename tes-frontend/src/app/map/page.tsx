@@ -109,6 +109,7 @@ export default function TamrielMap() {
           </div>
         )}
       </div>
+
       {/* Informations sur la région sélectionnée */}
       <AnimatePresence mode="wait">
         {selected && (
@@ -137,9 +138,15 @@ export default function TamrielMap() {
             <h2 className="text-xl font-bold mb-2 text-center font-cinzel">
               {regions.find((r) => r.id === selected)?.name}
             </h2>
-            <p className="text-center font-sans">
+            <div
+              className=" text-center font-sans break-words overflow-y-auto scrollbar-thin scrollbar-thumb-gold/40 scrollbar-track-blood/30 w-full px-2 max-h-[110px] sm:max-h-[150px] md:max-h-[200px] lg:max-h-[280px] mx-auto transition-all"
+              style={{
+                lineHeight: "1.7",
+                fontSize: "1.06rem",
+              }}
+            >
               {regions.find((r) => r.id === selected)?.description}
-            </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

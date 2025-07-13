@@ -181,7 +181,7 @@ export default function AdminBestiaryPage() {
                           Éditer
                         </button>
                         <button
-                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"
                           onClick={() => handleDelete(creature.id)}
                         >
                           Supprimer

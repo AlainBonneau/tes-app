@@ -167,13 +167,13 @@ export default function AdminRegionsPage() {
                       </td>
                       <td className="py-2 px-3 flex gap-2 justify-center">
                         <button
-                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs cursor-pointer"
                           onClick={() => openEditModal(region)}
                         >
                           Éditer
                         </button>
                         <button
-                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"
                           onClick={() => handleDelete(region.id!)}
                         >
                           Supprimer
