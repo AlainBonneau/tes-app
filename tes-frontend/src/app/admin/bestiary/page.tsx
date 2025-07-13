@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import EditCreatureModal from "./EditCreatureModal";
@@ -20,6 +21,7 @@ export default function AdminBestiaryPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const router = useRouter();
 
@@ -114,9 +116,10 @@ export default function AdminBestiaryPage() {
         withCredentials: true,
       });
       setCreatures((prev) => prev.filter((c) => c.id !== id));
+      showToast("Créature supprimée avec succès", "success");
     } catch (error) {
       console.error("Erreur lors de la suppression de la créature :", error);
-      alert("Erreur lors de la suppression de la créature");
+      showToast("Erreur lors de la suppression de la créature", "error");
     }
   };
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ReduxProvider from "./components/ReduxProvider";
 import AuthProvider from "./components/AuthProvider";
+import { ToastProvider } from "./context/ToastContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import "./globals.css";
@@ -20,9 +21,11 @@ export default function RootLayout({
       <body className="antialiased flex flex-col h-screen">
         <ReduxProvider>
           <AuthProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <ToastProvider>
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </ToastProvider>
           </AuthProvider>
         </ReduxProvider>
       </body>

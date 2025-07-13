@@ -77,7 +77,7 @@ export default function CreateCreaturePage() {
 
   return (
     <AuthGuard adminOnly>
-      <div className="min-h-screen bg-parchment flex flex-col items-center">
+      <div className="min-h-screen bg-gold flex flex-col items-center">
         {/* Header */}
         <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
           <h1 className="text-2xl md:text-4xl font-uncial uppercase text-gold text-center">

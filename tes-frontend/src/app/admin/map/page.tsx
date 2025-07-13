@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
 import Image from "next/image";
 import api from "@/app/api/axiosConfig";
@@ -19,6 +20,7 @@ export default function AdminRegionsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const router = useRouter();
 
@@ -81,9 +83,10 @@ export default function AdminRegionsPage() {
     try {
       await api.delete(`/regions/${id}`);
       setRegions((prev) => prev.filter((r) => r.id !== id));
+      showToast("Région supprimée avec succès", "success");
     } catch (err) {
       console.error("Erreur lors de la suppression :", err);
-      alert("Erreur lors de la suppression");
+      showToast("Erreur lors de la suppression de la région", "error");
     }
   };
 
