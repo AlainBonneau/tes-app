@@ -13,6 +13,7 @@ import raceRoutes from "./routes/race";
 import characterRoutes from "./routes/character";
 import postRoutes from "./routes/posts";
 import commentRoutes from "./routes/comments";
+import bookRoutes from "./routes/books";
 import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
@@ -63,6 +64,7 @@ export async function buildApp() {
   app.register(characterRoutes);
   app.register(postRoutes);
   app.register(commentRoutes);
+  app.register(bookRoutes);
 
   return app;
 }

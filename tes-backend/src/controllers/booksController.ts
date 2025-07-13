@@ -1,5 +1,4 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import type { Book } from "../types/book";
 
 // Début du typage
 type GetByIdRequest = FastifyRequest<{ Params: { id: string } }>;
