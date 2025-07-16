@@ -1,34 +1,55 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import slugify from "slugify";
 
-// Début du typage
+// Types
 type GetByIdPostRequest = FastifyRequest<{ Params: { id: string } }>;
 
 type CreatedPostRequest = FastifyRequest<{
-  Body: { title: string; content: string };
+  Body: {
+    title: string;
+    content: string;
+    categoryId: number;
+    pinned?: boolean;
+    locked?: boolean;
+    slug?: string;
+  };
 }>;
 
 type UpdatedPostRequest = FastifyRequest<{
   Params: { id: string };
-  Body: Partial<{ title: string; content: string }>;
+  Body: Partial<{
+    title: string;
+    content: string;
+    categoryId: number;
+    pinned: boolean;
+    locked: boolean;
+    slug: string;
+  }>;
 }>;
-// Fin du typage
 
+// Contrôleurs pour avoir les posts
 export async function getAllPosts(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
+    const { categoryId } = request.query as { categoryId?: string };
+    const where = categoryId ? { categoryId: Number(categoryId) } : {};
     const posts = await request.server.prisma.post.findMany({
-      include: { author: { select: { id: true, username: true } } },
+      where,
+      include: {
+        author: { select: { id: true, username: true, imageUrl: true } },
+        category: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
     reply.send(posts);
   } catch (error: any) {
-    console.error("Erreur lors de la récupération des postes :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
 }
 
+// Controller pour obtenir un post par ID
 export async function getPostById(
   request: GetByIdPostRequest,
   reply: FastifyReply
@@ -38,9 +59,12 @@ export async function getPostById(
     const post = await request.server.prisma.post.findUnique({
       where: { id },
       include: {
-        author: { select: { id: true, username: true } },
+        author: { select: { id: true, username: true, imageUrl: true } },
+        category: { select: { id: true, name: true } },
         comments: {
-          include: { author: { select: { id: true, username: true } } },
+          include: {
+            author: { select: { id: true, username: true, imageUrl: true } },
+          },
           orderBy: { createdAt: "asc" },
         },
       },
@@ -49,48 +73,68 @@ export async function getPostById(
     if (!post) {
       return reply.status(404).send({ error: "Poste non trouvé" });
     }
+
+    // Incrémente le compteur de vues (async, non bloquant)
+    request.server.prisma.post
+      .update({
+        where: { id },
+        data: { views: { increment: 1 } },
+      })
+      .catch(() => {});
+
     reply.send(post);
   } catch (error: any) {
-    console.error("Erreur lors de la récupération du poste :", error);
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
 }
 
+// Controller pour créer un post
 export async function createPost(
   request: CreatedPostRequest,
   reply: FastifyReply
 ) {
-  const { title, content } = request.body;
-  if (!title || !content) {
-    return reply.status(400).send({ error: "titre et content requis" });
+  const { title, content, categoryId, pinned, locked, slug } = request.body;
+  if (!title || !content || !categoryId) {
+    return reply
+      .status(400)
+      .send({ error: "title, content et categoryId requis" });
   }
 
   const payload = (request as any).user as { id: number };
 
   try {
+    const slugSafe = slug ?? slugify(title, { lower: true, strict: true });
+
     const post = await request.server.prisma.post.create({
       data: {
         title,
         content,
-        author: { connect: { id: payload.id } },
+        categoryId,
+        pinned: pinned ?? false,
+        locked: locked ?? false,
+        authorId: payload.id,
+        slug: slugSafe,
       },
     });
 
     return reply.status(201).send(post);
   } catch (error: any) {
-    return reply.status(500).send({
-      error: "Impossible de créer le poste.",
-      details: error.message,
-    });
+    // Gestion violation unique (ex: slug déjà utilisé)
+    if (error.code === "P2002") {
+      return reply.status(409).send({ error: "Slug déjà utilisé" });
+    }
+    return reply
+      .status(500)
+      .send({ error: "Impossible de créer le poste.", details: error.message });
   }
 }
 
+// Controller pour mettre à jour un post
 export async function updatePost(
   request: UpdatedPostRequest,
   reply: FastifyReply
 ) {
   const postId = parseInt(request.params.id, 10);
-  const { title, content } = request.body;
   const payload = (request as any).user as { id: number; role: string };
 
   const existingPost = await request.server.prisma.post.findUnique({
@@ -98,19 +142,22 @@ export async function updatePost(
     select: { authorId: true },
   });
 
-  // Vérifier si le poste éxiste
   if (!existingPost) {
     return reply.status(404).send({ error: "Poste non trouvé" });
   }
-
-  // Vérifier si l'utilisateur est administrateur
   if (existingPost.authorId !== payload.id && payload.role !== "admin") {
     return reply.status(403).send({ error: "Non autorisé" });
   }
 
+  const { title, content, categoryId, pinned, locked, slug } = request.body;
   const data: Record<string, any> = {};
   if (title !== undefined) data.title = title;
   if (content !== undefined) data.content = content;
+  if (categoryId !== undefined) data.categoryId = categoryId;
+  if (pinned !== undefined) data.pinned = pinned;
+  if (locked !== undefined) data.locked = locked;
+  if (slug !== undefined) data.slug = slug;
+  data.lastEdit = new Date();
 
   try {
     const updatedPost = await request.server.prisma.post.update({
@@ -120,13 +167,19 @@ export async function updatePost(
 
     reply.send(updatedPost);
   } catch (error: any) {
-    return reply.status(500).send({
-      error: "Impossible de mettre à jour le poste.",
-      details: error.message,
-    });
+    if (error.code === "P2002") {
+      return reply.status(409).send({ error: "Slug déjà utilisé" });
+    }
+    return reply
+      .status(500)
+      .send({
+        error: "Impossible de mettre à jour le poste.",
+        details: error.message,
+      });
   }
 }
 
+// Controller pour supprimer un post
 export async function deletePost(
   request: GetByIdPostRequest,
   reply: FastifyReply
@@ -139,12 +192,9 @@ export async function deletePost(
     select: { authorId: true },
   });
 
-  // Vérifier si le poste éxiste
   if (!existingPost) {
     return reply.status(404).send({ error: "Poste non trouvé" });
   }
-
-  // Vérifier si l'utilisateur est administrateur
   if (existingPost.authorId !== payload.id && payload.role !== "admin") {
     return reply.status(403).send({ error: "Non autorisé" });
   }
@@ -153,6 +203,6 @@ export async function deletePost(
     await request.server.prisma.post.delete({ where: { id: postId } });
     reply.status(204).send();
   } catch (error: any) {
-    return reply.status(404).send({ error: "Poste non trouvée." });
+    reply.status(404).send({ error: "Poste non trouvé." });
   }
 }

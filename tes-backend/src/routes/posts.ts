@@ -10,15 +10,29 @@ import {
 export default async function postRoutes(app: FastifyInstance) {
   app.get("/posts", getAllPosts);
   app.get<{ Params: { id: string } }>("/posts/:id", getPostById);
-  app.post<{ Body: { title: string; content: string } }>(
-    "/posts",
-    { preHandler: [app.authenticate] },
-    createPost
-  );
+  app.post<{
+    Body: {
+      title: string;
+      content: string;
+      categoryId: number;
+      pinned?: boolean;
+      locked?: boolean;
+      slug?: string;
+    };
+  }>("/posts", { preHandler: [app.authenticate] }, createPost);
+
   app.patch<{
     Params: { id: string };
-    Body: Partial<{ title: string; content: string }>;
+    Body: Partial<{
+      title: string;
+      content: string;
+      categoryId: number;
+      pinned: boolean;
+      locked: boolean;
+      slug: string;
+    }>;
   }>("/posts/:id", { preHandler: [app.authenticate] }, updatePost);
+
   app.delete<{ Params: { id: string } }>(
     "/posts/:id",
     { preHandler: [app.authenticate] },
