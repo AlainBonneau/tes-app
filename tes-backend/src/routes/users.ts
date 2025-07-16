@@ -13,7 +13,7 @@ import {
 export default async function userRoutes(app: FastifyInstance) {
   app.get(
     "/users",
-    { preHandler: [app.authenticate, app.authorizeAdmin] },
+    { preHandler: [app.authenticate, app.authorizeModerator, app.authorizeAdmin] },
     getAllUsers
   );
   app.get("/users/me", { preHandler: [app.authenticate] }, getCurrentUser);

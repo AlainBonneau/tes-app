@@ -6,11 +6,25 @@ declare module "fastify" {
     /**
      * Middleware à ajouter dans preHandler pour valider le JWT.
      */
-    authenticate(request: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply): Promise<void>;
+    authenticate(
+      request: import("fastify").FastifyRequest,
+      reply: import("fastify").FastifyReply
+    ): Promise<void>;
+
+    /**
+     * Middleware à ajouter dans preHandler pour valider JWT + rôle modérateur.
+     */
+    authorizeModerator(
+      request: import("fastify").FastifyRequest,
+      reply: import("fastify").FastifyReply
+    ): Promise<void>;
 
     /**
      * Middleware à ajouter dans preHandler pour valider JWT + rôle admin.
      */
-    authorizeAdmin(request: import("fastify").FastifyRequest, reply: import("fastify").FastifyReply): Promise<void>;
+    authorizeAdmin(
+      request: import("fastify").FastifyRequest,
+      reply: import("fastify").FastifyReply
+    ): Promise<void>;
   }
 }

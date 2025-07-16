@@ -25,24 +25,45 @@ model User {
   comments Comment[]
 }
 
+model ForumCategory {
+  id      Int    @id @default(autoincrement())
+  name    String
+  desc    String
+  icon    String?
+  slug    String  @unique
+  posts   Post[]
+}
+
 model Post {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   title     String
   content   String
-  author    User      @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   comments  Comment[]
+  category  ForumCategory @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  pinned    Boolean  @default(false)
+  locked    Boolean  @default(false)
+  views     Int      @default(0)
+  lastEdit  DateTime?
+  slug      String   @unique
 }
 
 model Comment {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   content   String
-  author    User      @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
-  post      Post      @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
   postId    Int
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
+  parent    Comment? @relation("CommentParent", fields: [parentId], references: [id])
+  parentId  Int?
+  children  Comment[] @relation("CommentParent")
 }
 
 // Model region, character, and creature for the bestiary

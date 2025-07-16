@@ -145,6 +145,7 @@ export default function EditUserModal({
             required
           >
             <option value="user">Utilisateur</option>
+            <option value="moderator">Modérateur</option>
             <option value="admin">Administrateur</option>
           </select>
         </label>
