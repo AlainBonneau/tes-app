@@ -57,4 +57,30 @@ export default fp(async (app: FastifyInstance) => {
       }
     }
   );
+
+  // Middleware pour vérifier que l'utilisateur est admin ou modérateur
+  app.decorate(
+    "authorizeModerator",
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const token = await extractToken(request);
+      if (!token) {
+        return reply.status(401).send({ error: "Token manquant" });
+      }
+      try {
+        const payload = (await request.server.jwt.verify(
+          token
+        )) as JwtUserPayload;
+        (request as any).user = payload;
+        if (payload.role !== "admin" && payload.role !== "moderator") {
+          return reply
+            .status(403)
+            .send({
+              error: "Accès réservé aux administrateurs ou modérateurs",
+            });
+        }
+      } catch {
+        return reply.status(401).send({ error: "Token invalide" });
+      }
+    }
+  );
 });
