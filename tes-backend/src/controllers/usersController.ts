@@ -190,12 +190,16 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
     where: { email },
   });
   if (!user) {
-    return reply.status(401).send({ error: "Identifiants invalides" });
+    return reply
+      .status(401)
+      .send({ error: "Identifiants et/ou mot de passe invalides" });
   }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    return reply.status(401).send({ error: "Identifiants invalides" });
+    return reply
+      .status(401)
+      .send({ error: "Identifiants et/ou mot de passe invalides" });
   }
 
   const TOKEN_EXPIRATION = "24h";

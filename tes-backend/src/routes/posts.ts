@@ -1,4 +1,6 @@
 import { FastifyInstance } from "fastify";
+import { zodValidate } from "../middlewares/zodValidate";
+import { CreatePostSchema } from "../schemas/postSchema";
 import {
   getAllPosts,
   getPostById,
@@ -19,7 +21,11 @@ export default async function postRoutes(app: FastifyInstance) {
       locked?: boolean;
       slug?: string;
     };
-  }>("/posts", { preHandler: [app.authenticate] }, createPost);
+  }>(
+    "/posts",
+    { preHandler: [app.authenticate, zodValidate(CreatePostSchema)] },
+    createPost
+  );
 
   app.patch<{
     Params: { id: string };
