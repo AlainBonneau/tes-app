@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { zodValidate } from "../middlewares/zodValidate";
-import { CreatePostSchema } from "../schemas/postSchema";
+import { CreatePostSchema, UpdatePostSchema } from "../schemas/postSchema";
 import {
   getAllPosts,
   getPostById,
@@ -37,7 +37,11 @@ export default async function postRoutes(app: FastifyInstance) {
       locked: boolean;
       slug: string;
     }>;
-  }>("/posts/:id", { preHandler: [app.authenticate] }, updatePost);
+  }>(
+    "/posts/:id",
+    { preHandler: [app.authenticate, zodValidate(UpdatePostSchema)] },
+    updatePost
+  );
 
   app.delete<{ Params: { id: string } }>(
     "/posts/:id",
