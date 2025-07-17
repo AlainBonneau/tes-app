@@ -1,4 +1,6 @@
 import { FastifyInstance } from "fastify";
+import { zodValidate } from "../middlewares/zodValidate";
+import { CreateUserSchema, UpdateUserSchema } from "../schemas/userSchema";
 import {
   getAllUsers,
   getCurrentUser,
@@ -13,7 +15,13 @@ import {
 export default async function userRoutes(app: FastifyInstance) {
   app.get(
     "/users",
-    { preHandler: [app.authenticate, app.authorizeModerator, app.authorizeAdmin] },
+    {
+      preHandler: [
+        app.authenticate,
+        app.authorizeModerator,
+        app.authorizeAdmin,
+      ],
+    },
     getAllUsers
   );
   app.get("/users/me", { preHandler: [app.authenticate] }, getCurrentUser);
@@ -29,7 +37,11 @@ export default async function userRoutes(app: FastifyInstance) {
       birthdate?: Date;
       role?: string;
     };
-  }>("/users/register", registerUser);
+  }>(
+    "/users/register",
+    { preHandler: [zodValidate(CreateUserSchema)] },
+    registerUser
+  );
   app.post<{
     Body: { email: string; password: string };
   }>("/users/login", loginUser);
@@ -41,7 +53,11 @@ export default async function userRoutes(app: FastifyInstance) {
       description?: string;
       birthdate?: Date;
     };
-  }>("/users/me", { preHandler: [app.authenticate] }, updateUser);
+  }>(
+    "/users/me",
+    { preHandler: [app.authenticate, zodValidate(UpdateUserSchema)] },
+    updateUser
+  );
   app.put<{
     Params: { id: number };
     Body: {
