@@ -1,4 +1,6 @@
 import { FastifyInstance } from "fastify";
+import { zodValidate } from "../middlewares/zodValidate";
+import { CommentSchema, UpdateCommentShcema } from "../schemas/commentSchema";
 import {
   getAllCommentsForPost,
   createComment,
@@ -14,13 +16,13 @@ export default async function commentRoutes(app: FastifyInstance) {
 
   app.post<{ Params: { postId: string }; Body: { content: string } }>(
     "/posts/:postId/comments",
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.authenticate, zodValidate(CommentSchema)] },
     createComment
   );
 
   app.patch<{ Params: { id: string }; Body: { content: string } }>(
     "/comments/:id",
-    { preHandler: [app.authenticate] },
+    { preHandler: [app.authenticate, zodValidate(UpdateCommentShcema)] },
     updateComment
   );
 
