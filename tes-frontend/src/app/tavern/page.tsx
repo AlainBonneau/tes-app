@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CategoryCard } from "./CategoryCard";
 import api from "../api/axiosConfig";
+import Loader from "../components/Loader";
 import type { Category } from "../types/category";
 
 export default function ForumHomePage() {
@@ -33,7 +34,9 @@ export default function ForumHomePage() {
       </div>
       <div>
         {loading ? (
-          <div>Chargement...</div>
+          <div className="flex justify-center items-center h-[60vh]">
+            <Loader />
+          </div>
         ) : (
           categories.map((cat) => <CategoryCard key={cat.id} cat={cat} />)
         )}
