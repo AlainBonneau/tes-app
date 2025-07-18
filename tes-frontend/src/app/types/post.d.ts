@@ -5,6 +5,21 @@ export type Post = {
   authorId: number;
   categoryId: number;
   createdAt: string;
+  author?: {
+    id: number;
+    username: string;
+    imageUrl?: string;
+  };
+  category?: {
+    id: number;
+    name: string;
+  };
+  commentsCount?: number;
+  _count?: {
+    comments: number;
+  };
+  summary?: string;
+  topics?: number;
   lastEdit?: string;
   locked?: boolean;
   pinned?: boolean;

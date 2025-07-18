@@ -33,17 +33,34 @@ export async function getAllPosts(
   reply: FastifyReply
 ) {
   try {
-    const { categoryId } = request.query as { categoryId?: string };
-    const where = categoryId ? { categoryId: Number(categoryId) } : {};
+    const { categorySlug, categoryId } = request.query as {
+      categorySlug?: string;
+      categoryId?: string;
+    };
+    let where: any = {};
+    if (categorySlug) {
+      where.category = { slug: categorySlug };
+    } else if (categoryId) {
+      where.categoryId = Number(categoryId);
+    }
+
     const posts = await request.server.prisma.post.findMany({
       where,
       include: {
         author: { select: { id: true, username: true, imageUrl: true } },
         category: { select: { id: true, name: true } },
+        _count: { select: { comments: true } },
       },
       orderBy: { createdAt: "desc" },
     });
-    reply.send(posts);
+
+    const postsWithSummary = posts.map((post) => ({
+      ...post,
+      summary:
+        post.content.slice(0, 150) + (post.content.length > 150 ? "..." : ""), 
+    }));
+
+    reply.send(postsWithSummary);
   } catch (error: any) {
     reply.status(500).send({ error: "Erreur interne du serveur" });
   }
@@ -60,6 +77,7 @@ export async function getPostById(
       where: { id },
       include: {
         author: { select: { id: true, username: true, imageUrl: true } },
+        _count: { select: { comments: true } },
         category: { select: { id: true, name: true } },
         comments: {
           include: {
@@ -170,12 +188,10 @@ export async function updatePost(
     if (error.code === "P2002") {
       return reply.status(409).send({ error: "Slug déjà utilisé" });
     }
-    return reply
-      .status(500)
-      .send({
-        error: "Impossible de mettre à jour le poste.",
-        details: error.message,
-      });
+    return reply.status(500).send({
+      error: "Impossible de mettre à jour le poste.",
+      details: error.message,
+    });
   }
 }
 
