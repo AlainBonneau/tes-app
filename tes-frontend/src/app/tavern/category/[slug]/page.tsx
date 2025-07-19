@@ -9,12 +9,12 @@ import { MessageCircle, Flame } from "lucide-react";
 import { RootState } from "@/app/store";
 import type { Post } from "@/app/types/post";
 
-// Helper pour badge "Nouveau"
+// Helper pour vérifier si le post est "nouveau"
 function isNew(date: string | Date) {
   if (!date) return false;
   const created = typeof date === "string" ? new Date(date) : date;
   const now = new Date();
-  const diff = (now.getTime() - created.getTime()) / (1000 * 60 * 60); 
+  const diff = (now.getTime() - created.getTime()) / (1000 * 60 * 60);
   return diff < 24;
 }
 
@@ -28,7 +28,6 @@ export default function CategoryTopicsPage({
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Authentification (adapte selon ton projet)
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedIn = auth.isAuthenticated;
 
@@ -77,30 +76,16 @@ export default function CategoryTopicsPage({
                 key={post.id}
                 className="group"
               >
-                <div
-                  className="
-                    relative
-                    bg-parchment border-2 border-[#523211] rounded-[1.5rem] shadow-xl 
-                    hover:scale-[1.035] hover:border-gold hover:shadow-2xl transition
-                    flex flex-col h-full
-                    p-6 pt-7 pb-5
-                    after:absolute after:inset-0 after:rounded-[1.4rem] after:border-2 after:border-[#ffe7b0cc] after:pointer-events-none after:opacity-50
-                  "
-                  style={{
-                    background:
-                      "repeating-linear-gradient(120deg, #fffdf6 0px, #fffbe8 48px, #fffdf6 54px)",
-                    boxShadow: "0 10px 38px #52321124, 0 2px 12px #7B2F1015",
-                  }}
-                >
+                <div className=" relative bg-parchment border-2 border-[#523211] rounded-[1.5rem] shadow-xl hover:scale-[1.035] hover:border-gold hover:shadow-2xl transition flex flex-col h-full p-6 pt-7 pb-5 after:absolute after:inset-0 after:rounded-[1.4rem] after:border-2 after:border-[#ffe7b0cc] after:pointer-events-none after:opacity-50 ">
                   {/* Petit ruban "Nouveau" */}
                   {isNew(post.createdAt) && (
-                    <span className="absolute -top-3 left-5 px-3 py-1 text-xs font-bold rounded-xl bg-flame text-parchment shadow z-10 border border-[#E2703A] animate-pulse flex items-center gap-1">
+                    <span className="absolute -top-3 left-5 px-3 py-1 text-xs font-bold rounded-xl bg-flame text-parchment bg-blood shadow z-10 border border-[#E2703A] animate-pulse flex items-center gap-1">
                       <Flame size={14} /> Nouveau
                     </span>
                   )}
 
                   <div className="flex items-start gap-3 mb-2">
-                    <h2 className="text-xl sm:text-2xl font-uncial font-bold text-blood flex-1 group-hover:text-gold transition">
+                    <h2 className="text-xl sm:text-2xl font-uncial font-bold text-blood flex-1">
                       {post.title}
                     </h2>
                   </div>
