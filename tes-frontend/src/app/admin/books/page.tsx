@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
 import Loader from "@/app/components/Loader";
 import api from "@/app/api/axiosConfig";
@@ -17,6 +18,7 @@ export default function AdminBooksPage() {
   const [editForm, setEditForm] = useState<Partial<Book>>({});
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   const router = useRouter();
 
@@ -87,13 +89,14 @@ export default function AdminBooksPage() {
         await api.patch(`/books/${editForm.id}`, editForm, {
           withCredentials: true,
         });
+        showToast("Livre mis à jour avec succès !");
       }
       setEditModalOpen(false);
       setEditForm({});
       await fetchBooks();
     } catch (err) {
-      alert("Erreur lors de la sauvegarde du livre.");
       console.error(err);
+      showToast("Erreur lors de la mise à jour du livre.", "error");
     } finally {
       setSaving(false);
     }
@@ -104,10 +107,12 @@ export default function AdminBooksPage() {
     if (!confirm("Supprimer ce livre ?")) return;
     try {
       await api.delete(`/books/${id}`, { withCredentials: true });
+      showToast("Livre supprimé avec succès !");
       await fetchBooks();
     } catch (err) {
       alert("Erreur lors de la suppression.");
       console.error(err);
+      showToast("Erreur lors de la suppression du livre.", "error");
     }
   };
 
