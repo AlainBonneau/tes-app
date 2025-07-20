@@ -68,10 +68,11 @@ export default function AdminRegionsPage() {
     setSaving(true);
     try {
       await api.patch(`/regions/${editForm.id}`, editForm);
+      showToast("Région mise à jour avec succès", "success");
       setEditModalOpen(false);
     } catch (err) {
       console.error("Erreur lors de la sauvegarde :", err);
-      alert("Erreur lors de la sauvegarde");
+      showToast("Erreur lors de la mise à jour de la région", "error");
     } finally {
       setSaving(false);
     }

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,7 @@ export default function CreateRegionPage() {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const { showToast } = useToast();
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -39,8 +41,10 @@ export default function CreateRegionPage() {
         withCredentials: true,
       });
       if (response.status === 201) {
+        showToast("Région créée avec succès", "success");
         router.push("/admin/map");
       } else {
+        showToast("Erreur lors de la création de la région", "error");
         setError("Une erreur inconnue est survenue.");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
