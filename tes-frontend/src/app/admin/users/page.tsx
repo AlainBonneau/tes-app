@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useToast } from "@/app/context/ToastContext";
 import api from "@/app/api/axiosConfig";
 import Loader from "@/app/components/Loader";
 import { User } from "@/app/types/user";
@@ -15,6 +16,7 @@ export default function AdminUsersPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const pageSize = 10;
   const totalPages = Math.ceil(
@@ -34,13 +36,13 @@ export default function AdminUsersPage() {
         setUsers(res.data);
       } catch (err) {
         console.error("Erreur lors du chargement des utilisateurs", err);
-        alert("Erreur lors du chargement des utilisateurs");
+        showToast("Erreur lors du chargement des utilisateurs", "error");
       } finally {
         setLoading(false);
       }
     };
     fetchUsers();
-  }, [saving]);
+  }, [saving, editModalOpen, showToast]);
 
   // Filtrage et pagination
   const filteredUsers = users.filter(
@@ -76,10 +78,11 @@ export default function AdminUsersPage() {
     setSaving(true);
     try {
       await api.put(`/users/${editForm.id}`, editForm);
+      showToast("Utilisateur mis à jour avec succès", "success");
       setEditModalOpen(false);
     } catch (err) {
       console.error("Erreur lors de la mise à jour de l'utilisateur", err);
-      alert("Erreur lors de la mise à jour de l'utilisateur");
+      showToast("Erreur lors de la mise à jour de l'utilisateur", "error");
     } finally {
       setSaving(false);
     }
@@ -91,9 +94,11 @@ export default function AdminUsersPage() {
     setSaving(true);
     try {
       await api.delete(`/users/${id}`);
+      showToast("Utilisateur supprimé avec succès", "success");
       setUsers((prev) => prev.filter((u) => u.id !== id));
-    } catch {
-      alert("Erreur lors de la suppression");
+    } catch (err) {
+      console.error("Erreur lors de la suppression de l'utilisateur", err);
+      showToast("Erreur lors de la suppression de l'utilisateur", "error");
     } finally {
       setSaving(false);
     }
@@ -149,13 +154,13 @@ export default function AdminUsersPage() {
                       <td className="py-2 px-3">{user.role}</td>
                       <td className="py-2 px-3 flex gap-2 justify-center">
                         <button
-                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs cursor-pointer"
                           onClick={() => openEditModal(user)}
                         >
                           Éditer
                         </button>
                         <button
-                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"
                           onClick={() => handleDelete(user.id)}
                         >
                           Supprimer
