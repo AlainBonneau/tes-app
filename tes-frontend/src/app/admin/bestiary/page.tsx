@@ -89,10 +89,11 @@ export default function AdminBestiaryPage() {
       await api.patch(`/creatures/${editForm.id}`, dataToSend, {
         withCredentials: true,
       });
+      showToast("Créature mise à jour avec succès", "success");
       setEditModalOpen(false);
     } catch (err) {
       console.error("Erreur lors de la mise à jour de la créature :", err);
-      alert("Erreur lors de la mise à jour");
+      showToast("Erreur lors de la mise à jour de la créature", "error");
     } finally {
       setSaving(false);
     }

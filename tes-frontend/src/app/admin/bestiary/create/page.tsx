@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import AuthGuard from "@/app/components/AuthGuard";
+import { useToast } from "@/app/context/ToastContext";
 import api from "@/app/api/axiosConfig";
 import { useRouter } from "next/navigation";
 import type { Region } from "@/app/types/creatures";
@@ -17,6 +18,7 @@ export default function CreateCreaturePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [regions, setRegions] = useState<Region[]>([]);
+  const { showToast } = useToast();
 
   // Charger les régions pour le select
   useEffect(() => {
@@ -57,8 +59,10 @@ export default function CreateCreaturePage() {
       });
       if (response.status === 201) {
         router.push("/admin/bestiary");
+        showToast("Créature créée avec succès !", "success");
       } else {
         setError("Une erreur inconnue est survenue.");
+        showToast("Erreur lors de la création", "error");
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

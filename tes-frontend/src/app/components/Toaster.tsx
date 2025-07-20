@@ -30,7 +30,7 @@ export default function Toaster({ toasts, removeToast }: Props) {
               px-5 py-4 rounded-2xl border-2 shadow-lg flex items-center gap-3
               font-uncial text-lg
               ${
-                toast.type === "success" ? "bg-parchment text-blood border-gold" : ""
+                toast.type === "success" ? "bg-blood text-gold border-gold" : ""
               }
               ${
                 toast.type === "error"
