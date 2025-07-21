@@ -4,6 +4,7 @@ import { CreatePostSchema, UpdatePostSchema } from "../schemas/postSchema";
 import {
   getAllPosts,
   getPostById,
+  getPostBySlug,
   createPost,
   updatePost,
   deletePost,
@@ -12,6 +13,7 @@ import {
 export default async function postRoutes(app: FastifyInstance) {
   app.get("/posts", getAllPosts);
   app.get<{ Params: { id: string } }>("/posts/:id", getPostById);
+  app.get<{ Params: { slug: string } }>("/posts/slug/:slug", getPostBySlug);
   app.post<{
     Body: {
       title: string;

@@ -3,6 +3,7 @@ import slugify from "slugify";
 
 // Types
 type GetByIdPostRequest = FastifyRequest<{ Params: { id: string } }>;
+type GetPostBySlugRequest = FastifyRequest<{ Params: { slug: string } }>;
 
 type CreatedPostRequest = FastifyRequest<{
   Body: {
@@ -57,7 +58,7 @@ export async function getAllPosts(
     const postsWithSummary = posts.map((post) => ({
       ...post,
       summary:
-        post.content.slice(0, 150) + (post.content.length > 150 ? "..." : ""), 
+        post.content.slice(0, 150) + (post.content.length > 150 ? "..." : ""),
     }));
 
     reply.send(postsWithSummary);
@@ -96,6 +97,49 @@ export async function getPostById(
     request.server.prisma.post
       .update({
         where: { id },
+        data: { views: { increment: 1 } },
+      })
+      .catch(() => {});
+
+    reply.send(post);
+  } catch (error: any) {
+    reply.status(500).send({ error: "Erreur interne du serveur" });
+  }
+}
+
+// Controller pour obtenir un post par slug
+export async function getPostBySlug(
+  request: GetPostBySlugRequest,
+  reply: FastifyReply
+) {
+  try {
+    const slug = request.params.slug;
+    if (!slug) {
+      return reply.status(400).send({ error: "Slug manquant." });
+    }
+
+    const post = await request.server.prisma.post.findUnique({
+      where: { slug },
+      include: {
+        author: { select: { id: true, username: true, imageUrl: true } },
+        _count: { select: { comments: true } },
+        category: { select: { id: true, name: true } },
+        comments: {
+          include: {
+            author: { select: { id: true, username: true, imageUrl: true } },
+          },
+          orderBy: { createdAt: "asc" },
+        },
+      },
+    });
+
+    if (!post) {
+      return reply.status(404).send({ error: "Post non trouvé." });
+    }
+
+    request.server.prisma.post
+      .update({
+        where: { slug },
         data: { views: { increment: 1 } },
       })
       .catch(() => {});

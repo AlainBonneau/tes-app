@@ -5,6 +5,7 @@ export type Post = {
   authorId: number;
   categoryId: number;
   createdAt: string;
+  comments: Comment[];
   author?: {
     id: number;
     username: string;

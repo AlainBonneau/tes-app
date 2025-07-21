@@ -9,7 +9,7 @@ import { MessageCircle, Flame } from "lucide-react";
 import { RootState } from "@/app/store";
 import type { Post } from "@/app/types/post";
 
-// Helper pour vérifier si le post est "nouveau"
+// Fonction utilitaire pour vérifier si un post est "nouveau"
 function isNew(date: string | Date) {
   if (!date) return false;
   const created = typeof date === "string" ? new Date(date) : date;
@@ -34,11 +34,17 @@ export default function CategoryTopicsPage({
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
-    api
-      .get(`/posts?categorySlug=${slug}`)
-      .then((res) => setPosts(res.data))
-      .catch(() => setPosts([]))
-      .finally(() => setLoading(false));
+    async function fetchPosts() {
+      try {
+        const response = await api.get(`/posts?categorySlug=${slug}`);
+        setPosts(response.data);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des posts :", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchPosts();
   }, [slug]);
 
   return (
@@ -76,7 +82,7 @@ export default function CategoryTopicsPage({
                 key={post.id}
                 className="group"
               >
-                <div className=" relative bg-parchment border-2 border-[#523211] rounded-[1.5rem] shadow-xl hover:scale-[1.035] hover:border-gold hover:shadow-2xl transition flex flex-col h-full p-6 pt-7 pb-5 after:absolute after:inset-0 after:rounded-[1.4rem] after:border-2 after:border-[#ffe7b0cc] after:pointer-events-none after:opacity-50 ">
+                <div className="relative bg-parchment border-2 border-[#523211] rounded-[1.5rem] shadow-xl hover:scale-[1.035] hover:border-gold hover:shadow-2xl transition flex flex-col h-full p-6 pt-7 pb-5 after:absolute after:inset-0 after:rounded-[1.4rem] after:border-2 after:border-[#ffe7b0cc] after:pointer-events-none after:opacity-50 ">
                   {/* Petit ruban "Nouveau" */}
                   {isNew(post.createdAt) && (
                     <span className="absolute -top-3 left-5 px-3 py-1 text-xs font-bold rounded-xl bg-flame text-parchment bg-blood shadow z-10 border border-[#E2703A] animate-pulse flex items-center gap-1">
