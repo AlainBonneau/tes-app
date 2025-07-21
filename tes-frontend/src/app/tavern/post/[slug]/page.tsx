@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
 import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import { useToast } from "@/app/context/ToastContext";
+import Link from "next/link";
 import api from "@/app/api/axiosConfig";
 import Loader from "@/app/components/Loader";
 import { MessageCircle, UserCircle2 } from "lucide-react";
-import { RootState } from "@/app/store";
 import type { Post } from "@/app/types/post";
 import type { Comment } from "@/app/types/comment";
 
@@ -22,10 +23,10 @@ export default function PostDetailPage({
   const [loading, setLoading] = useState(true);
   const [reply, setReply] = useState("");
   const [replying, setReplying] = useState(false);
+  const { showToast } = useToast();
 
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedIn = auth.isAuthenticated;
-  const user = auth.user;
 
   // Récupération du post et des commentaires
   useEffect(() => {
@@ -54,7 +55,8 @@ export default function PostDetailPage({
     setReplying(true);
     try {
       await api.post(`/posts/${post!.id}/comments`, { content: reply });
-      // Recharge commentaires
+      showToast("Commentaire publié avec succès !", "success");
+      // Réinitialiser le formulaire et récupérer les commentaires mis à jour
       const coms = await api.get(`/posts/${post!.id}/comments`);
       setComments(coms.data);
       setReply("");
@@ -75,8 +77,10 @@ export default function PostDetailPage({
 
   if (!post)
     return (
-      <div className="max-w-xl mx-auto mt-10 text-center text-blood font-uncial text-xl">
-        Sujet introuvable.
+      <div className="w-full min-h-screen bg-gold flex justify-center items-center">
+        <div className="border-2 border-blood px-20 py-20 rounded-2xl bg-blood text-center text-gold font-uncial text-xl">
+          Poste introuvable.
+        </div>
       </div>
     );
 
