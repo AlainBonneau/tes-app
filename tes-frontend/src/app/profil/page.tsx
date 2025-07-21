@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useToast } from "../context/ToastContext";
 import { RootState } from "@/app/store";
 import AuthGuard from "../components/AuthGuard";
 import api from "../api/axiosConfig";
@@ -27,6 +28,7 @@ export default function ProfilePage() {
     description: string;
   } | null>(null);
   const [saving, setSaving] = useState(false);
+  const { showToast } = useToast();
 
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedIn = auth.isAuthenticated;
@@ -101,6 +103,15 @@ export default function ProfilePage() {
         imageUrl: avatar,
         description,
       });
+      if (
+        firstName !== originalProfile?.firstName ||
+        lastName !== originalProfile?.lastName ||
+        avatar !== originalProfile?.imageUrl ||
+        description !== originalProfile?.description ||
+        birthdate !== originalProfile?.birthdate
+      ) {
+        showToast("Modifications enregistrées avec succès !", "success");
+      }
       setEditMode(false);
     } catch (err) {
       console.error("Erreur lors de l'enregistrement des modifications:", err);
