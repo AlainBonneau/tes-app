@@ -21,7 +21,8 @@ export const UpdateUserSchema = z.object({
   lastName: z.string().optional(),
   imageUrl: z.url("URL d'image invalide").optional(),
   description: z.string().optional(),
-  birthdate: z.date().optional(),
+  birthdate: z
+    .string()
+    .transform((val) => (val ? new Date(val) : undefined))
+    .optional(),
 });
-
-
