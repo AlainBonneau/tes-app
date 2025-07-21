@@ -62,6 +62,13 @@ export default function PostDetailPage({
       setReply("");
     } catch (err) {
       console.error("Erreur lors de l'envoi du commentaire :", err);
+      if (reply.length > 500) {
+        showToast(
+          `Le commentaire ne doit pas dépasser 500 caractères, vous avez actuellement ${reply.length} caractères`,
+          "error"
+        );
+        return;
+      }
       alert("Erreur lors de l'envoi du commentaire. Veuillez réessayer.");
     } finally {
       setReplying(false);
@@ -126,7 +133,7 @@ export default function PostDetailPage({
             <span>{post._count?.comments ?? post.comments?.length ?? 0}</span>
           </span>
         </div>
-        <div className="prose prose-lg font-serif max-w-none text-[#3A2E1E] leading-relaxed mb-2">
+        <div className="prose prose-lg font-serif max-w-none text-[#3A2E1E] leading-relaxed mb-2 break-words">
           {post.content}
         </div>
       </div>
@@ -146,59 +153,63 @@ export default function PostDetailPage({
             {comments.map((com) => (
               <div
                 key={com.id}
-                className="bg-parchment border-l-4 border-gold px-6 py-3 rounded-xl shadow flex flex-col sm:flex-row gap-2 items-start"
+                className="bg-parchment border-l-4 border-gold px-6 py-3 rounded-xl shadow flex flex-col sm:flex-row gap-2 items-center justify-between"
               >
-                <span className="font-bold text-blood">
-                  {com.author?.username ?? "Anonyme"}
-                </span>
-                <span className="text-xs opacity-60 ml-2">
-                  {com.createdAt
-                    ? new Date(com.createdAt).toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : ""}
-                </span>
-                <div className="sm:ml-4 font-serif">{com.content}</div>
-                {com.author?.id === auth.user?.id ||
+                <div className="flex items-center gap-1 sm:gap-2 w-full">
+                  <span className="font-bold text-blood">
+                    {com.author?.username ?? "Anonyme"}
+                  </span>
+                  <span className="text-xs opacity-60 ml-2">
+                    {com.createdAt
+                      ? new Date(com.createdAt).toLocaleDateString("fr-FR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : ""}
+                  </span>
+                </div>
+                <div className="sm:ml-4 font-serif break-words break-all w-full">
+                  {com.content}
+                </div>
+                {(com.author?.id === auth.user?.id ||
                   auth.user?.role === "admin" ||
-                  (auth.user?.role === "moderator" && (
-                    <button
-                      onClick={async () => {
-                        if (
-                          confirm(
-                            "Voulez-vous vraiment supprimer ce commentaire ?"
-                          )
-                        ) {
-                          try {
-                            await api.delete(`/comments/${com.id}`);
-                            setComments((prev) =>
-                              prev.filter((c) => c.id !== com.id)
-                            );
-                            showToast(
-                              "Commentaire supprimé avec succès !",
-                              "success"
-                            );
-                          } catch (err) {
-                            console.error(
-                              "Erreur lors de la suppression du commentaire :",
-                              err
-                            );
-                            showToast(
-                              "Erreur lors de la suppression du commentaire.",
-                              "error"
-                            );
-                          }
+                  auth.user?.role === "moderator") && (
+                  <button
+                    onClick={async () => {
+                      if (
+                        confirm(
+                          "Voulez-vous vraiment supprimer ce commentaire ?"
+                        )
+                      ) {
+                        try {
+                          await api.delete(`/comments/${com.id}`);
+                          setComments((prev) =>
+                            prev.filter((c) => c.id !== com.id)
+                          );
+                          showToast(
+                            "Commentaire supprimé avec succès !",
+                            "success"
+                          );
+                        } catch (err) {
+                          console.error(
+                            "Erreur lors de la suppression du commentaire :",
+                            err
+                          );
+                          showToast(
+                            "Erreur lors de la suppression du commentaire.",
+                            "error"
+                          );
                         }
-                      }}
-                      className="text-red-600 hover:text-red-800 transition mt-2"
-                    >
-                      Supprimer
-                    </button>
-                  ))}
+                      }
+                    }}
+                    className="text-blood hover:text-gold transition font-bold text-xs px-3 py-2 rounded-lg border border-blood hover:bg-blood cursor-pointer"
+                  >
+                    Supprimer
+                  </button>
+                )}
               </div>
             ))}
           </div>

@@ -34,7 +34,7 @@ export default function Toaster({ toasts, removeToast }: Props) {
               }
               ${
                 toast.type === "error"
-                  ? "bg-rune text-parchment border-rune"
+                  ? "bg-blood text-gold border-gold"
                   : ""
               }
               ${

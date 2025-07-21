@@ -52,6 +52,12 @@ export async function createComment(
   }
   const payload = (request as any).user as { id: number };
 
+  if (content.length > 500) {
+    return reply
+      .status(400)
+      .send({ error: "Le commentaire ne doit pas dépasser 500 caractères." });
+  }
+
   try {
     const postExists = await request.server.prisma.post.findUnique({
       where: { id: postId },
