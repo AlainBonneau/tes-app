@@ -163,6 +163,42 @@ export default function PostDetailPage({
                     : ""}
                 </span>
                 <div className="sm:ml-4 font-serif">{com.content}</div>
+                {com.author?.id === auth.user?.id ||
+                  auth.user?.role === "admin" ||
+                  (auth.user?.role === "moderator" && (
+                    <button
+                      onClick={async () => {
+                        if (
+                          confirm(
+                            "Voulez-vous vraiment supprimer ce commentaire ?"
+                          )
+                        ) {
+                          try {
+                            await api.delete(`/comments/${com.id}`);
+                            setComments((prev) =>
+                              prev.filter((c) => c.id !== com.id)
+                            );
+                            showToast(
+                              "Commentaire supprimé avec succès !",
+                              "success"
+                            );
+                          } catch (err) {
+                            console.error(
+                              "Erreur lors de la suppression du commentaire :",
+                              err
+                            );
+                            showToast(
+                              "Erreur lors de la suppression du commentaire.",
+                              "error"
+                            );
+                          }
+                        }
+                      }}
+                      className="text-red-600 hover:text-red-800 transition mt-2"
+                    >
+                      Supprimer
+                    </button>
+                  ))}
               </div>
             ))}
           </div>
