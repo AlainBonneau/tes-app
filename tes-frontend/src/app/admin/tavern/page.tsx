@@ -2,33 +2,18 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { BookOpen, Map, Users } from "lucide-react";
-import AuthGuard from "../components/AuthGuard";
+import { BookOpen } from "lucide-react";
+import AuthGuard from "@/app/components/AuthGuard";
 
 const adminLinks = [
   {
-    label: "Administration bestiaire",
-    href: "/admin/bestiary",
+    label: "Administration des catégiories",
+    href: "/admin/tavern/categories",
     icon: BookOpen,
   },
   {
-    label: "Administration régions",
-    href: "/admin/map",
-    icon: Map,
-  },
-  {
-    label: "Administration utilisateurs",
-    href: "/admin/users",
-    icon: Users,
-  },
-  {
-    label: "Administration livres",
-    href: "/admin/books",
-    icon: BookOpen,
-  },
-  {
-    label: "Administration tavernes",
-    href: "/admin/tavern",
+    label: "Administration des posts",
+    href: "/admin/tavern/posts",
     icon: BookOpen,
   },
 ];
@@ -41,7 +26,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gold text-parchment font-serif flex flex-col">
         <div className="bg-blood h-[20vh] w-full flex items-center justify-center shadow-lg">
           <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
-            Administration
+            Administration - Taverne
           </h1>
         </div>
 
