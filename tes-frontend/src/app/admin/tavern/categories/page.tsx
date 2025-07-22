@@ -96,9 +96,13 @@ export default function AdminCategoriesPage() {
       console.log("Catégorie supprimée :", id);
       setCategories((prev) => prev.filter((c) => c.id !== id));
       showToast("Catégorie supprimée", "success");
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error("Erreur lors de la suppression :", err);
-      showToast("Erreur lors de la suppression", "error");
+      showToast(
+        err.response.data?.error || "Erreur lors de la suppression",
+        "error"
+      );
     } finally {
       setSaving(false);
     }
