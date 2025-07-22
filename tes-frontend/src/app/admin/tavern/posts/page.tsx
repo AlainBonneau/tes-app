@@ -20,6 +20,7 @@ export default function AdminPostsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [isCommentary, setIsCommentary] = useState<boolean>(false);
   const { showToast } = useToast();
   const router = useRouter();
 
@@ -99,10 +100,12 @@ export default function AdminPostsPage() {
     try {
       await api.delete(`/posts/${id}`);
       setPosts((prev) => prev.filter((p) => p.id !== id));
+      setIsCommentary(false);
       showToast("Post supprimé", "success");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erreur lors de la suppression du post :", err);
+      setIsCommentary(true);
       showToast(
         err.response?.data?.error || "Erreur lors de la suppression",
         "error"
@@ -153,6 +156,14 @@ export default function AdminPostsPage() {
           <>
             {/* Table PC/Tablet */}
             <div className="hidden sm:block w-full overflow-x-auto">
+              {isCommentary && (
+                <div className="text-center">
+                  <span className="ml-4 text-red-600">
+                    Impossible de supprimer le post car il possède des
+                    commentaires.
+                  </span>
+                </div>
+              )}
               <table className="min-w-full border border-gold shadow-lg rounded-xl bg-parchment">
                 <thead className="bg-blood text-gold">
                   <tr>
