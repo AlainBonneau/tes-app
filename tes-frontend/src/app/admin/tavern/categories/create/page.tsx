@@ -142,7 +142,7 @@ export default function CreateCategoryPage() {
                   tracking-widest
                   cursor-pointer
                 "
-                onClick={() => router.push("/admin/categories")}
+                onClick={() => router.push("/admin/tavern/categories")}
                 disabled={saving}
               >
                 Annuler

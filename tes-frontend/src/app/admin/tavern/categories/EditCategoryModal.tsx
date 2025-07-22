@@ -4,7 +4,9 @@ interface EditCategoryModalProps {
   open: boolean;
   onClose: () => void;
   form: Partial<Category>;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
   onSubmit: (e: React.FormEvent) => void;
   saving: boolean;
 }
@@ -32,6 +34,22 @@ export default function EditCategoryModal({
             placeholder="Nom"
             className="p-2 rounded border border-gold"
             required
+          />
+          <input
+            name="slug"
+            value={form.slug || ""}
+            onChange={onChange}
+            placeholder="Slug"
+            className="p-2 rounded border border-gold"
+            required
+          />
+          <textarea
+            name="desc"
+            value={form.desc || ""}
+            onChange={onChange}
+            placeholder="Description"
+            className="p-2 rounded border border-gold"
+            rows={4}
           />
           <div className="flex gap-4 mt-4 justify-end">
             <button

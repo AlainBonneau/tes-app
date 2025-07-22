@@ -61,7 +61,9 @@ export default function AdminCategoriesPage() {
   };
 
   // Gère les changements dans le formulaire d'édition
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setEditForm((f) => ({ ...f, [name]: value }));
   };
@@ -72,11 +74,12 @@ export default function AdminCategoriesPage() {
     setSaving(true);
     try {
       if (editForm.id) {
-        await api.patch(`/categories/${editForm.id}`, { name: editForm.name });
+        await api.patch(`/categories/${editForm.id}`, {
+          name: editForm.name,
+          desc: editForm.desc,
+          slug: editForm.slug,
+        });
         showToast("Catégorie modifiée", "success");
-      } else {
-        await api.post("/categories", { name: editForm.name });
-        showToast("Catégorie créée", "success");
       }
       setEditModalOpen(false);
     } catch (err) {
@@ -144,6 +147,7 @@ export default function AdminCategoriesPage() {
                   <tr>
                     <th className="py-2 px-3">ID</th>
                     <th className="py-2 px-3">Nom</th>
+                    <th className="py-2 px-3">Description</th>
                     <th className="py-2 px-3">Slug</th>
                     <th className="py-2 px-3">Actions</th>
                   </tr>
@@ -156,16 +160,19 @@ export default function AdminCategoriesPage() {
                     >
                       <td className="py-2 px-3">{cat.id}</td>
                       <td className="py-2 px-3 font-bold">{cat.name}</td>
+                      <td className="py-2 px-3">
+                        {cat.desc || "Aucune description"}
+                      </td>
                       <td className="py-2 px-3">{cat.slug}</td>
                       <td className="py-2 px-3 flex gap-2 justify-center">
                         <button
-                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs"
+                          className="px-3 py-1 bg-blood text-gold rounded hover:bg-blood/80 text-xs cursor-pointer"
                           onClick={() => openEditModal(cat)}
                         >
                           Éditer
                         </button>
                         <button
-                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"
                           onClick={() => handleDelete(cat.id)}
                         >
                           Supprimer
@@ -201,6 +208,10 @@ export default function AdminCategoriesPage() {
                   <div>
                     <span className="font-bold text-blood">Nom:</span>{" "}
                     {cat.name}
+                  </div>
+                  <div>
+                    <span className="font-bold text-blood">Description:</span>{" "}
+                    {cat.desc || "Aucune description"}
                   </div>
                   <div>
                     <span className="font-bold text-blood">Slug:</span>{" "}
