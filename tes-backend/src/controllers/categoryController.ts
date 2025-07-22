@@ -123,7 +123,7 @@ export async function deleteForumCategory(
     if (error.code === "P2003") {
       return reply.status(409).send({
         error:
-          "Impossible de supprimer la catégorie : elle est utilisée ailleurs (posts, forums...).",
+          "Impossible de supprimer la catégorie car elle possède des posts.",
       });
     }
     if (error.code === "P2025") {

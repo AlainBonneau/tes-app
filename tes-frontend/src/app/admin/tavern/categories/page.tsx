@@ -19,6 +19,7 @@ export default function AdminCategoriesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [isPost, setIsPost] = useState<boolean>(false);
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -98,10 +99,12 @@ export default function AdminCategoriesPage() {
       await api.delete(`/categories/${id}`);
       console.log("Catégorie supprimée :", id);
       setCategories((prev) => prev.filter((c) => c.id !== id));
+      setIsPost(false);
       showToast("Catégorie supprimée", "success");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Erreur lors de la suppression :", err);
+      setIsPost(true);
       showToast(
         err.response.data?.error || "Erreur lors de la suppression",
         "error"
@@ -119,7 +122,7 @@ export default function AdminCategoriesPage() {
             Administration – Catégories
           </h1>
         </div>
-        <div className="max-w-6xl mx-auto  py-8 flex justify-center items-center">
+        <div className="max-w-6xl mx-auto  py-8 flex flex-col justify-center items-center">
           <MyButton
             label="Ajouter une catégorie"
             onClick={() => router.push("/admin/tavern/categories/create")}
@@ -142,6 +145,14 @@ export default function AdminCategoriesPage() {
           <>
             {/* Table PC/Tablet */}
             <div className="hidden sm:block w-full overflow-x-auto">
+              {isPost && (
+                <div className="text-center ">
+                  <span className="ml-4 text-red-600">
+                    Impossible de supprimer la catégorie car elle possède des
+                    posts.
+                  </span>
+                </div>
+              )}
               <table className="min-w-full border border-gold shadow-lg rounded-xl bg-parchment">
                 <thead className="bg-blood text-gold">
                   <tr>
