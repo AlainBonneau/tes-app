@@ -23,7 +23,7 @@ export default function AdminPostsPage() {
   const { showToast } = useToast();
   const router = useRouter();
 
-    // Charge les catégories et les posts au chargement
+  // Charge les catégories et les posts au chargement
   useEffect(() => {
     async function fetchCategories() {
       try {
@@ -72,7 +72,7 @@ export default function AdminPostsPage() {
     }));
   }
 
-    // Soumission du form d'édition
+  // Soumission du form d'édition
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -100,9 +100,13 @@ export default function AdminPostsPage() {
       await api.delete(`/posts/${id}`);
       setPosts((prev) => prev.filter((p) => p.id !== id));
       showToast("Post supprimé", "success");
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error("Erreur lors de la suppression du post :", err);
-      showToast("Erreur lors de la suppression", "error");
+      showToast(
+        err.response?.data?.error || "Erreur lors de la suppression",
+        "error"
+      );
     } finally {
       setSaving(false);
     }

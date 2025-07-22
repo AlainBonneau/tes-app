@@ -263,6 +263,19 @@ export async function deletePost(
     await request.server.prisma.post.delete({ where: { id: postId } });
     reply.status(204).send();
   } catch (error: any) {
-    reply.status(404).send({ error: "Poste non trouvé." });
+    console.error("Erreur Prisma deleteForumPost:", error);
+    if (error.code === "P2003") {
+      return reply.status(409).send({
+        error:
+          "Impossible de supprimer le post : celui-ci possède des commentaires.",
+      });
+    }
+    if (error.code === "P2025") {
+      return reply.status(404).send({ error: "Poste non trouvé." });
+    }
+    reply.status(500).send({
+      error: "Erreur lors de la suppression.",
+      details: error.message,
+    });
   }
 }

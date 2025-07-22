@@ -45,7 +45,7 @@ export default function CreateCategoryPage() {
         withCredentials: true,
       });
       if (response.status === 201) {
-        router.push("/admin/categories");
+        router.push(`/tavern/category/${response.data.slug}`);
         showToast("Catégorie créée avec succès !", "success");
       } else {
         setError("Une erreur inconnue est survenue.");
