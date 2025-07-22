@@ -30,6 +30,7 @@ model ForumCategory {
   name    String
   desc    String
   icon    String?
+  topic   String?
   slug    String  @unique
   posts   Post[]
 }

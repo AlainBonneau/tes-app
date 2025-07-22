@@ -119,6 +119,16 @@ export async function deleteForumCategory(
     await request.server.prisma.forumCategory.delete({ where: { id } });
     reply.status(204).send();
   } catch (error: any) {
+    console.error("Erreur Prisma deleteForumCategory:", error);
+    if (error.code === "P2003") {
+      return reply.status(409).send({
+        error:
+          "Impossible de supprimer la catégorie : elle est utilisée ailleurs (posts, forums...).",
+      });
+    }
+    if (error.code === "P2025") {
+      return reply.status(404).send({ error: "Catégorie non trouvée." });
+    }
     reply.status(500).send({
       error: "Erreur lors de la suppression.",
       details: error.message,
