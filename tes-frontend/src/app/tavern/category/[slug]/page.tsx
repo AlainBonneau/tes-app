@@ -58,7 +58,7 @@ export default function CategoryTopicsPage({
         {isLoggedIn && (
           <Link
             href={`/tavern/new-topic?category=${slug}`}
-            className="absolute right-8 top-1/2 -translate-y-1/2 bg-gold text-blood px-5 py-2 rounded-xl font-bold shadow-md border-2 border-[#FFE1A9] hover:bg-gold/90 hover:scale-105 transition"
+            className="absolute right-8 top-1/2 translate-y-1/2 bg-gold text-blood px-5 py-2 rounded-xl font-bold shadow-md border-2 border-[#FFE1A9] hover:bg-gold/90 hover:scale-105 transition"
           >
             + Nouveau sujet
           </Link>
