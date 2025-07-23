@@ -233,6 +233,12 @@ export default function AdminUsersPage() {
                     </button>
                     <button
                       className="flex-1 px-2 py-2 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
+                      onClick={() => handleDeleteAllUserContent(user.id)}
+                    >
+                      Tout supprimer
+                    </button>
+                    <button
+                      className="flex-1 px-2 py-2 bg-gold text-blood rounded hover:bg-gold/80 text-xs"
                       onClick={() => handleDelete(user.id)}
                     >
                       Supprimer
