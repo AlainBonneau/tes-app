@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useToast } from "../context/ToastContext";
 import { RootState } from "@/app/store";
+import AvatarUploader from "../components/AvatarUploader";
 import AuthGuard from "../components/AuthGuard";
 import api from "../api/axiosConfig";
 import Image from "next/image";
@@ -242,18 +243,32 @@ export default function ProfilePage() {
                   readOnly
                 />
               </div>
-              <div className="md:col-span-2">
+              <div className="md:col-span-2 flex flex-col items-center">
                 <label className="block font-semibold mb-1 text-gold">
-                  Photo de profil (lien)
+                  Photo de profil
                 </label>
-                <input
-                  type="url"
-                  value={avatar}
-                  onChange={(e) => setAvatar(e.target.value)}
-                  className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
-                  readOnly={!editMode}
-                  placeholder="https://..."
-                />
+                {editMode ? (
+                  <>
+                    <AvatarUploader onUploaded={setAvatar} />
+                    {avatar && (
+                      <Image
+                        width={96}
+                        height={96}
+                        src={avatar}
+                        alt="Avatar preview"
+                        className="w-24 h-24 rounded-full mt-2"
+                      />
+                    )}
+                  </>
+                ) : (
+                  <input
+                    type="url"
+                    value={avatar}
+                    readOnly
+                    className="w-full p-2 border border-sandstone bg-parchment text-blood rounded"
+                    placeholder="https://..."
+                  />
+                )}
               </div>
             </div>
 

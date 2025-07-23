@@ -2,6 +2,7 @@
 import Fastify from "fastify";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyCookie from "@fastify/cookie";
+import multipart from "@fastify/multipart";
 import dotenv from "dotenv";
 import rateLimit from "@fastify/rate-limit";
 import cors from "@fastify/cors";
@@ -16,6 +17,7 @@ import postRoutes from "./routes/posts";
 import commentRoutes from "./routes/comments";
 import categoryRoutes from "./routes/category";
 import bookRoutes from "./routes/books";
+import uploadRoutes from "./routes/upload";
 import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
@@ -82,6 +84,7 @@ export async function buildApp() {
 
   // 3) Routes
   app.get("/", async () => ({ message: "Bienvenue sur l’API TES !" }));
+  app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // Limite de 10 Mo pour les fichiers uploadés
   app.register(userRoutes);
   app.register(creatureRoutes);
   app.register(regionRoutes);
@@ -91,6 +94,7 @@ export async function buildApp() {
   app.register(commentRoutes);
   app.register(categoryRoutes);
   app.register(bookRoutes);
+  app.register(uploadRoutes);
 
   return app;
 }
