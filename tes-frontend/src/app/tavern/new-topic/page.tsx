@@ -68,18 +68,19 @@ export default function NewTopicPage() {
       });
       // Redirige vers la page du post créé OU la liste des sujets de la catégorie
       router.push(`/tavern/post/${res.data.slug || res.data.id}`);
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Erreur lors de la création du sujet", err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Erreur lors de la création du sujet"
+        err.response?.data?.error ||
+          "Une erreur est survenue lors de la création du sujet. Veuillez réessayer plus tard."
       );
     } finally {
       setSubmitting(false);
     }
   };
 
-    // Si l'utilisateur n'est pas connecté, affiche un message
+  // Si l'utilisateur n'est pas connecté, affiche un message
   if (!isAuthenticated)
     return (
       <div className="min-h-screen flex items-center justify-center bg-gold font-serif">

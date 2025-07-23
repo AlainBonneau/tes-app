@@ -162,6 +162,12 @@ export async function createPost(
       .send({ error: "title, content et categoryId requis" });
   }
 
+  if (title.length < 5 || title.length > 20) {
+    return reply
+      .status(400)
+      .send({ error: "Le titre doit faire entre 5 et 20 caractères." });
+  }
+
   const payload = (request as any).user as { id: number };
 
   try {

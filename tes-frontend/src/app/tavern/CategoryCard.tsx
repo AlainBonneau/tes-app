@@ -41,7 +41,7 @@ export function CategoryCard({ cat }: { cat: Category }) {
         </div>
         <div className="flex items-center gap-4 mt-4 text-[#7c6746] text-sm font-serif">
           <span className="flex items-center gap-1">
-            <MessageCircle size={16} /> {cat.topics ?? 0} sujets
+            <MessageCircle size={16} /> {cat.posts?.length ?? 0} posts
           </span>
           {cat.lastPost && (
             <>

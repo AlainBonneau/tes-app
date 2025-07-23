@@ -89,10 +89,10 @@ export default function AdminUsersPage() {
   };
 
   // Suppression du contenu d'un utilisateur
-  const handleDeleteAllUserContent = async (userId: number) => {
+  const handleDeleteAllUserContent = async (id: number) => {
     if (!confirm("Supprimer TOUT le contenu de cet utilisateur ?")) return;
     try {
-      await api.delete(`/users/${userId}/content`);
+      await api.delete(`/users/${id}/content`);
       showToast("Contenu supprimé !", "success");
     } catch (err) {
       console.error(
