@@ -95,7 +95,7 @@ export default function PostDetailPage({
     <div className="min-h-screen bg-gold font-serif text-[#3A2E1E] pb-10">
       {/* Header */}
       <div className="bg-blood h-[18vh] w-full flex items-center px-2 sm:px-8">
-        <h1 className="text-2xl md:text-3xl font-uncial uppercase text-gold text-center flex-1">
+        <h1 className="text-2xl md:text-3xl font-uncial uppercase text-gold text-center flex-1 break-all">
           {post.title}
         </h1>
       </div>
