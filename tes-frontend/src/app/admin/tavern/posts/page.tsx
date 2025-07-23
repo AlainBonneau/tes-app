@@ -18,6 +18,7 @@ export default function AdminPostsPage() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState<Partial<Post>>({});
   const [search, setSearch] = useState("");
+  const [searchCategory, setSearchCategory] = useState("");
   const [page, setPage] = useState(1);
   const [saving, setSaving] = useState(false);
   const [isCommentary, setIsCommentary] = useState<boolean>(false);
@@ -115,10 +116,16 @@ export default function AdminPostsPage() {
     }
   };
 
-  // Pagination/recherche
-  const filteredPosts = posts.filter((post) =>
-    post.title.toLowerCase().includes(search.toLowerCase())
+  // Recherche combinée Titre + Catégorie
+  const filteredPosts = posts.filter(
+    (post) =>
+      post.title.toLowerCase().includes(search.toLowerCase()) &&
+      (!searchCategory.trim() ||
+        post.category?.name
+          ?.toLowerCase()
+          .includes(searchCategory.toLowerCase()))
   );
+
   const pageSize = 10;
   const totalPages = Math.ceil(filteredPosts.length / pageSize);
   const paginatedPosts = filteredPosts.slice(
@@ -140,7 +147,7 @@ export default function AdminPostsPage() {
             onClick={() => router.push("/admin/tavern/posts/create")}
           />
         </div>
-        <div className="w-full flex justify-end items-center p-4">
+        <div className="w-full flex justify-end items-center p-2">
           <input
             type="text"
             value={search}
@@ -148,6 +155,20 @@ export default function AdminPostsPage() {
             className="p-2 border border-sandstone bg-parchment text-blood rounded"
             placeholder="Rechercher un post..."
           />
+        </div>
+        <div className="w-full flex justify-end items-center p-2">
+          <select
+            value={searchCategory}
+            onChange={(e) => setSearchCategory(e.target.value)}
+            className="p-2 border border-sandstone bg-parchment text-blood rounded"
+          >
+            <option value="">Toutes les catégories</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {loading ? (
