@@ -88,6 +88,21 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Suppression du contenu d'un utilisateur
+  const handleDeleteAllUserContent = async (userId: number) => {
+    if (!confirm("Supprimer TOUT le contenu de cet utilisateur ?")) return;
+    try {
+      await api.delete(`/users/${userId}/content`);
+      showToast("Contenu supprimé !", "success");
+    } catch (err) {
+      console.error(
+        "Erreur lors de la suppression du contenu de l'utilisateur",
+        err
+      );
+      showToast("Erreur lors de la suppression du contenu.", "error");
+    }
+  };
+
   // Suppression d'un utilisateur
   const handleDelete = async (id: number) => {
     if (!confirm("Supprimer cet utilisateur ?")) return;
@@ -158,6 +173,12 @@ export default function AdminUsersPage() {
                           onClick={() => openEditModal(user)}
                         >
                           Éditer
+                        </button>
+                        <button
+                          className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"
+                          onClick={() => handleDeleteAllUserContent(user.id)}
+                        >
+                          Tout supprimer
                         </button>
                         <button
                           className="px-3 py-1 bg-gold text-blood rounded hover:bg-gold/80 text-xs cursor-pointer"

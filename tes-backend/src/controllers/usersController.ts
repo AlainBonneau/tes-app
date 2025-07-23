@@ -353,8 +353,38 @@ export async function logoutUser(request: FastifyRequest, reply: FastifyReply) {
     .send({ message: "Déconnexion réussie" });
 }
 
+export async function deleteAllUserContent(
+  request: FastifyRequest<{ Params: { id: string } }>,
+  reply: FastifyReply
+) {
+  const payload = (request as any).user as { role: string };
+  if (payload?.role !== "admin") {
+    return reply.status(403).send({ error: "Accès interdit." });
+  }
+  const userId = Number(request.params.id);
+
+  try {
+    // Supprime tous les commentaires de l'utilisateur
+    await request.server.prisma.comment.deleteMany({
+      where: { authorId: userId },
+    });
+    // Supprime tous les posts de l'utilisateur
+    await request.server.prisma.post.deleteMany({
+      where: { authorId: userId },
+    });
+    reply
+      .status(200)
+      .send({ message: "Tous les posts et commentaires ont été supprimés." });
+  } catch (error: any) {
+    reply.status(500).send({
+      error: "Erreur lors de la suppression.",
+      details: error.message,
+    });
+  }
+}
+
 export async function deleteUser(
-  request: FastifyRequest<{ Params: { id: number } }>,
+  request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply
 ) {
   const payload = (request as any).user as { id: number; role: string };
