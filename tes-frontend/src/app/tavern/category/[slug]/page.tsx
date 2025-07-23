@@ -91,7 +91,7 @@ export default function CategoryTopicsPage({
                   )}
 
                   <div className="flex items-start gap-3 mb-2">
-                    <h2 className="text-xl sm:text-2xl font-uncial font-bold text-blood flex-1">
+                    <h2 className="text-xl sm:text-2xl font-uncial font-bold text-blood flex-1 line-clamp-2">
                       {post.title}
                     </h2>
                   </div>
