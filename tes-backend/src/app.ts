@@ -1,5 +1,6 @@
 // src/app.ts
 import Fastify from "fastify";
+import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyCookie from "@fastify/cookie";
 import dotenv from "dotenv";
 import rateLimit from "@fastify/rate-limit";
@@ -29,6 +30,15 @@ export async function buildApp() {
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
 
+  // Configuration de la limite de requêtes
+  app.register(fastifyRateLimit, {
+    max: 100,
+    timeWindow: "60 minutes",
+    keyGenerator: (req) => req.ip,
+    errorResponseBuilder: (req, context) => ({
+      error: "Trop de requêtes, merci de patienter.",
+    }),
+  });
   // Configuration des cookies
   app.register(fastifyCookie, {
     secret: process.env.SIGNED_COOKIE, // for signed cookies (optional)
