@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/app/api/axiosConfig";
 import Loader from "@/app/components/Loader";
+import { useToast } from "@/app/context/ToastContext";
 import { RootState } from "@/app/store";
 import type { Category } from "@/app/types/category";
 import type { Post } from "@/app/types/post";
@@ -22,6 +23,7 @@ export default function NewTopicPage() {
   const [categorySlug, setCategorySlug] = useState(defaultCategory);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
@@ -66,11 +68,14 @@ export default function NewTopicPage() {
       const res = await api.post<Post>("/posts", payload, {
         withCredentials: true,
       });
-      // Redirige vers la page du post créé OU la liste des sujets de la catégorie
       router.push(`/tavern/post/${res.data.slug || res.data.id}`);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      console.error("Erreur lors de la création du sujet", err);
+      showToast(
+        err.response?.data?.error ||
+          "Une erreur est survenue lors de la création du sujet. Veuillez réessayer plus tard.",
+        "error"
+      );
       setError(
         err.response?.data?.error ||
           "Une erreur est survenue lors de la création du sujet. Veuillez réessayer plus tard."

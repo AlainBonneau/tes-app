@@ -33,7 +33,7 @@ export async function buildApp() {
   // Configuration de la limite de requêtes
   app.register(fastifyRateLimit, {
     max: 100,
-    timeWindow: "60 minutes",
+    timeWindow: "1 minute",
     keyGenerator: (req) => req.ip,
     errorResponseBuilder: (req, context) => ({
       error: "Trop de requêtes, merci de patienter.",
@@ -60,10 +60,24 @@ export async function buildApp() {
 
   // 2) Gestion centralisée des erreurs
   app.setErrorHandler((error, request, reply) => {
-    const status = (error.statusCode as number) || 500;
-    const err = error.name || "Error";
-    const msg = error.message || "Une erreur est survenue";
-    reply.status(status).send({ statusCode: status, error: err, message: msg });
+    if (
+      (typeof error === "object" &&
+        (error as any)?.error === "Trop de requêtes, merci de patienter.") ||
+      error.statusCode === 429 ||
+      error.code === "FST_ERR_RATE_LIMIT"
+    ) {
+      reply.status(429).send({
+        error: "Trop de requêtes, merci de patienter.",
+      });
+      return;
+    }
+
+    const status = error.statusCode || 500;
+    reply.status(status).send({
+      statusCode: status,
+      error: error.name || "Error",
+      message: error.message || "Une erreur est survenue",
+    });
   });
 
   // 3) Routes

@@ -16,7 +16,10 @@ export default async function commentRoutes(app: FastifyInstance) {
 
   app.post<{ Params: { postId: string }; Body: { content: string } }>(
     "/posts/:postId/comments",
-    { preHandler: [app.authenticate, zodValidate(CommentSchema)] },
+    {
+      preHandler: [app.authenticate, zodValidate(CommentSchema)],
+      config: { rateLimit: { max: 3, timeWindow: "2 minute" } },
+    },
     createComment
   );
 

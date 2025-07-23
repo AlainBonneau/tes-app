@@ -60,8 +60,10 @@ export default function PostDetailPage({
       const coms = await api.get(`/posts/${post!.id}/comments`);
       setComments(coms.data);
       setReply("");
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       console.error("Erreur lors de l'envoi du commentaire :", err);
+      showToast(err.response?.data?.error, "error");
       if (reply.length > 500) {
         showToast(
           `Le commentaire ne doit pas dépasser 500 caractères, vous avez actuellement ${reply.length} caractères`,
@@ -69,7 +71,6 @@ export default function PostDetailPage({
         );
         return;
       }
-      alert("Erreur lors de l'envoi du commentaire. Veuillez réessayer.");
     } finally {
       setReplying(false);
     }

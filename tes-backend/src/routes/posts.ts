@@ -25,7 +25,10 @@ export default async function postRoutes(app: FastifyInstance) {
     };
   }>(
     "/posts",
-    { preHandler: [app.authenticate, zodValidate(CreatePostSchema)] },
+    {
+      preHandler: [app.authenticate, zodValidate(CreatePostSchema)],
+      config: { rateLimit: { max: 2, timeWindow: "3 minutes" } },
+    },
     createPost
   );
 
