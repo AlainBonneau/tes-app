@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node --files src/index.ts",
+    "build": "tsc",
     "prisma:reset:test": "cross-env DATABASE_URL=\"postgresql://tes_test:tes_test@localhost:5432/tes_test?schema=public\" prisma migrate reset --force --skip-generate",
     "test": "cross-env DATABASE_URL=\"postgresql://tes_test:tes_test@localhost:5432/tes_test?schema=public\" npm run prisma:reset:test && cross-env DATABASE_URL=\"postgresql://tes_test:tes_test@localhost:5432/tes_test?schema=public\" jest --detectOpenHandles"
   },
