@@ -144,7 +144,7 @@ export default function PostDetailPage({
           </span>
         </div>
         <div
-          className="font-serif max-w-none text-[#3A2E1E] leading-relaxed mb-2 break-words"
+          className="tiptap-content font-serif max-w-none text-[#3A2E1E] leading-relaxed mb-2 break-words"
           dangerouslySetInnerHTML={{ __html: post.content || "" }}
         />
       </div>

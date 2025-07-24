@@ -46,17 +46,33 @@
 .font-serif [style*="text-align:center"] {
   text-align: center !important;
 }
+
 .font-serif [style*="text-align:right"] {
   text-align: right !important;
 }
+
 .font-serif [style*="text-align:left"] {
   text-align: left !important;
 }
+
 .font-serif [style*="text-align:justify"] {
   text-align: justify !important;
 }
 
+.tiptap-content p {
+  margin: 0.7em 0;
+  /* Sauf si tu veux changer l'espacement */
+}
 
+.tiptap-content ul,
+.tiptap-content ol {
+  margin: 1em 0 1em 2em;
+  padding-left: 2em;
+}
+
+.tiptap-content li {
+  margin-bottom: 0.25em;
+}
 :root {
   --font-cinzel: "Cinzel", serif;
   --font-uncial: "Uncial Antiqua", serif;
