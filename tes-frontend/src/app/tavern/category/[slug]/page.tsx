@@ -8,6 +8,7 @@ import Loader from "@/app/components/Loader";
 import { MessageCircle, Flame } from "lucide-react";
 import { RootState } from "@/app/store";
 import type { Post } from "@/app/types/post";
+import { stripHtml } from "string-strip-html";
 
 // Fonction utilitaire pour vérifier si un post est "nouveau"
 function isNew(date: string | Date) {
@@ -99,7 +100,7 @@ export default function CategoryTopicsPage({
                   {/* Résumé du post si dispo */}
                   {post.summary && (
                     <div className="text-base text-[#3a2e1ea8] font-serif my-1 line-clamp-2 italic">
-                      {post.summary}
+                      {stripHtml(post.summary).result}
                     </div>
                   )}
 

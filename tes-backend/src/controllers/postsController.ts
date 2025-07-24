@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import sanitize from "sanitize-html";
 import slugify from "slugify";
 
 // Types
@@ -173,10 +174,42 @@ export async function createPost(
   try {
     const slugSafe = slug ?? slugify(title, { lower: true, strict: true });
 
+    const cleanContent = sanitize(content, {
+      allowedTags: [
+        "b",
+        "i",
+        "em",
+        "strong",
+        "u",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "h1",
+        "h2",
+        "h3",
+        "blockquote",
+        "p",
+        "br",
+        "span",
+        // Ajoute ici d'autres balises Tiptap si tu actives des options avancées
+      ],
+      allowedAttributes: {
+        a: ["href", "name", "target", "rel"],
+        span: ["style"],
+        p: ["style"],
+        h1: ["style"],
+        h2: ["style"],
+        h3: ["style"],
+      },
+
+      allowedSchemes: ["http", "https", "mailto"],
+    });
+
     const post = await request.server.prisma.post.create({
       data: {
         title,
-        content,
+        content: cleanContent,
         categoryId,
         pinned: pinned ?? false,
         locked: locked ?? false,
@@ -220,7 +253,38 @@ export async function updatePost(
   const { title, content, categoryId, pinned, locked, slug } = request.body;
   const data: Record<string, any> = {};
   if (title !== undefined) data.title = title;
-  if (content !== undefined) data.content = content;
+  if (content !== undefined) {
+    data.content = sanitize(content, {
+      allowedTags: [
+        "b",
+        "i",
+        "em",
+        "strong",
+        "u",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "h1",
+        "h2",
+        "h3",
+        "blockquote",
+        "p",
+        "br",
+        "span",
+      ],
+      allowedAttributes: {
+        a: ["href", "name", "target", "rel"],
+        span: ["style"],
+        p: ["style"],
+        h1: ["style"],
+        h2: ["style"],
+        h3: ["style"],
+      },
+
+      allowedSchemes: ["http", "https", "mailto"],
+    });
+  }
   if (categoryId !== undefined) data.categoryId = categoryId;
   if (pinned !== undefined) data.pinned = pinned;
   if (locked !== undefined) data.locked = locked;

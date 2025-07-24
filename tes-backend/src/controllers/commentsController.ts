@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+import sanitize from "sanitize-html";
 
 // Typages
 type GetByIdCommentRequest = FastifyRequest<{ Params: { id: string } }>;
@@ -78,9 +79,14 @@ export async function createComment(
       }
     }
 
+    const cleanContent = sanitize(content, {
+      allowedTags: [],
+      allowedAttributes: {},
+    });
+
     const comment = await request.server.prisma.comment.create({
       data: {
-        content,
+        content: cleanContent,
         postId,
         authorId: payload.id,
         parentId: parentId ?? undefined,
@@ -124,10 +130,15 @@ export async function updateComment(
     return reply.status(403).send({ error: "Non autorisé" });
   }
 
+  const cleanContent = sanitize(content, {
+    allowedTags: [],
+    allowedAttributes: {},
+  });
+
   try {
     const updated = await request.server.prisma.comment.update({
       where: { id: commentId },
-      data: { content },
+      data: { content: cleanContent },
       include: {
         author: { select: { id: true, username: true, imageUrl: true } },
       },

@@ -7,6 +7,7 @@ import api from "@/app/api/axiosConfig";
 import Loader from "@/app/components/Loader";
 import { useToast } from "@/app/context/ToastContext";
 import { RootState } from "@/app/store";
+import RichTextEditor from "@/app/components/RichTextEditor";
 import type { Category } from "@/app/types/category";
 import type { Post } from "@/app/types/post";
 
@@ -175,15 +176,7 @@ export default function NewTopicPage() {
           {/* Contenu */}
           <div>
             <label className="font-bold mb-1 block">Message</label>
-            <textarea
-              className="border border-gold rounded px-3 py-2 w-full bg-parchment text-blood font-normal min-h-[120px] resize-vertical"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              minLength={10}
-              maxLength={4000}
-              required
-              placeholder="Votre message..."
-            />
+            <RichTextEditor value={content} onChange={setContent} />
           </div>
           {/* Bouton */}
           <div className="flex justify-end">

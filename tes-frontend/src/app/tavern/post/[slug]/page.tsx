@@ -143,9 +143,10 @@ export default function PostDetailPage({
             <span>{post._count?.comments ?? post.comments?.length ?? 0}</span>
           </span>
         </div>
-        <div className="prose prose-lg font-serif max-w-none text-[#3A2E1E] leading-relaxed mb-2 break-words">
-          {post.content}
-        </div>
+        <div
+          className="font-serif max-w-none text-[#3A2E1E] leading-relaxed mb-2 break-words"
+          dangerouslySetInnerHTML={{ __html: post.content || "" }}
+        />
       </div>
 
       {/* Commentaires */}
