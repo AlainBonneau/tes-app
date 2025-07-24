@@ -19,23 +19,34 @@ export default function BestiarySection() {
     (async function loadCreatures() {
       try {
         const { data } = await api.get<Creature[]>("/creatures");
-        const fourRandomIndices = new Set<number>();
-        while (fourRandomIndices.size < 4) {
-          const randomIndex = Math.floor(Math.random() * data.length);
-          fourRandomIndices.add(randomIndex);
+        if (!Array.isArray(data) || data.length === 0) {
+          setCreatures([]);
+          return;
         }
-        const fourCreatures = Array.from(fourRandomIndices).map(
-          (index) => data[index]
-        );
+
+        let fourCreatures: Creature[] = [];
+        if (data.length >= 4) {
+          const fourRandomIndices = new Set<number>();
+          while (fourRandomIndices.size < 4) {
+            const randomIndex = Math.floor(Math.random() * data.length);
+            fourRandomIndices.add(randomIndex);
+          }
+          fourCreatures = Array.from(fourRandomIndices).map(
+            (index) => data[index]
+          );
+        } else {
+          fourCreatures = data;
+        }
         setCreatures(fourCreatures);
       } catch (err) {
         console.error("Erreur fetch creatures:", err);
+        setCreatures([]);
       }
     })();
   }, [reload]);
 
   function handleRandomCreature() {
-    setReload(!reload);
+    setReload((prev) => !prev);
   }
 
   const cardVariants = {
@@ -62,25 +73,28 @@ export default function BestiarySection() {
         </div>
 
         {/* Grille responsive */}
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {creatures.map((creature, i) => (
-            <motion.div
-              key={creature.id}
-              custom={i}
-              initial="hidden"
-              animate="visible"
-              variants={cardVariants}
-            >
-              <CreatureCard creature={creature} />
-            </motion.div>
-          ))}
-        </div>
+        {creatures.length > 0 ? (
+          <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {creatures.map((creature, i) => (
+              <motion.div
+                key={creature.id}
+                custom={i}
+                initial="hidden"
+                animate="visible"
+                variants={cardVariants}
+              >
+                <CreatureCard creature={creature} />
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-gold font-cinzel text-lg my-10">
+            Aucune créature à afficher pour le moment.
+          </div>
+        )}
 
         <div className="flex justify-center items-center gap-6">
-          <MyButton
-            label="Autres créatures"
-            onClick={() => handleRandomCreature()}
-          />
+          <MyButton label="Autres créatures" onClick={handleRandomCreature} />
           <MyButton
             label="Voir le bestiaire"
             onClick={() => router.push("/bestiary")}

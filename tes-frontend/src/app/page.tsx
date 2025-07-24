@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
-// import BestiarySection from "./components/BestiarySection";
+import BestiarySection from "./components/BestiarySection";
 import MyButton from "./components/MyButton";
 
 export default function Home() {
@@ -58,9 +58,9 @@ export default function Home() {
       </section>
 
       {/* Section Bestiaire disponible dans les composants */}
-      {/* <section className="flex items-center justify-center bg-gray-100">
+      <section className="flex items-center justify-center bg-gray-100">
         <BestiarySection />
-      </section> */}
+      </section>
 
       {/* Section Lieux  */}
       <section
