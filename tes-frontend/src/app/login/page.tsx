@@ -27,7 +27,6 @@ export default function LoginRegisterPage() {
   const [birthdate, setBirthdate] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [profileUrl, setProfileUrl] = useState("");
   const [description, setDescription] = useState("");
 
   // Login handler
@@ -74,7 +73,6 @@ export default function LoginRegisterPage() {
           birthdate: birthdate || undefined,
           firstName,
           lastName,
-          imageUrl: profileUrl,
           description,
         },
         { headers: { "Content-Type": "application/json" } }
@@ -208,13 +206,6 @@ export default function LoginRegisterPage() {
                 className="p-3 rounded border border-gold bg-white text-dark"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-              />
-              <input
-                type="url"
-                placeholder="Photo de profil (lien)"
-                className="p-3 rounded border border-gold bg-white text-dark"
-                value={profileUrl}
-                onChange={(e) => setProfileUrl(e.target.value)}
               />
               <textarea
                 placeholder="Description"
