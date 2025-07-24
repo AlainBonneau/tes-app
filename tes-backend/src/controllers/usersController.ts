@@ -222,10 +222,11 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
   reply
     .setCookie("token", token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       path: "/",
       maxAge: 60 * 60 * 24,
+      domain: "tes-api.sparcky-dev.fr",
     })
     .send({
       user: {
