@@ -23,11 +23,16 @@ export default function NewTopicPage() {
   const [categorySlug, setCategorySlug] = useState(defaultCategory);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [clientReady, setClientReady] = useState(false);
   const { showToast } = useToast();
 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
+
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
 
   useEffect(() => {
     // Récupère les catégories
@@ -84,6 +89,14 @@ export default function NewTopicPage() {
       setSubmitting(false);
     }
   };
+
+  if (!clientReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gold">
+        <Loader />
+      </div>
+    );
+  }
 
   // Si l'utilisateur n'est pas connecté, affiche un message
   if (!isAuthenticated)
