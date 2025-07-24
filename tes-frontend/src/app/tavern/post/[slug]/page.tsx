@@ -4,10 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import { useToast } from "@/app/context/ToastContext";
+import Image from "next/image";
 import Link from "next/link";
 import api from "@/app/api/axiosConfig";
 import Loader from "@/app/components/Loader";
-import { MessageCircle, UserCircle2 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import type { Post } from "@/app/types/post";
 import type { Comment } from "@/app/types/comment";
 
@@ -56,7 +57,6 @@ export default function PostDetailPage({
     try {
       await api.post(`/posts/${post!.id}/comments`, { content: reply });
       showToast("Commentaire publié avec succès !", "success");
-      // Réinitialiser le formulaire et récupérer les commentaires mis à jour
       const coms = await api.get(`/posts/${post!.id}/comments`);
       setComments(coms.data);
       setReply("");
@@ -113,7 +113,16 @@ export default function PostDetailPage({
       {/* Post principal */}
       <div className="max-w-3xl mx-auto mt-8 bg-parchment border-2 border-[#523211] rounded-2xl shadow-xl p-7 sm:p-10 relative">
         <div className="flex items-center gap-3 mb-3">
-          <UserCircle2 size={30} className="text-blood" />
+          <Image
+            src={
+              post.author?.imageUrl ||
+              "https://res.cloudinary.com/dk0aq0vvw/image/upload/v1753326415/avatars/nm4ft8dkza6ejh6u8psr.webp"
+            }
+            alt={post.author?.username ?? "Inconnu"}
+            width={30}
+            height={30}
+            className="rounded-full"
+          />
           <span className="font-bold text-blood font-serif">
             {post.author?.username ?? "Inconnu"}
           </span>
