@@ -220,13 +220,13 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
   );
 
   reply
+    // A changé si en développement
     .setCookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      // secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24,
-      domain: "tes-api.sparcky-dev.fr",
     })
     .send({
       user: {
