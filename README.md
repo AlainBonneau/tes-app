@@ -1,4 +1,4 @@
-# The Elder Scrolls Tavern
+# Atlas of Tamriel
 
 > Un forum moderne et un bestiaire interactif pour les fans de **The Elder Scrolls** (Skyrim, Oblivion, Morrowind…), pensé par un passionné pour la communauté !
 
@@ -6,7 +6,7 @@
 
 ## Présentation
 
-The Elder Scrolls Tavern est une application web immersive mêlant forum, espace de discussion, et bestiaire détaillé sur l’univers de Tamriel.  
+Atlas of Tamriel est une application web immersive mêlant forum, espace de discussion, et bestiaire détaillé sur l’univers de Tamriel.  
 Le projet est conçu pour **favoriser l’échange, le partage et la découverte** entre fans de la saga.
 
 ---
