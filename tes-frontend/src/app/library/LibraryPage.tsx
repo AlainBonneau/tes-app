@@ -17,7 +17,7 @@ const BLOOD = "#7B2F10";
 const GOLD = "#FFDFA6";
 
 // Fonction pour diviser le contenu en pages
-function splitPages(text: string, charsPerPage = 1200): string[] {
+function splitPages(text: string, charsPerPage = 750): string[] {
   if (!text) return [];
   text = text.replace(/\r\n/g, "\n");
   const pages: string[] = [];
