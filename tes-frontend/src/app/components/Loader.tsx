@@ -11,7 +11,6 @@ export default function Loader({ text = "Chargement..." }: { text?: string }) {
         transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
         className="relative mb-4"
       >
-        {/* Remplace /assets/tes-logo.png par ton propre logo ou un SVG */}
         <div className="rounded-full border-4 border-gold border-t-blood w-16 h-16 flex items-center justify-center shadow-lg">
           <Image
             src="/assets/tes-logo.png"
