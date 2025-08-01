@@ -85,7 +85,8 @@ Le projet est conçu pour **favoriser l’échange, le partage et la découverte
 
 ## 📸 Vidéo de présentation
 
-_Bientôt disponible_
+[Vidéo courte](https://www.youtube.com/watch?v=7uh6H7PQuE8&ab_channel=Sparcky)
+[Vidéo longue](https://www.youtube.com/watch?v=FsJYNeslXmE&ab_channel=Sparcky)
 
 ---
 
