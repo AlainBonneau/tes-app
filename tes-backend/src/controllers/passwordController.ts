@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import sendResetEmail from "../config/resetEmail";
 
 export async function forgetPassword(
   request: FastifyRequest<{ Body: { email: string } }>,
@@ -38,7 +39,10 @@ export async function forgetPassword(
   const resetUrl = `https://tonsite.fr/reset-password?token=${token}&email=${encodeURIComponent(
     email
   )}`;
-  // sendMail(user.email, resetUrl); // À faire !
+  await sendResetEmail({
+    email,
+    resetUrl,
+  });
 
   return reply
     .status(200)
