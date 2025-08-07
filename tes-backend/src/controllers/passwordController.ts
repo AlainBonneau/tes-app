@@ -87,8 +87,6 @@ export async function resetPassword(
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    console.log("[DEV] Réinitialisation du mot de passe pour l'email :", email);
-
     await request.server.prisma.user.update({
       where: { email },
       data: {

@@ -140,7 +140,9 @@ export default function LoginRegisterPage() {
               <div className="flex justify-between text-xs text-parchment">
                 <span
                   className="underline hover:text-gold cursor-pointer"
-                  onClick={() => alert("Pas encore implémenté 😉")}
+                  onClick={() => {
+                    router.push("/forgot-password");
+                  }}
                 >
                   Mot de passe oublié ?
                 </span>
