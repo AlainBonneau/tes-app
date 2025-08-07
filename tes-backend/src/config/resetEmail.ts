@@ -1,33 +1,40 @@
 import nodemailer from "nodemailer";
 
-type ResetEmailConfig = {
+export default async function sendResetEmail({
+  email,
+  resetUrl,
+}: {
   email: string;
   resetUrl: string;
-};
+}) {
+  // Création d'un compte de test Ethereal à chaque envoi (à changer en prod)
+  let testAccount = await nodemailer.createTestAccount();
 
-async function sendResetEmail({ email, resetUrl }: ResetEmailConfig) {
-  // Configure ton transporter avec un vrai service (gmail, mailjet, ovh...)
+  // Création du transporteur SMTP Ethereal
   let transporter = nodemailer.createTransport({
-    host: "smtp.example.com",
-    port: 465, // ou 587
-    secure: true, // true pour 465, false pour 587
+    host: testAccount.smtp.host,
+    port: testAccount.smtp.port,
+    secure: testAccount.smtp.secure,
     auth: {
-      user: "ton_email@example.com",
-      pass: "ton_mot_de_passe",
+      user: testAccount.user,
+      pass: testAccount.pass,
     },
   });
 
-  await transporter.sendMail({
-    from: '"Ton Site" <noreply@tonsite.fr>',
+  // Envoi de l'email
+  let info = await transporter.sendMail({
+    from: '"The Elder Scrolls" <no-reply@elderscrolls.fr>',
     to: email,
-    subject: "Réinitialisation de ton mot de passe",
+    subject: "Réinitialisation de mot de passe",
     html: `
       <p>Tu as demandé à réinitialiser ton mot de passe.</p>
-      <p>Clique sur ce lien pour définir un nouveau mot de passe :</p>
-      <p><a href="${resetUrl}">${resetUrl}</a></p>
-      <p>Ce lien expirera dans 1h.</p>
+      <p>
+        Clique sur ce lien pour choisir un nouveau mot de passe :<br>
+        <a href="${resetUrl}">${resetUrl}</a>
+      </p>
+      <p>Ce lien est valable 1h.</p>
     `,
   });
-}
 
-export default sendResetEmail;
+  console.log("✉️  Email envoyé (test) :", nodemailer.getTestMessageUrl(info));
+}

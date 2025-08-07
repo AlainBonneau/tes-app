@@ -18,6 +18,7 @@ import commentRoutes from "./routes/comments";
 import categoryRoutes from "./routes/category";
 import bookRoutes from "./routes/books";
 import uploadRoutes from "./routes/upload";
+import passwordRoutes from "./routes/password";
 import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
@@ -95,6 +96,7 @@ export async function buildApp() {
   app.register(categoryRoutes);
   app.register(bookRoutes);
   app.register(uploadRoutes);
+  app.register(passwordRoutes);
 
   return app;
 }

@@ -3,19 +3,26 @@
 import { useState } from "react";
 import api from "../api/axiosConfig";
 import { useToast } from "../context/ToastContext";
+import Loader from "../components/Loader";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLoading(true);
     try {
       await api.post("/forget-password", { email });
       setMessage("Si un compte existe, un email a été envoyé.");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       showToast("Une erreur est survenue. Réessaye.");
       setMessage("Une erreur est survenue. Réessaye.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -46,8 +53,9 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 className="bg-gold text-dark px-4 py-2 rounded hover:bg-gold/80 cursor-pointer"
+                disabled={loading}
               >
-                Envoyer le lien de réinitialisation
+                {loading ? <Loader /> : "Envoyer le lien de réinitialisation"}
               </button>
             </form>
           )}
