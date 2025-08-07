@@ -21,6 +21,8 @@ model User {
   description String?
   password String   
   role     String   @default("user") 
+  resetToken String? @unique
+  resetTokenExpiry DateTime?
   posts    Post[]
   comments Comment[]
 }
