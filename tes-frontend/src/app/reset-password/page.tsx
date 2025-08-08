@@ -1,12 +1,16 @@
-type PageProps = {
-  searchParams: { token?: string; email?: string };
-};
-
+// app/reset-password/page.tsx
 import ResetPasswordClient from "./ResetPasswordClient";
 
-export default function Page({ searchParams }: PageProps) {
-  const token = searchParams.token ?? "";
-  const email = searchParams.email ?? "";
+type SearchParams = { token?: string; email?: string };
+
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const token = sp?.token ?? "";
+  const email = sp?.email ?? "";
 
   return <ResetPasswordClient token={token} email={email} />;
 }
