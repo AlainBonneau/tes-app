@@ -11,7 +11,7 @@ export default async function sendResetEmail({
 }) {
   try {
     const data = await resend.emails.send({
-      from: "The Elder Scrolls <no-reply@sparcky-dev.fr>", // Idéalement un domaine vérifié chez Resend
+      from: "The Elder Scrolls <no-reply@sparcky-dev.fr>",
       to: email,
       subject: "Réinitialisation de ton mot de passe",
       html: `
