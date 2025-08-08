@@ -1,4 +1,6 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function sendResetEmail({
   email,
@@ -7,34 +9,24 @@ export default async function sendResetEmail({
   email: string;
   resetUrl: string;
 }) {
-  // Création d'un compte de test Ethereal à chaque envoi (à changer en prod)
-  let testAccount = await nodemailer.createTestAccount();
+  try {
+    const data = await resend.emails.send({
+      from: "The Elder Scrolls <no-reply@sparcky-dev.fr>", // Idéalement un domaine vérifié chez Resend
+      to: email,
+      subject: "Réinitialisation de ton mot de passe",
+      html: `
+        <p>Tu as demandé à réinitialiser ton mot de passe.</p>
+        <p>
+          Clique sur ce lien pour définir un nouveau mot de passe :<br>
+          <a href="${resetUrl}">${resetUrl}</a>
+        </p>
+        <p>Ce lien expirera dans 1 heure.</p>
+      `,
+    });
 
-  // Création du transporteur SMTP Ethereal
-  let transporter = nodemailer.createTransport({
-    host: testAccount.smtp.host,
-    port: testAccount.smtp.port,
-    secure: testAccount.smtp.secure,
-    auth: {
-      user: testAccount.user,
-      pass: testAccount.pass,
-    },
-  });
-
-  // Envoi de l'email
-  let info = await transporter.sendMail({
-    from: '"The Elder Scrolls" <no-reply@elderscrolls.fr>',
-    to: email,
-    subject: "Réinitialisation de mot de passe",
-    html: `
-      <p>Tu as demandé à réinitialiser ton mot de passe.</p>
-      <p>
-        Clique sur ce lien pour choisir un nouveau mot de passe :<br>
-        <a href="${resetUrl}">${resetUrl}</a>
-      </p>
-      <p>Ce lien est valable 1h.</p>
-    `,
-  });
-
-  console.log("✉️  Email envoyé (test) :", nodemailer.getTestMessageUrl(info));
+    console.log("✉️ Email envoyé avec Resend :", data);
+  } catch (error) {
+    console.error("Erreur envoi mail Resend:", error);
+    throw error;
+  }
 }

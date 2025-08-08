@@ -36,7 +36,7 @@ export async function forgetPassword(
     });
 
     // TODO: Changer l'URL en prod
-    const resetUrl = `http://localhost:3000/reset-password?token=${token}&email=${encodeURIComponent(
+    const resetUrl = `https://atlas-of-tamriel.vercel.app/reset-password?token=${token}&email=${encodeURIComponent(
       email
     )}`;
     await sendResetEmail({

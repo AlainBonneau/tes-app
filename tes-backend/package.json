@@ -26,6 +26,7 @@
     "fastify": "^5.3.3",
     "fastify-plugin": "^5.0.1",
     "nodemailer": "^7.0.5",
+    "resend": "^6.0.0",
     "sanitize-html": "^2.17.0",
     "slugify": "^1.6.6",
     "zod": "^4.0.5"
