@@ -180,56 +180,31 @@ export async function registerUser(
 }
 
 export async function loginUser(request: LoginRequest, reply: FastifyReply) {
-  const { email, password } = request.body;
+  try {
+    const { email, password } = request.body || {};
+    if (!email || !password) {
+      return reply.status(400).send({ error: "email et password requis" });
+    }
 
-  if (!email || !password) {
-    return reply.status(400).send({ error: "email et password requis" });
-  }
+    const user = await request.server.prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      return reply
+        .status(401)
+        .send({ error: "Identifiants et/ou mot de passe invalides" });
+    }
 
-  const user = await request.server.prisma.user.findUnique({
-    where: { email },
-  });
-  if (!user) {
-    return reply
-      .status(401)
-      .send({ error: "Identifiants et/ou mot de passe invalides" });
-  }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return reply
+        .status(401)
+        .send({ error: "Identifiants et/ou mot de passe invalides" });
+    }
 
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) {
-    return reply
-      .status(401)
-      .send({ error: "Identifiants et/ou mot de passe invalides" });
-  }
-
-  const TOKEN_EXPIRATION = "24h";
-  const token = await (request.server as any).jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      imageUrl: user.imageUrl,
-      description: user.description,
-      birthdate: user.birthdate,
-      createdAt: user.createdAt,
-      role: user.role,
-    },
-    { expiresIn: TOKEN_EXPIRATION }
-  );
-
-  reply
-    // A changé si en développement
-    .setCookie("token", token, {
-      httpOnly: true,
-      // secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    })
-    .send({
-      user: {
+    const TOKEN_EXPIRATION = "24h";
+    const token = await (request.server as any).jwt.sign(
+      {
         id: user.id,
         email: user.email,
         username: user.username,
@@ -241,8 +216,42 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
         createdAt: user.createdAt,
         role: user.role,
       },
-      token,
-    });
+      { expiresIn: TOKEN_EXPIRATION }
+    );
+
+    const isProd = false; // True si en production
+    const cookieDomain = isProd
+      ? process.env.COOKIE_DOMAIN || ".sparcky-dev.fr"
+      : undefined;
+
+    reply
+      .setCookie("token", token, {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        path: "/",
+        domain: cookieDomain,
+        maxAge: 60 * 60 * 24,
+      })
+      .send({
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          imageUrl: user.imageUrl,
+          description: user.description,
+          birthdate: user.birthdate,
+          createdAt: user.createdAt,
+          role: user.role,
+        },
+        token, 
+      });
+  } catch (err) {
+    request.log.error({ err }, "Erreur dans loginUser");
+    return reply.status(500).send({ error: "Erreur serveur." });
+  }
 }
 
 export async function updateUser(
