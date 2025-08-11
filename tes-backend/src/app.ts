@@ -19,6 +19,7 @@ import categoryRoutes from "./routes/category";
 import bookRoutes from "./routes/books";
 import uploadRoutes from "./routes/upload";
 import passwordRoutes from "./routes/password";
+import quizRoutes from "./routes/quiz";
 import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
@@ -97,6 +98,7 @@ export async function buildApp() {
   app.register(bookRoutes);
   app.register(uploadRoutes);
   app.register(passwordRoutes);
+  app.register(quizRoutes);
 
   return app;
 }

@@ -7,3 +7,10 @@ export type Question = {
   imageUrl?: string;
   difficulty?: "easy" | "medium" | "hard";
 };
+
+export type QuizProps = {
+  title?: string;
+  questions?: Question[];
+  perQuestionSeconds?: number;
+  slug?: string;
+};
