@@ -119,3 +119,52 @@ model Book {
   imageUrl  String?
   content   String
 }
+
+// Quiz
+
+enum Difficulty {
+  easy
+  medium
+  hard
+}
+
+model Quiz {
+  id        Int            @id @default(autoincrement())
+  title     String
+  slug      String         @unique
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model QuizQuestion {
+  id                   Int        @id @default(autoincrement())
+  quizId               Int
+  question             String
+  options              String[]   
+  correctAnswerIndex   Int
+  explanation          String?
+  difficulty           Difficulty  @default(easy)
+  imageUrl             String?
+  order                Int         @default(0)
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+}
+
+model QuizAttempt {
+  id             Int      @id @default(autoincrement())
+  quizId         Int
+  userId         Int?     
+  score          Int
+  total          Int
+  elapsedSeconds Int
+  details        Json
+  createdAt      DateTime @default(now())
+
+  quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@index([quizId, score, elapsedSeconds])
+}
+
+
