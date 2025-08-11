@@ -2,16 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-export type Question = {
-  id: number;
-  question: string;
-  options: string[];
-  correctAnswerIndex: number;
-  explanation?: string;
-  imageUrl?: string;
-  difficulty?: "easy" | "medium" | "hard";
-};
+import type { Question } from "../types/question";
 
 type QuizProps = {
   title?: string;
@@ -123,7 +114,7 @@ export default function ElderScrollsQuiz({
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={start}
-                className="px-6 py-3 rounded border border-gold bg-blood text-gold font-cinzel hover:bg-gold/80 hover:text-blood transition shadow"
+                className="px-6 py-3 rounded border border-gold bg-blood text-gold font-cinzel hover:bg-gold/80 hover:text-blood transition shadow cursor-pointer"
               >
                 Commencer le quiz
               </button>
