@@ -65,7 +65,7 @@ export default function ElderScrollsQuiz({
       {/* Header comme le Bestiary */}
       <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-8 shadow">
         <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
-          Bestiaire - Quiz
+          Quiz
         </h1>
       </div>
 
