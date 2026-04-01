@@ -64,23 +64,22 @@ export async function buildApp() {
 
   // 2) Gestion centralisée des erreurs
   app.setErrorHandler((error, request, reply) => {
+    const e = isFastifyLikeError(error) ? error : {};
+
     if (
-      (typeof error === "object" &&
-        (error as any)?.error === "Trop de requêtes, merci de patienter.") ||
-      error.statusCode === 429 ||
-      error.code === "FST_ERR_RATE_LIMIT"
+      e.error === "Trop de requêtes, merci de patienter." ||
+      e.statusCode === 429 ||
+      e.code === "FST_ERR_RATE_LIMIT"
     ) {
-      reply.status(429).send({
-        error: "Trop de requêtes, merci de patienter.",
-      });
+      reply.status(429).send({ error: "Trop de requêtes, merci de patienter." });
       return;
     }
 
-    const status = error.statusCode || 500;
+    const status = e.statusCode ?? 500;
     reply.status(status).send({
       statusCode: status,
-      error: error.name || "Error",
-      message: error.message || "Une erreur est survenue",
+      error: e.name ?? "Error",
+      message: e.message ?? "Une erreur est survenue",
     });
   });
 
@@ -102,3 +101,14 @@ export async function buildApp() {
 
   return app;
 }
+
+type FastifyLikeError = {
+  statusCode?: number;
+  code?: string;
+  name?: string;
+  message?: string;
+  error?: string;
+};
+
+const isFastifyLikeError = (e: unknown): e is FastifyLikeError =>
+  typeof e === "object" && e !== null;
