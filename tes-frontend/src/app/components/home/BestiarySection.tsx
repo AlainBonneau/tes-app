@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import CreatureCard from "./CreatureCard";
-import MyButton from "./MyButton";
-import { Creature } from "../types/creatures";
-import api from "../api/axiosConfig";
+import CreatureCard from "../CreatureCard";
+import MyButton from "../MyButton";
+import { Creature } from "../../types/creatures";
+import api from "../../api/axiosConfig";
 
 export default function BestiarySection() {
   const [creatures, setCreatures] = useState<Creature[]>([]);
@@ -69,7 +69,7 @@ export default function BestiarySection() {
             height={80}
             className="object-contain"
           />
-          <h2 className="font-uncial text-gold text-5xl">Bestiaire</h2>
+          <h2 className="font-uncial text-gold text-4xl">Bestiaire</h2>
         </div>
 
         {/* Grille responsive */}
