@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { QuizProps } from "../types/question";
+import { QuizProps } from "@/app/types/question";
 
 export default function ElderScrollsQuiz({
   title,
@@ -27,7 +27,7 @@ export default function ElderScrollsQuiz({
     if (!started || showResult) return;
     const t = setInterval(
       () => setSecondsLeft((s) => (s ? (s > 0 ? s - 1 : 0) : 0)),
-      1000
+      1000,
     );
     return () => clearInterval(t);
   }, [started, showResult]);
@@ -150,10 +150,10 @@ export default function ElderScrollsQuiz({
                         isCorrect
                           ? "border-green-600 bg-green-600/10"
                           : isWrong
-                          ? "border-rune bg-rune/10"
-                          : isSelected
-                          ? "border-gold bg-gold/10"
-                          : "border-gold/50 hover:border-gold"
+                            ? "border-rune bg-rune/10"
+                            : isSelected
+                              ? "border-gold bg-gold/10"
+                              : "border-gold/50 hover:border-gold"
                       }`}
                     >
                       {opt}
