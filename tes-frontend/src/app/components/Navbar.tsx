@@ -51,12 +51,12 @@ export default function Navbar() {
   return (
     <header className="relative z-50">
       <nav className="bg-dark text-parchment border-3 border-gold shadow-lg">
-        <div className="max-w-screen-xl mx-auto flex items-center justify-center h-20 px-6">
+        <div className="max-w-screen-xl mx-auto flex items-center justify-center h-18 px-6">
           <Link href="/" className=" hidden items-center pr-4  md:block">
             <Image src={tesLogo} alt="TES Logo" width={56} height={56} />
           </Link>
           {/* Liens desktop */}
-          <div className="hidden md:flex items-center gap-6 font-uncial uppercase tracking-wide">
+          <div className="hidden text-sm md:flex items-center gap-8 font-uncial uppercase tracking-wide">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
