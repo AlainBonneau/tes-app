@@ -1,4 +1,3 @@
-// app/reset-password/page.tsx
 import ResetPasswordClient from "./ResetPasswordClient";
 
 type SearchParams = { token?: string; email?: string };
