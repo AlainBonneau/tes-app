@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/app/features/auth/authSlice";
 import type { RootState } from "@/app/store";
 import api from "../api/axiosConfig";
+import axios from "axios";
 import AuthHeader from "./components/AuthHeader";
 import AuthFormCard from "./components/AuthFormCard";
 
@@ -47,35 +48,16 @@ export default function LoginRegisterPage() {
       const res = await api.get("/users/me", { withCredentials: true });
       dispatch(setUser(res.data));
       router.push("/");
-    } catch (err: unknown) {
+    } catch (err) {
       if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof err.response === "object" &&
-        err.response !== null &&
-        "data" in err.response &&
-        typeof err.response.data === "object" &&
-        err.response.data !== null &&
-        "error" in err.response &&
-        typeof err.response.error === "string"
-      ) {
-        setError(err.response.error);
-      } else if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof err.response === "object" &&
-        err.response !== null &&
-        "data" in err.response &&
-        typeof err.response.data === "object" &&
-        err.response.data !== null &&
-        "error" in err.response.data &&
+        axios.isAxiosError(err) &&
+        err.response &&
+        err.response.data &&
         typeof err.response.data.error === "string"
       ) {
         setError(err.response.data.error);
       } else {
-        setError("Identifiants incorrects");
+        setError("Erreur lors de la connexion");
       }
     } finally {
       setLoading(false);
@@ -106,17 +88,11 @@ export default function LoginRegisterPage() {
 
       setIsLogin(true);
       setError("Inscription réussie ! Vous pouvez maintenant vous connecter.");
-    } catch (err: unknown) {
+    } catch (err) {
       if (
-        typeof err === "object" &&
-        err !== null &&
-        "response" in err &&
-        typeof err.response === "object" &&
-        err.response !== null &&
-        "data" in err.response &&
-        typeof err.response.data === "object" &&
-        err.response.data !== null &&
-        "error" in err.response.data &&
+        axios.isAxiosError(err) &&
+        err.response &&
+        err.response.data &&
         typeof err.response.data.error === "string"
       ) {
         setError(err.response.data.error);
