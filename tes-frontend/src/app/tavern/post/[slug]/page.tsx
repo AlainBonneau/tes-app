@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { useParams } from "next/navigation";
 import { RootState } from "@/app/store";
 import { useToast } from "@/app/context/ToastContext";
 import api from "@/app/api/axiosConfig";
@@ -14,12 +15,10 @@ import PostContentCard from "./components/PostContentCard";
 import CommentsSection from "./components/CommentsSection";
 import CommentForm from "./components/CommentForm";
 
-type PostDetailPageProps = {
-  params: Promise<{ slug: string }>;
-};
+export default function PostDetailPage() {
+  const params = useParams<{ slug: string }>();
+  const slug = params?.slug;
 
-export default function PostDetailPage({ params }: PostDetailPageProps) {
-  const [slug, setSlug] = useState("");
   const [post, setPost] = useState<Post | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,15 +30,6 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
   const isLoggedIn = auth.isAuthenticated;
 
   useEffect(() => {
-    const resolveParams = async () => {
-      const resolvedParams = await params;
-      setSlug(resolvedParams.slug);
-    };
-
-    resolveParams();
-  }, [params]);
-
-  useEffect(() => {
     if (!slug) return;
 
     const fetchPostAndComments = async () => {
@@ -47,12 +37,14 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
 
       try {
         const postResponse = await api.get(`/posts/slug/${slug}`);
-        setPost(postResponse.data);
+        const fetchedPost = postResponse.data as Post;
+
+        setPost(fetchedPost);
 
         const commentsResponse = await api.get(
-          `/posts/${postResponse.data.id}/comments`,
+          `/posts/${fetchedPost.id}/comments`,
         );
-        setComments(commentsResponse.data);
+        setComments(commentsResponse.data as Comment[]);
       } catch (err) {
         console.error("Erreur lors de la récupération du post :", err);
         setPost(null);
@@ -67,7 +59,7 @@ export default function PostDetailPage({ params }: PostDetailPageProps) {
 
   const refreshComments = async (postId: number) => {
     const commentsResponse = await api.get(`/posts/${postId}/comments`);
-    setComments(commentsResponse.data);
+    setComments(commentsResponse.data as Comment[]);
   };
 
   const handleReply = async (e: React.FormEvent<HTMLFormElement>) => {
