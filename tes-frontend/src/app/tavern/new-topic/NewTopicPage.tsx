@@ -1,20 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/app/api/axiosConfig";
-import Loader from "@/app/components/Loader";
 import { useToast } from "@/app/context/ToastContext";
 import { RootState } from "@/app/store";
-import RichTextEditor from "@/app/components/RichTextEditor";
 import type { Category } from "@/app/types/category";
 import type { Post } from "@/app/types/post";
+import NewTopicHeader from "./components/NewTopicHeader";
+import NewTopicAuthGate from "./components/NewTopicAuthGate";
+import NewTopicForm from "./components/NewTopicForm";
+import Loader from "@/app/components/Loader";
 
 export default function NewTopicPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const defaultCategory = searchParams?.get("category") ?? "";
+  const { showToast } = useToast();
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
+
+  const defaultCategory = searchParams.get("category") ?? "";
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -24,172 +33,112 @@ export default function NewTopicPage() {
   const [categorySlug, setCategorySlug] = useState(defaultCategory);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [clientReady, setClientReady] = useState(false);
-  const { showToast } = useToast();
-
-  const isAuthenticated = useSelector(
-    (state: RootState) => state.auth.isAuthenticated
-  );
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setClientReady(true);
-  }, []);
-
-  useEffect(() => {
-    // Récupère les catégories
-    async function fetchCategories() {
+    const fetchCategories = async () => {
       setLoadingCategories(true);
+
       try {
-        const res = await api.get<Category[]>("/categories");
-        setCategories(res.data);
+        const response = await api.get<Category[]>("/categories");
+        setCategories(response.data);
       } catch (err) {
-        console.error("Erreur lors du chargement des catégories", err);
-        alert("Erreur lors du chargement des catégories");
+        console.error("Erreur lors du chargement des catégories :", err);
+        showToast("Erreur lors du chargement des catégories.", "error");
       } finally {
+        setLoading(false);
         setLoadingCategories(false);
       }
-    }
-    fetchCategories();
-  }, []);
+    };
 
-  // Si aucune catégorie n'est sélectionnée, utilise la première
+    fetchCategories();
+  }, [showToast]);
+
+  useEffect(() => {
+    if (defaultCategory) {
+      setCategorySlug(defaultCategory);
+    }
+  }, [defaultCategory]);
+
   useEffect(() => {
     if (!categorySlug && categories.length > 0) {
       setCategorySlug(categories[0].slug ?? "");
     }
   }, [categories, categorySlug]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setError(null);
     setSubmitting(true);
+
     try {
-      const catObj = categories.find((c) => c.slug === categorySlug);
-      if (!catObj) throw new Error("Catégorie invalide");
+      const selectedCategory = categories.find(
+        (category) => category.slug === categorySlug,
+      );
+
+      if (!selectedCategory) {
+        throw new Error("Catégorie invalide");
+      }
+
       const payload = {
         title,
         content,
-        categoryId: catObj.id,
+        categoryId: selectedCategory.id,
       };
-      const res = await api.post<Post>("/posts", payload, {
+
+      const response = await api.post<Post>("/posts", payload, {
         withCredentials: true,
       });
-      router.push(`/tavern/post/${res.data.slug || res.data.id}`);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      showToast(
-        err.response?.data?.error ||
-          "Une erreur est survenue lors de la création du sujet. Veuillez réessayer plus tard.",
-        "error"
-      );
-      setError(
-        err.response?.data?.error ||
+
+      const createdPost = response.data;
+      router.push(`/tavern/post/${createdPost.slug || createdPost.id}`);
+    } catch (err) {
+      console.error("Erreur lors de la création du sujet :", err);
+
+      const message = axios.isAxiosError(err)
+        ? err.response?.data?.error ||
           "Une erreur est survenue lors de la création du sujet. Veuillez réessayer plus tard."
-      );
+        : err instanceof Error
+          ? err.message
+          : "Une erreur est survenue lors de la création du sujet. Veuillez réessayer plus tard.";
+
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (!clientReady) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gold">
-        <Loader />
+      <div className="min-h-screen bg-gold flex items-center justify-center">
+        <Loader text="Chargement des catégories..." />
       </div>
     );
   }
 
-  // Si l'utilisateur n'est pas connecté, affiche un message
-  if (!isAuthenticated)
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gold font-serif">
-        <div className="bg-parchment border-2 border-blood shadow rounded-xl px-8 py-12 text-center">
-          <div className="font-uncial text-blood text-2xl mb-2">
-            Connexion requise
-          </div>
-          <div className="text-blood mb-4">
-            Veuillez vous connecter pour créer un sujet.
-          </div>
-          <button
-            className="bg-gold border border-blood rounded-lg px-5 py-2 text-blood font-bold hover:bg-blood hover:text-gold transition"
-            onClick={() => router.push("/login")}
-          >
-            Se connecter
-          </button>
-        </div>
-      </div>
-    );
+  if (!isAuthenticated) {
+    return <NewTopicAuthGate onLogin={() => router.push("/login")} />;
+  }
 
   return (
     <div className="min-h-screen bg-gold flex flex-col items-center font-serif text-[#3A2E1E]">
-      <div className="bg-blood h-[18vh] w-full flex items-center justify-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-uncial uppercase text-gold text-center">
-          Nouveau sujet
-        </h1>
-      </div>
-      <div className="w-full max-w-2xl mx-auto px-3">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-parchment border-2 border-[#523211] rounded-2xl shadow-xl px-6 py-8 flex flex-col gap-6"
-        >
-          {/* Erreur */}
-          {error && (
-            <div className="text-red-700 bg-red-100 border border-red-300 rounded px-4 py-2 font-semibold">
-              {error}
-            </div>
-          )}
+      <NewTopicHeader title="Nouveau sujet" />
 
-          {/* Catégorie */}
-          <div>
-            <label className="font-bold mb-1 block">Catégorie</label>
-            {loadingCategories ? (
-              <Loader />
-            ) : (
-              <select
-                className="border border-gold rounded px-3 py-2 w-full bg-parchment text-blood font-semibold"
-                value={categorySlug}
-                onChange={(e) => setCategorySlug(e.target.value)}
-                required
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-          {/* Titre */}
-          <div>
-            <label className="font-bold mb-1 block">Titre</label>
-            <input
-              className="border border-gold rounded px-3 py-2 w-full bg-parchment text-blood font-semibold"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              minLength={3}
-              maxLength={128}
-              required
-              placeholder="Donnez un titre explicite à votre sujet"
-              autoFocus
-            />
-          </div>
-          {/* Contenu */}
-          <div>
-            <label className="font-bold mb-1 block">Message</label>
-            <RichTextEditor value={content} onChange={setContent} />
-          </div>
-          {/* Bouton */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-blood text-gold font-bold px-8 py-2 rounded-xl border border-gold shadow hover:bg-blood/90 hover:scale-105 transition"
-            >
-              {submitting ? "Création..." : "Publier"}
-            </button>
-          </div>
-        </form>
-      </div>
+      <NewTopicForm
+        error={error}
+        categories={categories}
+        loadingCategories={loadingCategories}
+        categorySlug={categorySlug}
+        title={title}
+        content={content}
+        submitting={submitting}
+        onCategoryChange={setCategorySlug}
+        onTitleChange={setTitle}
+        onContentChange={setContent}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }
