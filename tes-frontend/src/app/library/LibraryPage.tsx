@@ -10,12 +10,6 @@ type BookModalProps = {
   onClose: () => void;
 };
 
-// Couleurs
-const PARCHMENT = "#FFFDF6";
-const BOOK = "#523211";
-const BLOOD = "#7B2F10";
-const GOLD = "#FFDFA6";
-
 // Fonction pour diviser le contenu en pages
 function splitPages(text: string, charsPerPage = 750): string[] {
   if (!text) return [];
@@ -50,11 +44,11 @@ export default function BookModal({ book, open, onClose }: BookModalProps) {
         setPage((p) => Math.max(0, p - (isMobile ? 1 : 2)));
       if (e.key === "ArrowRight")
         setPage((p) =>
-          Math.min(pages.length - (isMobile ? 1 : 2), p + (isMobile ? 1 : 2))
+          Math.min(pages.length - (isMobile ? 1 : 2), p + (isMobile ? 1 : 2)),
         );
       if (e.key === "Escape") onClose();
     },
-    [pages.length, isMobile, onClose]
+    [pages.length, isMobile, onClose],
   );
 
   // Détecter la taille de l'écran pour ajuster le nombre de caractères par page
@@ -87,7 +81,7 @@ export default function BookModal({ book, open, onClose }: BookModalProps) {
   const prevPage = () => setPage(Math.max(0, page - (isMobile ? 1 : 2)));
   const nextPage = () =>
     setPage(
-      Math.min(pages.length - (isMobile ? 1 : 2), page + (isMobile ? 1 : 2))
+      Math.min(pages.length - (isMobile ? 1 : 2), page + (isMobile ? 1 : 2)),
     );
 
   return (
@@ -95,155 +89,114 @@ export default function BookModal({ book, open, onClose }: BookModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-1 sm:px-2"
-      style={{ backdropFilter: "blur(3px)" }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 backdrop-blur-sm"
     >
       <motion.div
-        initial={{ scale: 0.96, y: 30 }}
+        initial={{ scale: 0.96, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.96, y: 30 }}
-        transition={{ type: "spring", stiffness: 250, damping: 32 }}
-        className={` relative flex flex-col items-center rounded-[2.3rem] border-double border-[7px] border-[${BOOK}] shadow-[0_10px_80px_#52321199,0_2px_12px_#7B2F1025] bg-[${PARCHMENT}] w-full ${
-          isMobile ? "max-w-xs sm:max-w-md" : "max-w-4xl"
-        } min-h-[220px] sm:min-h-[340px] md:min-h-[500px] max-h-[92vh] px-1 sm:px-8 py-5 sm:py-10 justify-center `}
-        style={{
-          boxShadow: "0 8px 50px #43221188, 0 1.5px 10px #0002",
-          borderColor: "#694b2f",
-          background:
-            "repeating-linear-gradient(135deg, #6b472c 0 25px, #785339 25px 50px, #6b472c 50px 60px)",
-        }}
+        exit={{ scale: 0.96, y: 20 }}
+        transition={{ type: "spring", stiffness: 220, damping: 24 }}
+        className="relative w-full max-w-[95vw] sm:max-w-2xl lg:max-w-4xl"
       >
-        {/* Fermeture */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-6 bg-blood text-gold rounded-full px-2 py-1 text-xl font-bold hover:bg-blood/90 shadow-lg ring-2 ring-gold ring-offset-2 z-20 cursor-pointer transition-transform hover:scale-105 active:scale-95"
-          style={{
-            boxShadow: "0 2px 8px #52321155",
-          }}
-        >
-          <X size={26} />
-        </button>
+        <div className="relative rounded-[1.5rem] bg-gradient-to-br from-[#4a2c1d] via-[#5b3723] to-[#2f1b12] p-1.5 sm:p-2 shadow-[0_20px_60px_rgba(0,0,0,0.5)]">
+          <div className="pointer-events-none absolute inset-y-4 left-0 w-3 rounded-l-[1rem] bg-gradient-to-b from-[#7a5337] via-[#caa27b] to-[#6a452d] sm:inset-y-6 sm:w-5" />
 
-        {/* Header livre */}
-        <div className="flex items-center gap-4 mb-4 px-2 w-full justify-center">
-          <div className="bg-[#fff7da] rounded-[1rem] p-1 border-4 border-[#FFDFA6] shadow-lg flex items-center justify-center min-w-[56px] min-h-[80px]">
-            <Image
-              src={book.imageUrl || "/assets/default-book.png"}
-              alt={book.title}
-              width={48}
-              height={70}
-              className="rounded-lg border-2 border-[#E9D9A3] shadow-sm"
-              draggable={false}
-            />
-          </div>
-          <div className="flex-1">
-            <div
-              className="text-center font-uncial font-extrabold text-[1.7rem] sm:text-3xl"
-              style={{
-                color: GOLD,
-                textShadow: "0 1px 2px #523211, 0 0px 10px #FFE09C99",
-                letterSpacing: "0.04em",
-              }}
-            >
-              {book.title}
-            </div>
-            <div className="text-xs sm:text-sm text-gold text-center italic font-serif">
-              {book.author ? `Auteur : ${book.author}` : "Auteur inconnu"}
-            </div>
-          </div>
-        </div>
+          <div className="relative flex max-h-[92vh] flex-col overflow-hidden rounded-[1.2rem] border-2 border-[#caa56b] bg-gradient-to-br from-[#5a3724] via-[#4a2d1f] to-[#2c1a13] px-3 py-3 sm:px-5 sm:py-5">
+            <div className="pointer-events-none absolute inset-2 sm:inset-3 rounded-[1rem] border border-[#e5c78e]/40" />
 
-        {/* Pages */}
-        <div
-          className={` flex-1 flex ${
-            isMobile ? "flex-col" : "flex-row"
-          } w-full max-w-full bg-[${PARCHMENT}] rounded-2xl border-[${BOOK}] border-[3.5px] shadow-inner overflow-hidden relative `}
-          style={{
-            boxShadow: "inset 0 1px 36px #decfb399",
-            borderColor: BOOK,
-          }}
-        >
-          {/* Page gauche */}
-          <div
-            className={` flex-1 px-4 py-5 min-h-[100px] max-h-[60vh] overflow-y-auto font-serif text-[#432400] text-base sm:text-[18px] leading-relaxed tracking-normal bg-gradient-to-br from-[#fffde8] via-[#faedd6] to-[#f7ecd7] shadow-[inset_4px_0_32px_-6px_#dfc494] ${
-              !isMobile ? "border-r-2 border-[#decfb3]" : ""
-            } `}
-            style={{
-              whiteSpace: "pre-wrap",
-              fontFamily: "'EB Garamond', serif",
-              background: isMobile
-                ? "linear-gradient(100deg, #fffde8 60%, #faedd6 120%)"
-                : "linear-gradient(100deg, #fffde8 40%, #f7ecd7 100%)",
-            }}
-          >
-            {leftPage}
-          </div>
-          {/* Page droite */}
-          {!isMobile && rightPage && (
-            <div
-              className={` flex-1 px-4 py-5 min-h-[100px] max-h-[60vh] overflow-y-auto font-serif text-[#432400] text-base sm:text-[18px] leading-relaxed tracking-normal bg-gradient-to-br from-[#fffde8] via-[#faedd6] to-[#f7ecd7] shadow-[inset_-4px_0_32px_-6px_#decfb399] `}
-              style={{
-                whiteSpace: "pre-wrap",
-                fontFamily: "'EB Garamond', serif",
-                background:
-                  "linear-gradient(100deg, #fffde8 60%, #faedd6 120%)",
-              }}
+            <button
+              onClick={onClose}
+              className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-[#e7c98d] bg-[#6f2c1b] text-[#f6deb0] shadow-lg transition hover:scale-105 hover:bg-[#843521] active:scale-95 sm:right-4 sm:top-4 sm:h-10 sm:w-10"
             >
-              {rightPage}
-              {/* Effet "reliure" */}
+              <X size={18} />
+            </button>
+
+            <div className="mb-4 flex shrink-0 items-center gap-3 pr-10 sm:mb-5 sm:gap-4 sm:pr-12">
+              <div className="shrink-0 rounded-lg border-2 border-[#d6b27b] bg-[#f4e7c8] p-1 shadow-[0_6px_18px_rgba(0,0,0,0.25)]">
+                <Image
+                  src={book.imageUrl || "/assets/default-book.png"}
+                  alt={book.title}
+                  width={isMobile ? 46 : 60}
+                  height={isMobile ? 66 : 84}
+                  className="rounded-md object-cover shadow-md"
+                  draggable={false}
+                />
+              </div>
+
+              <div className="min-w-0 flex-1 text-center">
+                <h2 className="line-clamp-2 text-base font-extrabold tracking-wide text-[#f6deb0] drop-shadow sm:text-2xl lg:text-3xl">
+                  {book.title}
+                </h2>
+                <p className="mt-1 text-[11px] italic text-[#e7d3ad] sm:text-sm lg:text-base">
+                  {book.author ? `Auteur : ${book.author}` : "Auteur inconnu"}
+                </p>
+              </div>
+            </div>
+
+            <div className="relative min-h-0 flex-1 overflow-scroll rounded-[1rem] border-2 border-[#d4b07a] bg-[#efe2c2] shadow-[inset_0_0_25px_rgba(92,54,23,0.18)] sm:border-4">
+              {!isMobile && (
+                <div className="pointer-events-none absolute left-1/2 top-0 z-10 h-full w-6 -translate-x-1/2 bg-gradient-to-r from-[#c9b08a] via-[#9b7a55] to-[#c9b08a] opacity-70 shadow-[inset_0_0_10px_rgba(0,0,0,0.25)] lg:w-8" />
+              )}
+
               <div
-                className="absolute top-0 left-0 h-full w-2 pointer-events-none"
-                style={{
-                  background:
-                    "linear-gradient(90deg, #decfb355 30%, #fff0 100%)",
-                  zIndex: 1,
-                }}
-              />
-            </div>
-          )}
-        </div>
+                className={`flex h-full ${isMobile ? "flex-col" : "flex-row"}`}
+              >
+                <div
+                  className={`relative flex-1 overflow-y-auto px-4 py-4 text-sm leading-6 text-[#4a2c1d] sm:px-6 sm:py-6 sm:text-[15px] lg:px-8 lg:py-7 lg:text-[17px] lg:leading-7 ${
+                    !isMobile ? "border-r border-[#d7bf95]" : ""
+                  } bg-gradient-to-br from-[#fffdf4] via-[#f8edd1] to-[#efe0bb]`}
+                  style={{
+                    whiteSpace: "pre-wrap",
+                    fontFamily: "'EB Garamond', serif",
+                  }}
+                >
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_27px,rgba(120,84,44,0.06)_28px)] bg-[length:100%_28px] sm:bg-[linear-gradient(to_bottom,transparent_31px,rgba(120,84,44,0.06)_32px)] sm:bg-[length:100%_32px]" />
+                  <div className="relative z-[1]">{leftPage}</div>
+                </div>
 
-        {/* Navigation */}
-        <div className="flex items-center justify-center gap-8 mt-6">
-          <button
-            onClick={prevPage}
-            disabled={page === 0}
-            className={` p-3 rounded-full border-2 border-[#e9d9a3] bg-[#FFE9B9] text-[#523211] hover:bg-[#FFFDF6] hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-xl flex items-center justify-center transition-all duration-150 cursor-pointer `}
-            aria-label="Page précédente"
-            style={{
-              boxShadow: "0 2px 14px #cfc5b2cc",
-            }}
-          >
-            <ChevronLeft size={28} />
-          </button>
-          <span
-            className="font-bold font-cinzel text-base sm:text-lg"
-            style={{
-              color: BLOOD,
-              background: "#ffe9b982",
-              borderRadius: "12px",
-              padding: "2px 14px",
-              border: "1.5px solid #decfb3",
-              boxShadow: "0 1px 5px #fff6e933",
-            }}
-          >
-            Page {page + 1}
-            {rightPage && `-${page + 2}`} / {pages.length}
-          </span>
-          <button
-            onClick={nextPage}
-            disabled={
-              (isMobile && page >= pages.length - 1) ||
-              (!isMobile && page >= pages.length - 2)
-            }
-            className={` p-3 rounded-full border-2 border-[#e9d9a3] bg-[#FFE9B9] text-[#523211] hover:bg-[#FFFDF6] hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shadow-xl flex items-center justify-center transition-all duration-150 cursor-pointer `}
-            aria-label="Page suivante"
-            style={{
-              boxShadow: "0 2px 14px #cfc5b2cc",
-            }}
-          >
-            <ChevronRight size={28} />
-          </button>
+                {!isMobile && rightPage && (
+                  <div
+                    className="relative flex-1 overflow-y-auto bg-gradient-to-bl from-[#fffdf4] via-[#f8edd1] to-[#efe0bb] px-6 py-6 text-[15px] leading-7 text-[#4a2c1d] lg:px-8 lg:py-7 lg:text-[17px]"
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      fontFamily: "'EB Garamond', serif",
+                    }}
+                  >
+                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,transparent_31px,rgba(120,84,44,0.06)_32px)] bg-[length:100%_32px]" />
+                    <div className="relative z-[1]">{rightPage}</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 flex shrink-0 flex-wrap items-center justify-center gap-3 sm:mt-5 sm:gap-6">
+              <button
+                onClick={prevPage}
+                disabled={page === 0}
+                aria-label="Page précédente"
+                className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#d6b27b] bg-[#f1dfb7] text-[#4e2f1d] shadow-md transition hover:scale-105 hover:bg-[#fbf2db] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:w-11"
+              >
+                <ChevronLeft size={20} />
+              </button>
+
+              <span className="rounded-full border border-[#d6b27b] bg-[#f4e4bf] px-4 py-2 text-xs font-bold text-[#7b2f10] shadow-sm sm:px-5 sm:text-sm lg:text-base">
+                Page {page + 1}
+                {rightPage && ` - ${page + 2}`} / {pages.length}
+              </span>
+
+              <button
+                onClick={nextPage}
+                disabled={
+                  (isMobile && page >= pages.length - 1) ||
+                  (!isMobile && page >= pages.length - 2)
+                }
+                aria-label="Page suivante"
+                className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#d6b27b] bg-[#f1dfb7] text-[#4e2f1d] shadow-md transition hover:scale-105 hover:bg-[#fbf2db] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 sm:h-11 sm:w-11"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
         </div>
       </motion.div>
     </motion.div>
