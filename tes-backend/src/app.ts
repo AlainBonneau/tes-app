@@ -69,7 +69,7 @@ export async function buildApp() {
   app.register(authPlugin);
 
   app.setErrorHandler((error, request, reply) => {
-    const e = isFastifyLikeError(error) ? error : {};
+    const e: FastifyLikeError = isFastifyLikeError(error) ? error : {};
 
     if (
       e.statusCode === 429 ||

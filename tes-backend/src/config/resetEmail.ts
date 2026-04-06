@@ -1,7 +1,5 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export default async function sendResetEmail({
   email,
   resetUrl,
@@ -9,6 +7,14 @@ export default async function sendResetEmail({
   email: string;
   resetUrl: string;
 }) {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is missing");
+  }
+
+  const resend = new Resend(apiKey);
+
   try {
     const data = await resend.emails.send({
       from: "The Elder Scrolls <no-reply@sparcky-dev.fr>",
