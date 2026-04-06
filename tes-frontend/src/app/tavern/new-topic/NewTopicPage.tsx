@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
-import api from "@/app/api/axiosConfig";
 import { useToast } from "@/app/context/ToastContext";
+import { useServices } from "@/app/context/ServicesContext";
 import { RootState } from "@/app/store";
 import type { Category } from "@/app/types/category";
 import type { Post } from "@/app/types/post";
@@ -18,6 +18,7 @@ export default function NewTopicPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
+  const { tavernService } = useServices();
 
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated,
@@ -40,8 +41,8 @@ export default function NewTopicPage() {
       setLoadingCategories(true);
 
       try {
-        const response = await api.get<Category[]>("/categories");
-        setCategories(response.data);
+        const categories = await tavernService.listCategories<Category[]>();
+        setCategories(categories);
       } catch (err) {
         console.error("Erreur lors du chargement des catégories :", err);
         showToast("Erreur lors du chargement des catégories.", "error");
@@ -52,7 +53,7 @@ export default function NewTopicPage() {
     };
 
     fetchCategories();
-  }, [showToast]);
+  }, [showToast, tavernService]);
 
   useEffect(() => {
     if (defaultCategory) {
@@ -87,11 +88,7 @@ export default function NewTopicPage() {
         categoryId: selectedCategory.id,
       };
 
-      const response = await api.post<Post>("/posts", payload, {
-        withCredentials: true,
-      });
-
-      const createdPost = response.data;
+      const createdPost = await tavernService.createPost<Post>(payload);
       router.push(`/tavern/post/${createdPost.slug || createdPost.id}`);
     } catch (err) {
       console.error("Erreur lors de la création du sujet :", err);

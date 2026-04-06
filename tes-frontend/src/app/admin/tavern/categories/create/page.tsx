@@ -2,8 +2,9 @@
 import { useState } from "react";
 import AuthGuard from "@/app/components/AuthGuard";
 import { useToast } from "@/app/context/ToastContext";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import { useRouter } from "next/navigation";
+import type { Category } from "@/app/types/category";
 
 export default function CreateCategoryPage() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function CreateCategoryPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const { showToast } = useToast();
+  const { tavernService } = useServices();
 
   // Gérer les changements du formulaire
   function handleChange(
@@ -41,16 +43,11 @@ export default function CreateCategoryPage() {
         icon: form.icon || undefined,
         desc: form.desc || undefined,
       };
-      const response = await api.post("/categories", payload, {
-        withCredentials: true,
-      });
-      if (response.status === 201) {
-        router.push(`/tavern/category/${response.data.slug}`);
-        showToast("Catégorie créée avec succès !", "success");
-      } else {
-        setError("Une erreur inconnue est survenue.");
-        showToast("Erreur lors de la création", "error");
-      }
+      const createdCategory = await tavernService.createCategory<Category>(
+        payload,
+      );
+      router.push(`/tavern/category/${createdCategory.slug}`);
+      showToast("Catégorie créée avec succès !", "success");
     } catch (err) {
       if (err instanceof Error && err.message.includes("409")) {
         setError("Une catégorie avec ce nom ou ce slug existe déjà.");

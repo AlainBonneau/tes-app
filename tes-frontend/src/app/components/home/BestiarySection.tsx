@@ -7,18 +7,19 @@ import { motion } from "framer-motion";
 import CreatureCard from "../CreatureCard";
 import MyButton from "../MyButton";
 import { Creature } from "../../types/creatures";
-import api from "../../api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 
 export default function BestiarySection() {
   const [creatures, setCreatures] = useState<Creature[]>([]);
   const [reload, setReload] = useState(false);
 
   const router = useRouter();
+  const { bestiaryService } = useServices();
 
   useEffect(() => {
     (async function loadCreatures() {
       try {
-        const { data } = await api.get<Creature[]>("/creatures");
+        const data = await bestiaryService.listCreatures<Creature[]>();
         if (!Array.isArray(data) || data.length === 0) {
           setCreatures([]);
           return;
@@ -32,7 +33,7 @@ export default function BestiarySection() {
             fourRandomIndices.add(randomIndex);
           }
           fourCreatures = Array.from(fourRandomIndices).map(
-            (index) => data[index]
+            (index) => data[index],
           );
         } else {
           fourCreatures = data;
@@ -43,7 +44,7 @@ export default function BestiarySection() {
         setCreatures([]);
       }
     })();
-  }, [reload]);
+  }, [reload, bestiaryService]);
 
   function handleRandomCreature() {
     setReload((prev) => !prev);

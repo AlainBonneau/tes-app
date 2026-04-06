@@ -5,8 +5,8 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import { RootState } from "@/app/store";
 import { useToast } from "../context/ToastContext";
+import { useServices } from "../context/ServicesContext";
 import AuthGuard from "../components/AuthGuard";
-import api from "../api/axiosConfig";
 import ProfileHeader from "./components/ProfileHeader";
 import ProfileSidebarCard from "./components/ProfileSidebarCard";
 import ProfileFormSection from "./components/ProfileFormSection";
@@ -35,6 +35,7 @@ export default function ProfilePage() {
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedIn = auth.isAuthenticated;
   const { showToast } = useToast();
+  const { userService } = useServices();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -56,11 +57,7 @@ export default function ProfilePage() {
       if (!isLoggedIn) return;
 
       try {
-        const response = await api.get<UserProfileResponse>("/users/me", {
-          withCredentials: true,
-        });
-
-        const user = response.data;
+        const user = await userService.getMe<UserProfileResponse>();
 
         const normalizedProfile: EditableProfile = {
           firstName: user.firstName || "",
@@ -89,7 +86,7 @@ export default function ProfilePage() {
     };
 
     fetchUserData();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, userService]);
 
   const handleCancel = () => {
     if (!originalProfile) return;
@@ -106,19 +103,13 @@ export default function ProfilePage() {
     setSaving(true);
 
     try {
-      await api.put(
-        "/users/me",
-        {
-          firstName,
-          lastName,
-          birthdate,
-          imageUrl: avatar,
-          description,
-        },
-        {
-          withCredentials: true,
-        },
-      );
+      await userService.updateMe({
+        firstName,
+        lastName,
+        birthdate,
+        imageUrl: avatar,
+        description,
+      });
 
       const updatedProfile: EditableProfile = {
         firstName,

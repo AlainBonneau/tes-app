@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import { useRouter } from "next/navigation";
 import CreateRegionHeader from "./components/CreateRegionHeader";
 import CreateRegionForm from "./components/CreateRegionForm";
@@ -20,6 +20,7 @@ type CreateRegionFormState = {
 export default function CreateRegionPage() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { mapService } = useServices();
 
   const [form, setForm] = useState<CreateRegionFormState>({
     name: "",
@@ -58,19 +59,9 @@ export default function CreateRegionPage() {
         imageUrl: form.imageUrl || null,
       };
 
-      const response = await api.post("/regions", payload, {
-        withCredentials: true,
-      });
-
-      if (response.status === 201) {
-        showToast("Région créée avec succès", "success");
-        router.push("/admin/map");
-        return;
-      }
-
-      const message = "Une erreur inconnue est survenue.";
-      setError(message);
-      showToast("Erreur lors de la création de la région", "error");
+      await mapService.createRegion(payload);
+      showToast("Région créée avec succès", "success");
+      router.push("/admin/map");
     } catch (err) {
       console.error("Erreur lors de la création de la région :", err);
 

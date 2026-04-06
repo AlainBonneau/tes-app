@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "next/navigation";
 import { RootState } from "@/app/store";
 import { useToast } from "@/app/context/ToastContext";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import Loader from "@/app/components/Loader";
 import type { Post } from "@/app/types/post";
 import type { Comment } from "@/app/types/comment";
@@ -26,6 +26,7 @@ export default function PostDetailPage() {
   const [replying, setReplying] = useState(false);
 
   const { showToast } = useToast();
+  const { tavernService } = useServices();
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedIn = auth.isAuthenticated;
 
@@ -36,15 +37,14 @@ export default function PostDetailPage() {
       setLoading(true);
 
       try {
-        const postResponse = await api.get(`/posts/slug/${slug}`);
-        const fetchedPost = postResponse.data as Post;
+        const fetchedPost = await tavernService.getPostBySlug<Post>(slug);
 
         setPost(fetchedPost);
 
-        const commentsResponse = await api.get(
-          `/posts/${fetchedPost.id}/comments`,
+        const fetchedComments = await tavernService.listPostComments<Comment[]>(
+          fetchedPost.id,
         );
-        setComments(commentsResponse.data as Comment[]);
+        setComments(fetchedComments);
       } catch (err) {
         console.error("Erreur lors de la récupération du post :", err);
         setPost(null);
@@ -55,11 +55,11 @@ export default function PostDetailPage() {
     };
 
     fetchPostAndComments();
-  }, [slug]);
+  }, [slug, tavernService]);
 
   const refreshComments = async (postId: number) => {
-    const commentsResponse = await api.get(`/posts/${postId}/comments`);
-    setComments(commentsResponse.data as Comment[]);
+    const comments = await tavernService.listPostComments<Comment[]>(postId);
+    setComments(comments);
   };
 
   const handleReply = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -78,7 +78,7 @@ export default function PostDetailPage() {
     setReplying(true);
 
     try {
-      await api.post(`/posts/${post.id}/comments`, { content: reply });
+      await tavernService.createPostComment(post.id, { content: reply });
       await refreshComments(post.id);
       setReply("");
       showToast("Commentaire publié avec succès !", "success");
@@ -106,7 +106,7 @@ export default function PostDetailPage() {
     if (!confirmed) return;
 
     try {
-      await api.delete(`/comments/${commentId}`);
+      await tavernService.deleteComment(commentId);
       setComments((prevComments) =>
         prevComments.filter((comment) => comment.id !== commentId),
       );

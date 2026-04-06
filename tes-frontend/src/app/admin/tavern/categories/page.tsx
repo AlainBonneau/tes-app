@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/app/context/ToastContext";
+import { useServices } from "@/app/context/ServicesContext";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/app/components/AuthGuard";
 import EditCategoryModal from "./EditCategoryModal";
 import CategoriesPagination from "./CategoriesPagination";
-import api from "@/app/api/axiosConfig";
 import Loader from "@/app/components/Loader";
 import MyButton from "@/app/components/MyButton";
 import type { Category } from "@/app/types/category";
@@ -22,6 +22,7 @@ export default function AdminCategoriesPage() {
   const [isPost, setIsPost] = useState<boolean>(false);
   const router = useRouter();
   const { showToast } = useToast();
+  const { tavernService } = useServices();
 
   // Pagination
   const pageSize = 10;
@@ -39,8 +40,8 @@ export default function AdminCategoriesPage() {
     setLoading(true);
     async function fetchCategories() {
       try {
-        const res = await api.get("/categories");
-        setCategories(res.data);
+        const categories = await tavernService.listCategories<Category[]>();
+        setCategories(categories);
       } catch (err) {
         console.error("Erreur lors de la récupération des catégories :", err);
         showToast("Erreur lors de la récupération des catégories", "error");
@@ -49,7 +50,7 @@ export default function AdminCategoriesPage() {
       }
     }
     fetchCategories();
-  }, [saving, showToast]);
+  }, [saving, showToast, tavernService]);
 
   // Reset la pagination quand la recherche change
   useEffect(() => setPage(1), [search]);
@@ -75,7 +76,7 @@ export default function AdminCategoriesPage() {
     setSaving(true);
     try {
       if (editForm.id) {
-        await api.patch(`/categories/${editForm.id}`, {
+        await tavernService.updateCategory(editForm.id, {
           name: editForm.name,
           desc: editForm.desc,
           slug: editForm.slug,
@@ -96,7 +97,7 @@ export default function AdminCategoriesPage() {
     if (!confirm("Supprimer cette catégorie ?")) return;
     setSaving(true);
     try {
-      await api.delete(`/categories/${id}`);
+      await tavernService.deleteCategory(id);
       console.log("Catégorie supprimée :", id);
       setCategories((prev) => prev.filter((c) => c.id !== id));
       setIsPost(false);

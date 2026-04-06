@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useToast } from "@/app/context/ToastContext";
+import { useServices } from "@/app/context/ServicesContext";
 import AuthGuard from "@/app/components/AuthGuard";
-import api from "@/app/api/axiosConfig";
 import { useRouter } from "next/navigation";
 
 export default function CreateBookPage() {
@@ -17,6 +17,7 @@ export default function CreateBookPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const { showToast } = useToast();
+  const { bookService } = useServices();
 
   // Gérer les changements du formulaire
   function handleChange(
@@ -32,15 +33,9 @@ export default function CreateBookPage() {
     setSaving(true);
     setError("");
     try {
-      const response = await api.post("/books", form, {
-        withCredentials: true,
-      });
-      if (response.status === 201) {
-        showToast("Livre créé avec succès !");
-        router.push("/admin/books");
-      } else {
-        setError("Une erreur inconnue est survenue.");
-      }
+      await bookService.createBook(form);
+      showToast("Livre créé avec succès !");
+      router.push("/admin/books");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       if (

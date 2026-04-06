@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import BestiaryCard from "../components/BestiaryCard";
 import Loader from "../components/Loader";
-import api from "../api/axiosConfig";
+import { useServices } from "../context/ServicesContext";
 import type { Creature } from "../types/creatures";
 
 export default function BestiaryPage() {
@@ -14,13 +14,14 @@ export default function BestiaryPage() {
   const [filterRegion, setFilterRegion] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState<boolean>(true);
+  const { bestiaryService } = useServices();
 
   useEffect(() => {
     async function fetchCreatures() {
       try {
         setLoading(true);
-        const response = await api.get("/creatures");
-        setCreatures(response.data);
+        const creatures = await bestiaryService.listCreatures<Creature[]>();
+        setCreatures(creatures);
       } catch (error) {
         console.error("Erreur de chargement des créatures :", error);
       } finally {
@@ -28,7 +29,7 @@ export default function BestiaryPage() {
       }
     }
     fetchCreatures();
-  }, []);
+  }, [bestiaryService]);
 
   useEffect(() => {
     setPage(1);
@@ -41,7 +42,7 @@ export default function BestiaryPage() {
   const regionList = useMemo(
     () =>
       Array.from(new Set(creatures.map((c) => c.region?.name).filter(Boolean))),
-    [creatures]
+    [creatures],
   );
 
   const filteredCreatures = useMemo(() => {

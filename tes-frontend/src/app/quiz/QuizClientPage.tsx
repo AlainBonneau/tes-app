@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import api from "../api/axiosConfig";
+import { useServices } from "../context/ServicesContext";
 import ElderScrollsQuiz from "./components/ElderScrollsQuiz";
 import type { Question, QuizProps } from "../types/question";
 
@@ -19,6 +19,7 @@ export default function QuizClientPage({
     title ?? "Quiz – Elder Scrolls",
   );
   const [questions, setQuestions] = useState<Question[]>(questionsProp ?? []);
+  const { quizService } = useServices();
 
   const resolvedSlug = useMemo(() => {
     return slugProp || searchParams.get("slug") || "elder-scrolls-demo";
@@ -35,13 +36,16 @@ export default function QuizClientPage({
         setError(null);
 
         try {
-          const res = await api.get(`/quizzes/${resolvedSlug}`);
+          const res = await quizService.getQuizBySlug<{
+            title?: string;
+            questions?: Question[];
+          }>(resolvedSlug);
           if (cancel) return;
 
-          setQuizTitle(res.data.title || title || "Quiz – Elder Scrolls");
+          setQuizTitle(res.title || title || "Quiz – Elder Scrolls");
           setQuestions(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (res.data.questions || []).map((q: any) => ({
+            (res.questions || []).map((q: any) => ({
               id: q.id,
               question: q.question,
               options: q.options,
@@ -56,11 +60,11 @@ export default function QuizClientPage({
           console.error(e);
         }
 
-        const list = await api.get("/quizzes");
+        const list = await quizService.listQuizzes<Array<{ slug: string }>>();
         if (cancel) return;
 
         const first =
-          Array.isArray(list.data) && list.data.length ? list.data[0] : null;
+          Array.isArray(list) && list.length ? list[0] : null;
 
         if (!first) {
           setError("Aucun quiz disponible.");
@@ -68,13 +72,16 @@ export default function QuizClientPage({
           return;
         }
 
-        const res2 = await api.get(`/quizzes/${first.slug}`);
+        const res2 = await quizService.getQuizBySlug<{
+          title?: string;
+          questions?: Question[];
+        }>(first.slug);
         if (cancel) return;
 
-        setQuizTitle(res2.data.title || title || "Quiz – Elder Scrolls");
+        setQuizTitle(res2.title || title || "Quiz – Elder Scrolls");
         setQuestions(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (res2.data.questions || []).map((q: any) => ({
+          (res2.questions || []).map((q: any) => ({
             id: q.id,
             question: q.question,
             options: q.options,
@@ -98,7 +105,7 @@ export default function QuizClientPage({
     return () => {
       cancel = true;
     };
-  }, [questionsProp, resolvedSlug, title]);
+  }, [questionsProp, resolvedSlug, title, quizService]);
 
   if (loading) {
     return (

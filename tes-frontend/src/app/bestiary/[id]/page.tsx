@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import Loader from "@/app/components/Loader";
 import type { Creature } from "@/app/types/creatures";
 
 export default function CreatureDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const { bestiaryService } = useServices();
 
   const [creature, setCreature] = useState<Creature | null>(null);
   const [loading, setLoading] = useState(true);
@@ -21,8 +22,8 @@ export default function CreatureDetailPage() {
     setNotFound(false);
     async function fetchCreature() {
       try {
-        const res = await api.get(`/creatures/${id}`);
-        setCreature(res.data);
+        const creature = await bestiaryService.getCreatureById<Creature>(id);
+        setCreature(creature);
       } catch (error) {
         console.error("Erreur de chargement de la créature :", error);
         setNotFound(true);
@@ -31,7 +32,7 @@ export default function CreatureDetailPage() {
       }
     }
     fetchCreature();
-  }, [id]);
+  }, [id, bestiaryService]);
 
   // Gestion navigation entre monstres
   async function handleChangeCreature(nextId: number) {
@@ -39,8 +40,8 @@ export default function CreatureDetailPage() {
     setLoading(true);
     setNotFound(false);
     try {
-      const res = await api.get(`/creatures/${nextId}`);
-      setCreature(res.data);
+      const creature = await bestiaryService.getCreatureById<Creature>(nextId);
+      setCreature(creature);
       router.replace(`/bestiary/${nextId}`);
     } catch {
       setNotFound(true);
@@ -48,7 +49,6 @@ export default function CreatureDetailPage() {
       setLoading(false);
     }
   }
-
 
   return (
     <div className="min-h-screen bg-gold text-dark font-serif">

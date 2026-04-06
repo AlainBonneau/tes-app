@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { AnimatePresence } from "framer-motion";
 import { useToast } from "@/app/context/ToastContext";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import Loader from "@/app/components/Loader";
 import AuthGuard from "@/app/components/AuthGuard";
 import EditUserModal from "./components/EditUserModal";
@@ -25,6 +25,7 @@ export default function AdminUsersPage() {
   const [saving, setSaving] = useState(false);
 
   const { showToast } = useToast();
+  const { userService } = useServices();
 
   const pageSize = 10;
 
@@ -33,8 +34,8 @@ export default function AdminUsersPage() {
       setLoading(true);
 
       try {
-        const response = await api.get<User[]>("/users");
-        setUsers(response.data);
+        const users = await userService.listUsers<User[]>();
+        setUsers(users);
       } catch (err) {
         console.error("Erreur lors du chargement des utilisateurs", err);
 
@@ -50,7 +51,7 @@ export default function AdminUsersPage() {
     };
 
     fetchUsers();
-  }, [saving, editModalOpen, showToast]);
+  }, [saving, editModalOpen, showToast, userService]);
 
   useEffect(() => {
     setPage(1);
@@ -91,7 +92,7 @@ export default function AdminUsersPage() {
     setSaving(true);
 
     try {
-      await api.put(`/users/${editForm.id}`, editForm);
+      await userService.updateUser(Number(editForm.id), editForm);
       showToast("Utilisateur mis à jour avec succès", "success");
       setEditModalOpen(false);
     } catch (err) {
@@ -116,7 +117,7 @@ export default function AdminUsersPage() {
     if (!confirmed) return;
 
     try {
-      await api.delete(`/users/${id}/content`);
+      await userService.deleteUserContent(id);
       showToast("Contenu supprimé !", "success");
     } catch (err) {
       console.error(
@@ -141,7 +142,7 @@ export default function AdminUsersPage() {
     setSaving(true);
 
     try {
-      await api.delete(`/users/${id}`);
+      await userService.deleteUser(id);
       setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
       showToast("Utilisateur supprimé avec succès", "success");
     } catch (err) {

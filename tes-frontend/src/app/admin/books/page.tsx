@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/context/ToastContext";
+import { useServices } from "@/app/context/ServicesContext";
 import AuthGuard from "@/app/components/AuthGuard";
 import Loader from "@/app/components/Loader";
-import api from "@/app/api/axiosConfig";
 import EditBookModal from "./EditBookModal";
 import type { Book } from "@/app/types/book";
 import Image from "next/image";
@@ -19,25 +19,26 @@ export default function AdminBooksPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
+  const { bookService } = useServices();
 
   const router = useRouter();
 
   // Charge les livres depuis l'API
-  const fetchBooks = async () => {
+  const fetchBooks = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get("/books", { withCredentials: true });
-      setBooks(res.data);
+      const books = await bookService.listBooks<Book[]>();
+      setBooks(books);
     } catch (err) {
       console.error("Erreur lors du chargement des livres :", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [bookService]);
 
   useEffect(() => {
     fetchBooks();
-  }, []);
+  }, [fetchBooks]);
 
   useEffect(() => {
     setPage(1);
@@ -86,9 +87,7 @@ export default function AdminBooksPage() {
     setSaving(true);
     try {
       if (editForm.id) {
-        await api.patch(`/books/${editForm.id}`, editForm, {
-          withCredentials: true,
-        });
+        await bookService.updateBook(editForm.id, editForm);
         showToast("Livre mis à jour avec succès !");
       }
       setEditModalOpen(false);
@@ -106,7 +105,7 @@ export default function AdminBooksPage() {
   const handleDeleteBook = async (id: number) => {
     if (!confirm("Supprimer ce livre ?")) return;
     try {
-      await api.delete(`/books/${id}`, { withCredentials: true });
+      await bookService.deleteBook(id);
       showToast("Livre supprimé avec succès !");
       await fetchBooks();
     } catch (err) {

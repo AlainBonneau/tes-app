@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import EditCreatureModal from "./components/EditCreatureModal";
 import BestiaryPagination from "./components/BestiaryPagination";
 import AdminBestiaryHeader from "./components/AdminBestiaryHeader";
@@ -18,6 +18,7 @@ import type { Creature, Region } from "@/app/types/creatures";
 export default function AdminBestiaryPage() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { bestiaryService, mapService } = useServices();
 
   const [creatures, setCreatures] = useState<Creature[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
@@ -35,13 +36,13 @@ export default function AdminBestiaryPage() {
       setLoading(true);
 
       try {
-        const [regionsResponse, creaturesResponse] = await Promise.all([
-          api.get<Region[]>("/regions"),
-          api.get<Creature[]>("/creatures", { withCredentials: true }),
+        const [regions, creatures] = await Promise.all([
+          mapService.listRegions<Region[]>(),
+          bestiaryService.listCreatures<Creature[]>(),
         ]);
 
-        setRegions(regionsResponse.data);
-        setCreatures(creaturesResponse.data);
+        setRegions(regions);
+        setCreatures(creatures);
       } catch (err) {
         console.error(
           "Erreur lors du chargement des données du bestiaire :",
@@ -60,7 +61,7 @@ export default function AdminBestiaryPage() {
     };
 
     fetchInitialData();
-  }, [showToast, saving]);
+  }, [showToast, saving, bestiaryService, mapService]);
 
   useEffect(() => {
     setPage(1);
@@ -94,9 +95,7 @@ export default function AdminBestiaryPage() {
         regionId: editForm.regionId ? Number(editForm.regionId) : null,
       };
 
-      await api.patch(`/creatures/${editForm.id}`, dataToSend, {
-        withCredentials: true,
-      });
+      await bestiaryService.updateCreature(Number(editForm.id), dataToSend);
 
       showToast("Créature mise à jour avec succès", "success");
       setEditModalOpen(false);
@@ -122,9 +121,7 @@ export default function AdminBestiaryPage() {
     if (!confirmed) return;
 
     try {
-      await api.delete(`/creatures/${id}`, {
-        withCredentials: true,
-      });
+      await bestiaryService.deleteCreature(id);
 
       setCreatures((prevCreatures) =>
         prevCreatures.filter((creature) => creature.id !== id),

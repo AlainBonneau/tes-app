@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import AuthGuard from "@/app/components/AuthGuard";
 import { useToast } from "@/app/context/ToastContext";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import type { Region } from "@/app/types/creatures";
 import CreateCreatureHeader from "./components/CreateCreatureHeader";
 import CreateCreatureForm from "./components/CreateCreatureForm";
@@ -21,6 +21,7 @@ type CreateCreatureFormState = {
 export default function CreateCreaturePage() {
   const router = useRouter();
   const { showToast } = useToast();
+  const { bestiaryService, mapService } = useServices();
 
   const [form, setForm] = useState<CreateCreatureFormState>({
     name: "",
@@ -40,8 +41,8 @@ export default function CreateCreaturePage() {
       setLoadingRegions(true);
 
       try {
-        const response = await api.get<Region[]>("/regions");
-        setRegions(response.data);
+        const regions = await mapService.listRegions<Region[]>();
+        setRegions(regions);
       } catch (err) {
         console.error("Erreur de chargement des régions :", err);
 
@@ -57,7 +58,7 @@ export default function CreateCreaturePage() {
     };
 
     fetchRegions();
-  }, [showToast]);
+  }, [showToast, mapService]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -84,19 +85,9 @@ export default function CreateCreaturePage() {
         regionId: form.regionId ? Number(form.regionId) : undefined,
       };
 
-      const response = await api.post("/creatures", payload, {
-        withCredentials: true,
-      });
-
-      if (response.status === 201) {
-        showToast("Créature créée avec succès !", "success");
-        router.push("/admin/bestiary");
-        return;
-      }
-
-      const message = "Une erreur inconnue est survenue.";
-      setError(message);
-      showToast(message, "error");
+      await bestiaryService.createCreature(payload);
+      showToast("Créature créée avec succès !", "success");
+      router.push("/admin/bestiary");
     } catch (err) {
       console.error("Erreur lors de la création de la créature :", err);
 

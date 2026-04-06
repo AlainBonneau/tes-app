@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import Loader from "@/app/components/Loader";
 import { MessageCircle, Flame } from "lucide-react";
 import { RootState } from "@/app/store";
@@ -28,6 +28,7 @@ export default function CategoryTopicsPage({
 
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const { tavernService } = useServices();
 
   const auth = useSelector((state: RootState) => state.auth);
   const isLoggedIn = auth.isAuthenticated;
@@ -37,8 +38,10 @@ export default function CategoryTopicsPage({
     setLoading(true);
     async function fetchPosts() {
       try {
-        const response = await api.get(`/posts?categorySlug=${slug}`);
-        setPosts(response.data);
+        const posts = await tavernService.listPosts<Post[]>({
+          categorySlug: slug,
+        });
+        setPosts(posts);
       } catch (error) {
         console.error("Erreur lors de la récupération des posts :", error);
       } finally {
@@ -46,7 +49,7 @@ export default function CategoryTopicsPage({
       }
     }
     fetchPosts();
-  }, [slug]);
+  }, [slug, tavernService]);
 
   return (
     <div className="min-h-screen bg-gold font-serif text-[#3A2E1E]">

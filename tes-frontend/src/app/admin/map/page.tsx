@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import type { Region } from "@/app/types/region";
 import Loader from "@/app/components/Loader";
 import EditRegionModal from "./components/EditRegionModal";
@@ -26,14 +26,15 @@ export default function AdminRegionsPage() {
 
   const { showToast } = useToast();
   const router = useRouter();
+  const { mapService } = useServices();
 
   useEffect(() => {
     const fetchRegions = async () => {
       setLoading(true);
 
       try {
-        const response = await api.get<Region[]>("/regions");
-        setRegions(response.data);
+        const regions = await mapService.listRegions<Region[]>();
+        setRegions(regions);
       } catch (err) {
         console.error("Erreur lors du chargement des régions :", err);
 
@@ -48,7 +49,7 @@ export default function AdminRegionsPage() {
     };
 
     fetchRegions();
-  }, [showToast, saving]);
+  }, [showToast, saving, mapService]);
 
   useEffect(() => {
     setPage(1);
@@ -75,7 +76,7 @@ export default function AdminRegionsPage() {
     setSaving(true);
 
     try {
-      await api.patch(`/regions/${editForm.id}`, editForm);
+      await mapService.updateRegion(Number(editForm.id), editForm);
       showToast("Région mise à jour avec succès", "success");
       setEditModalOpen(false);
     } catch (err) {
@@ -98,7 +99,7 @@ export default function AdminRegionsPage() {
     if (!confirmed) return;
 
     try {
-      await api.delete(`/regions/${id}`);
+      await mapService.deleteRegion(id);
       setRegions((prevRegions) =>
         prevRegions.filter((region) => region.id !== id),
       );

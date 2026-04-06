@@ -2,20 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { CategoryCard } from "./CategoryCard";
-import api from "../api/axiosConfig";
+import { useServices } from "../context/ServicesContext";
 import Loader from "../components/Loader";
 import type { Category } from "../types/category";
 
 export default function ForumHomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { tavernService } = useServices();
 
   useEffect(() => {
     async function fetchCategories() {
       try {
         setLoading(true);
-        const response = await api.get("/categories");
-        setCategories(response.data);
+        const categories = await tavernService.listCategories<Category[]>();
+        setCategories(categories);
       } catch (error) {
         console.error("Erreur de chargement des catégories :", error);
       } finally {
@@ -23,7 +24,7 @@ export default function ForumHomePage() {
       }
     }
     fetchCategories();
-  }, []);
+  }, [tavernService]);
 
   return (
     <div className="min-h-screen bg-gold font-serif text-[#3A2E1E]">

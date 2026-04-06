@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import api from "../api/axiosConfig";
+import { useServices } from "../context/ServicesContext";
 import { useToast } from "../context/ToastContext";
 import Loader from "../components/Loader";
 
@@ -10,12 +10,13 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
+  const { authService } = useServices();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("/forget-password", { email });
+      await authService.forgotPassword(email);
       setMessage("Si un compte existe, un email a été envoyé.");
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {

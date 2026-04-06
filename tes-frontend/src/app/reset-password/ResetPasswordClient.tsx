@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 
 type Props = { token: string; email: string };
 
 export default function ResetPasswordClient({ token, email }: Props) {
+  const { authService } = useServices();
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -14,12 +15,12 @@ export default function ResetPasswordClient({ token, email }: Props) {
     e.preventDefault();
     setError("");
     try {
-      const res = await api.post("/reset-password", {
+      const res = await authService.resetPassword({
         email,
         token,
         newPassword,
       });
-      setMessage(res.data.message || "Mot de passe réinitialisé !");
+      setMessage(res.message || "Mot de passe réinitialisé !");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import AuthGuard from "@/app/components/AuthGuard";
 import { useToast } from "@/app/context/ToastContext";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 import { useRouter } from "next/navigation";
 import type { Category } from "@/app/types/category";
 
@@ -18,20 +18,21 @@ export default function CreatePostPage() {
   const [error, setError] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const { showToast } = useToast();
+  const { tavernService } = useServices();
 
   // Charger les catégories pour le select
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await api.get("/categories");
-        setCategories(res.data);
+        const categories = await tavernService.listCategories<Category[]>();
+        setCategories(categories);
       } catch (err) {
         console.error("Erreur lors du chargement des catégories", err);
         setError("Erreur lors du chargement des catégories");
       }
     }
     fetchCategories();
-  }, []);
+  }, [tavernService]);
 
   // Gérer les changements du formulaire
   function handleChange(
@@ -53,14 +54,9 @@ export default function CreatePostPage() {
         ...form,
         categoryId: form.categoryId ? Number(form.categoryId) : undefined,
       };
-      const response = await api.post("/posts", payload);
-      if (response.status === 201) {
-        router.push("/admin/tavern/posts");
-        showToast("Sujet créé avec succès !", "success");
-      } else {
-        setError("Une erreur inconnue est survenue.");
-        showToast("Erreur lors de la création", "error");
-      }
+      await tavernService.createPost(payload);
+      router.push("/admin/tavern/posts");
+      showToast("Sujet créé avec succès !", "success");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Une erreur inconnue est survenue."

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "../context/ToastContext";
+import { useServices } from "../context/ServicesContext";
 import BookModal from "./LibraryPage";
 import Image from "next/image";
-import api from "@/app/api/axiosConfig";
 import type { Book } from "../types/book";
 import Loader from "@/app/components/Loader";
 import { AnimatePresence } from "framer-motion";
@@ -13,14 +13,15 @@ export default function LibraryPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
+  const { bookService } = useServices();
   const [modalBook, setModalBook] = useState<Book | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     async function fetchBooks() {
       try {
-        const res = await api.get("/books");
-        setBooks(res.data);
+        const books = await bookService.listBooks<Book[]>();
+        setBooks(books);
       } catch (err) {
         console.error("Erreur lors de la récupération des livres :", err);
         showToast("Erreur lors de la récupération des livres", "error");
@@ -29,14 +30,14 @@ export default function LibraryPage() {
       }
     }
     fetchBooks();
-  }, [showToast]);
+  }, [showToast, bookService]);
 
   const handleOpenModal = async (book: Book) => {
     if (!book.content) {
       // Si le contenu du livre n'est pas chargé, on va le chercher :
       try {
-        const res = await api.get(`/books/${book.id}`);
-        setModalBook(res.data);
+        const loadedBook = await bookService.getBookById<Book>(book.id);
+        setModalBook(loadedBook);
       } catch (err) {
         console.error("Erreur lors du chargement du livre :", err);
         showToast("Impossible de charger le livre", "error");

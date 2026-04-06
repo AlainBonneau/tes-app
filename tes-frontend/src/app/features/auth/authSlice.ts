@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type User = {
+export type AuthUser = {
   id: string;
   username: string;
   email: string;
@@ -8,7 +8,7 @@ type User = {
 };
 
 type AuthState = {
-  user: User | null;
+  user: AuthUser | null;
   isAuthenticated: boolean;
   hydrated: boolean; // Pour savoir si on a tenté l'hydratation
 };
@@ -25,7 +25,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     // Quand on récupère le user depuis /users/me
-    setUser: (state, action: PayloadAction<User | null>) => {
+    setUser: (state, action: PayloadAction<AuthUser | null>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
       state.hydrated = true;

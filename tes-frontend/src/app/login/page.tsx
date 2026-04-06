@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "@/app/features/auth/authSlice";
+import type { AuthUser } from "@/app/features/auth/authSlice";
 import type { RootState } from "@/app/store";
-import api from "../api/axiosConfig";
 import axios from "axios";
+import { useServices } from "../context/ServicesContext";
 import AuthHeader from "./components/AuthHeader";
 import AuthFormCard from "./components/AuthFormCard";
 
@@ -14,6 +15,7 @@ export default function LoginRegisterPage() {
   const dispatch = useDispatch();
   const auth = useSelector((state: RootState) => state.auth);
   const router = useRouter();
+  const { authService, userService } = useServices();
 
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -36,17 +38,9 @@ export default function LoginRegisterPage() {
     setError("");
 
     try {
-      await api.post(
-        "/users/login",
-        { email, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        },
-      );
-
-      const res = await api.get("/users/me", { withCredentials: true });
-      dispatch(setUser(res.data));
+      await authService.login({ email, password });
+      const user = await userService.getMe<AuthUser>();
+      dispatch(setUser(user));
       router.push("/");
     } catch (err) {
       if (
@@ -70,21 +64,15 @@ export default function LoginRegisterPage() {
     setError("");
 
     try {
-      await api.post(
-        "/users/register",
-        {
-          email: regEmail,
-          password: regPassword,
-          username: regUsername,
-          birthdate: birthdate || undefined,
-          firstName,
-          lastName,
-          description,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      await authService.register({
+        email: regEmail,
+        password: regPassword,
+        username: regUsername,
+        birthdate: birthdate || undefined,
+        firstName,
+        lastName,
+        description,
+      });
 
       setIsLogin(true);
       setError("Inscription réussie ! Vous pouvez maintenant vous connecter.");

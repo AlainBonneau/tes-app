@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/app/context/ToastContext";
+import { useServices } from "@/app/context/ServicesContext";
 import AuthGuard from "@/app/components/AuthGuard";
-import api from "@/app/api/axiosConfig";
 import EditPostModal from "./EditPostModal";
 import PostsPagination from "./PostsPagination";
 import MyButton from "@/app/components/MyButton";
@@ -23,14 +23,15 @@ export default function AdminPostsPage() {
   const [saving, setSaving] = useState(false);
   const [isCommentary, setIsCommentary] = useState<boolean>(false);
   const { showToast } = useToast();
+  const { tavernService } = useServices();
   const router = useRouter();
 
   // Charge les catégories et les posts au chargement
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await api.get("/categories");
-        setCategories(res.data);
+        const categories = await tavernService.listCategories<Category[]>();
+        setCategories(categories);
       } catch (err) {
         console.error("Erreur chargement catégories :", err);
         showToast("Erreur lors du chargement des catégories", "error");
@@ -41,8 +42,8 @@ export default function AdminPostsPage() {
     async function fetchPosts() {
       setLoading(true);
       try {
-        const res = await api.get("/posts?admin=1");
-        setPosts(res.data);
+        const posts = await tavernService.listPosts<Post[]>({ admin: true });
+        setPosts(posts);
       } catch (error) {
         console.error("Erreur chargement posts :", error);
         showToast("Erreur lors du chargement des posts", "error");
@@ -51,7 +52,7 @@ export default function AdminPostsPage() {
       }
     }
     fetchPosts();
-  }, [saving, showToast]);
+  }, [saving, showToast, tavernService]);
 
   useEffect(() => setPage(1), [search]);
 
@@ -83,7 +84,7 @@ export default function AdminPostsPage() {
         ...editForm,
         categoryId: editForm.categoryId ? Number(editForm.categoryId) : null,
       };
-      await api.patch(`/posts/${editForm.id}`, dataToSend);
+      await tavernService.updatePost(Number(editForm.id), dataToSend);
       showToast("Post édité avec succès", "success");
       setEditModalOpen(false);
     } catch (err) {
@@ -99,7 +100,7 @@ export default function AdminPostsPage() {
     if (!confirm("Supprimer ce post ?")) return;
     setSaving(true);
     try {
-      await api.delete(`/posts/${id}`);
+      await tavernService.deletePost(id);
       setPosts((prev) => prev.filter((p) => p.id !== id));
       setIsCommentary(false);
       showToast("Post supprimé", "success");

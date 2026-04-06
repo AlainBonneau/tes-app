@@ -1,6 +1,6 @@
 // components/AvatarUploader.tsx
 import React, { useRef, useState } from "react";
-import api from "@/app/api/axiosConfig";
+import { useServices } from "@/app/context/ServicesContext";
 
 export default function AvatarUploader({
   onUploaded,
@@ -10,6 +10,7 @@ export default function AvatarUploader({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { userService } = useServices();
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
@@ -25,11 +26,9 @@ export default function AvatarUploader({
     formData.append("file", file);
 
     try {
-      const res = await api.post("/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      if (res.data.url) {
-        onUploaded(res.data.url);
+      const uploaded = await userService.uploadAvatar(formData);
+      if (uploaded.url) {
+        onUploaded(uploaded.url);
       } else {
         setError("Erreur lors de l’upload.");
       }

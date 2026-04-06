@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import api from "../api/axiosConfig";
+import { useServices } from "../context/ServicesContext";
 import { logout } from "../features/auth/authSlice";
 import Link from "next/link";
 import Image from "next/image";
@@ -26,6 +26,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { authService } = useServices();
 
   if (!auth.hydrated) {
     return null;
@@ -39,7 +40,7 @@ export default function Navbar() {
 
   // Fonction pour gérer la déconnexion
   const handleLogout = async () => {
-    await api.post("/users/logout", {}, { withCredentials: true });
+    await authService.logout();
     dispatch(logout());
     router.push("/login");
   };

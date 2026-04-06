@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import api from "../api/axiosConfig";
+import { useServices } from "../context/ServicesContext";
 import type { Region } from "../types/region";
 import TamrielMapSection from "./components/TamrielMapSection";
 import RegionDetailsCard from "./components/RegionDetailsCard";
@@ -10,13 +10,13 @@ export default function TamrielMapPage() {
   const [selected, setSelected] = useState<number | null>(null);
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
+  const { mapService } = useServices();
 
   useEffect(() => {
     const fetchRegions = async () => {
       try {
-        const response = await api.get("/regions");
-
-        const filtered = (response.data as Region[]).filter(
+        const regions = await mapService.listRegions<Region[]>();
+        const filtered = regions.filter(
           (region) =>
             typeof region.x === "number" &&
             typeof region.y === "number" &&
@@ -34,7 +34,7 @@ export default function TamrielMapPage() {
     };
 
     fetchRegions();
-  }, []);
+  }, [mapService]);
 
   const selectedRegion = useMemo(() => {
     return regions.find((region) => region.id === selected) ?? null;
