@@ -1,183 +1,139 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import AuthGuard from "@/app/components/AuthGuard";
 import { useToast } from "@/app/context/ToastContext";
 import api from "@/app/api/axiosConfig";
-import { useRouter } from "next/navigation";
 import type { Region } from "@/app/types/creatures";
+import CreateCreatureHeader from "./components/CreateCreatureHeader";
+import CreateCreatureForm from "./components/CreateCreatureForm";
+
+type CreateCreatureFormState = {
+  name: string;
+  type: string;
+  description: string;
+  regionId: string;
+  imageUrl: string;
+};
 
 export default function CreateCreaturePage() {
   const router = useRouter();
-  const [form, setForm] = useState({
+  const { showToast } = useToast();
+
+  const [form, setForm] = useState<CreateCreatureFormState>({
     name: "",
     type: "",
     description: "",
     regionId: "",
     imageUrl: "",
   });
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [regions, setRegions] = useState<Region[]>([]);
-  const { showToast } = useToast();
 
-  // Charger les régions pour le select
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [loadingRegions, setLoadingRegions] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    async function fetchRegions() {
+    const fetchRegions = async () => {
+      setLoadingRegions(true);
+
       try {
-        const res = await api.get("/regions");
-        setRegions(res.data);
+        const response = await api.get<Region[]>("/regions");
+        setRegions(response.data);
       } catch (err) {
         console.error("Erreur de chargement des régions :", err);
-        setError("Erreur lors du chargement des régions");
-      }
-    }
-    fetchRegions();
-  }, []);
 
-  // Gérer les changements du formulaire
-  function handleChange(
+        const message = axios.isAxiosError(err)
+          ? err.response?.data?.error || "Erreur lors du chargement des régions"
+          : "Erreur lors du chargement des régions";
+
+        setError(message);
+        showToast(message, "error");
+      } finally {
+        setLoadingRegions(false);
+      }
+    };
+
+    fetchRegions();
+  }, [showToast]);
+
+  const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >,
-  ) {
+  ) => {
     const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  }
 
-  // Gérer la soumission du formulaire
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setSaving(true);
     setError("");
+
     try {
       const payload = {
         ...form,
         regionId: form.regionId ? Number(form.regionId) : undefined,
       };
+
       const response = await api.post("/creatures", payload, {
         withCredentials: true,
       });
+
       if (response.status === 201) {
-        router.push("/admin/bestiary");
         showToast("Créature créée avec succès !", "success");
-      } else {
-        setError("Une erreur inconnue est survenue.");
-        showToast("Erreur lors de la création", "error");
+        router.push("/admin/bestiary");
+        return;
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (
-        err.response?.data?.errors &&
-        Array.isArray(err.response.data.errors)
-      ) {
-        setError(err.response.data.errors.join(", "));
-      } else {
-        setError(err.response?.data?.error || "Erreur lors de la création");
+
+      const message = "Une erreur inconnue est survenue.";
+      setError(message);
+      showToast(message, "error");
+    } catch (err) {
+      console.error("Erreur lors de la création de la créature :", err);
+
+      let message = "Erreur lors de la création";
+
+      if (axios.isAxiosError(err)) {
+        if (
+          err.response?.data?.errors &&
+          Array.isArray(err.response.data.errors)
+        ) {
+          message = err.response.data.errors.join(", ");
+        } else {
+          message = err.response?.data?.error || message;
+        }
       }
+
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSaving(false);
     }
-  }
+  };
 
   return (
     <AuthGuard adminOnly>
       <div className="min-h-screen bg-gold flex flex-col items-center">
-        {/* Header */}
-        <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
-          <h1 className="text-2xl md:text-4xl font-uncial uppercase text-gold text-center">
-            Administration - Création de créature
-          </h1>
-        </div>
-        <div className="w-full  flex flex-col items-center">
-          {/* Formulaire */}
-          <form
-            className="
-          w-full max-w-3xl
-          bg-blood/95
-          mb-10
-          border-2 border-gold
-          rounded-2xl
-          shadow-2xl
-          p-6 md:p-10
-          flex flex-col gap-5
-          backdrop-blur-md
-          "
-            onSubmit={handleSubmit}
-          >
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Nom *"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              required
-            />
-            <input
-              name="type"
-              value={form.type}
-              onChange={handleChange}
-              placeholder="Type *"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              required
-            />
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Description *"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              rows={3}
-              required
-            />
-            <select
-              name="regionId"
-              value={form.regionId}
-              onChange={handleChange}
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              required
-            >
-              <option value="">Sélectionner une région *</option>
-              {regions.map((region) => (
-                <option key={region.id} value={region.id}>
-                  {region.name}
-                </option>
-              ))}
-            </select>
-            <input
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="Lien image"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-            />
-            {error && (
-              <div className="text-red-600 text-center mb-2 font-semibold bg-parchment/80 rounded-lg py-2">
-                {error}
-              </div>
-            )}
-            <button
-              type="submit"
-              className="
-            mt-4
-            bg-gold
-            text-blood
-            px-4 py-3
-            rounded-xl
-            font-bold
-            text-lg
-            shadow-lg
-            hover:bg-gold/90
-            hover:scale-105
-            transition
-            tracking-widest
-            cursor-pointer
-          "
-              disabled={saving}
-            >
-              {saving ? "Création..." : "Créer"}
-            </button>
-          </form>
-        </div>
+        <CreateCreatureHeader title="Administration - Création de créature" />
+
+        <CreateCreatureForm
+          form={form}
+          regions={regions}
+          error={error}
+          saving={saving}
+          loadingRegions={loadingRegions}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+        />
       </div>
     </AuthGuard>
   );
