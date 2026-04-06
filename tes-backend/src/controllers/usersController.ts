@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import bcrypt from "bcrypt";
+import "dotenv/config";
 
 type RegisterRequest = FastifyRequest<{
   Body: {
@@ -219,7 +220,7 @@ export async function loginUser(request: LoginRequest, reply: FastifyReply) {
       { expiresIn: TOKEN_EXPIRATION }
     );
 
-    const isProd = false; // True si en production
+    const isProd = process.env.IS_PROD === "true";
     const cookieDomain = isProd
       ? process.env.COOKIE_DOMAIN || ".sparcky-dev.fr"
       : undefined;
