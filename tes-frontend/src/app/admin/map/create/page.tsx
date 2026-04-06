@@ -1,34 +1,54 @@
 "use client";
+
 import { useState } from "react";
+import axios from "axios";
 import { useToast } from "@/app/context/ToastContext";
 import AuthGuard from "@/app/components/AuthGuard";
 import api from "@/app/api/axiosConfig";
 import { useRouter } from "next/navigation";
+import CreateRegionHeader from "./components/CreateRegionHeader";
+import CreateRegionForm from "./components/CreateRegionForm";
+
+type CreateRegionFormState = {
+  name: string;
+  description: string;
+  x: string;
+  y: string;
+  imageUrl: string;
+};
 
 export default function CreateRegionPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
+  const { showToast } = useToast();
+
+  const [form, setForm] = useState<CreateRegionFormState>({
     name: "",
     description: "",
     x: "",
     y: "",
     imageUrl: "",
   });
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const { showToast } = useToast();
 
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    setForm((prevForm) => ({
+      ...prevForm,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     setSaving(true);
     setError("");
+
     try {
       const payload = {
         name: form.name,
@@ -37,125 +57,55 @@ export default function CreateRegionPage() {
         y: form.y ? Number(form.y) : 0,
         imageUrl: form.imageUrl || null,
       };
+
       const response = await api.post("/regions", payload, {
         withCredentials: true,
       });
+
       if (response.status === 201) {
         showToast("Région créée avec succès", "success");
         router.push("/admin/map");
-      } else {
-        showToast("Erreur lors de la création de la région", "error");
-        setError("Une erreur inconnue est survenue.");
+        return;
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      if (
-        err.response?.data?.errors &&
-        Array.isArray(err.response.data.errors)
-      ) {
-        setError(err.response.data.errors.join(", "));
-      } else {
-        setError(err.response?.data?.error || "Erreur lors de la création");
+
+      const message = "Une erreur inconnue est survenue.";
+      setError(message);
+      showToast("Erreur lors de la création de la région", "error");
+    } catch (err) {
+      console.error("Erreur lors de la création de la région :", err);
+
+      let message = "Erreur lors de la création";
+
+      if (axios.isAxiosError(err)) {
+        if (
+          err.response?.data?.errors &&
+          Array.isArray(err.response.data.errors)
+        ) {
+          message = err.response.data.errors.join(", ");
+        } else {
+          message = err.response?.data?.error || message;
+        }
       }
+
+      setError(message);
+      showToast(message, "error");
     } finally {
       setSaving(false);
     }
-  }
+  };
 
   return (
     <AuthGuard adminOnly>
       <div className="min-h-screen bg-parchment flex flex-col items-center">
-        {/* Header */}
-        <div className="bg-blood h-[20vh] w-full flex items-center justify-center mb-10">
-          <h1 className="text-2xl md:text-4xl font-uncial uppercase text-gold text-center">
-            Administration – Création d’une région
-          </h1>
-        </div>
-        <div className="w-full flex flex-col items-center">
-          <form
-            className="
-              w-full max-w-3xl
-              bg-blood/95
-              mb-10
-              border-2 border-gold
-              rounded-2xl
-              shadow-2xl
-              p-6 md:p-10
-              flex flex-col gap-5
-              backdrop-blur-md
-            "
-            onSubmit={handleSubmit}
-          >
-            <input
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              placeholder="Nom de la région *"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              required
-            />
-            <textarea
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              placeholder="Description *"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              rows={3}
-              required
-            />
-            <div className="flex flex-col md:flex-row gap-4">
-              <input
-                name="x"
-                type="number"
-                value={form.x}
-                onChange={handleChange}
-                placeholder="Coordonnée X (optionnel)"
-                className="flex-1 p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              />
-              <input
-                name="y"
-                type="number"
-                value={form.y}
-                onChange={handleChange}
-                placeholder="Coordonnée Y (optionnel)"
-                className="flex-1 p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-              />
-            </div>
-            <input
-              name="imageUrl"
-              value={form.imageUrl}
-              onChange={handleChange}
-              placeholder="Lien image (optionnel)"
-              className="p-3 rounded-xl border border-gold bg-parchment/90 focus:bg-parchment/100 focus:outline-none text-lg shadow transition"
-            />
-            {error && (
-              <div className="text-red-600 text-center mb-2 font-semibold bg-parchment/80 rounded-lg py-2">
-                {error}
-              </div>
-            )}
-            <button
-              type="submit"
-              className="
-                mt-4
-                bg-gold
-                text-blood
-                px-4 py-3
-                rounded-xl
-                font-bold
-                text-lg
-                shadow-lg
-                hover:bg-gold/90
-                hover:scale-105
-                transition
-                tracking-widest
-                cursor-pointer
-              "
-              disabled={saving}
-            >
-              {saving ? "Création..." : "Créer la région"}
-            </button>
-          </form>
-        </div>
+        <CreateRegionHeader title="Administration – Création d’une région" />
+
+        <CreateRegionForm
+          form={form}
+          error={error}
+          saving={saving}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+        />
       </div>
     </AuthGuard>
   );
