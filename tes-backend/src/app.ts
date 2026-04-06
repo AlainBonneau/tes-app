@@ -1,11 +1,11 @@
-// src/app.ts
 import Fastify from "fastify";
-import fastifyRateLimit from "@fastify/rate-limit";
-import fastifyCookie from "@fastify/cookie";
-import multipart from "@fastify/multipart";
 import dotenv from "dotenv";
-import rateLimit from "@fastify/rate-limit";
 import cors from "@fastify/cors";
+import cookie from "@fastify/cookie";
+import multipart from "@fastify/multipart";
+import jwt from "@fastify/jwt";
+import rateLimit from "@fastify/rate-limit";
+
 import prismaPlugin from "./plugins/prisma";
 import authPlugin from "./plugins/auth";
 import userRoutes from "./routes/users";
@@ -20,39 +20,46 @@ import bookRoutes from "./routes/books";
 import uploadRoutes from "./routes/upload";
 import passwordRoutes from "./routes/password";
 import quizRoutes from "./routes/quiz";
-import fastifyJwt from "@fastify/jwt";
 
 dotenv.config();
 
-export async function buildApp() {
-  const app = Fastify({ logger: false });
+function getRequiredEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required env var: ${name}`);
+  }
+  return value;
+}
 
-  // Configuration des cors
+export async function buildApp() {
+  const app = Fastify({ logger: true });
+
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  const jwtSecret = getRequiredEnv("JWT_SECRET");
+
   app.register(cors, {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: [frontendUrl],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
 
-  // Configuration de la limite de requêtes
-  app.register(fastifyRateLimit, {
+  app.register(cookie, {
+    secret: process.env.SIGNED_COOKIE,
+  });
+
+  app.register(rateLimit, {
     max: 100,
     timeWindow: "1 minute",
     keyGenerator: (req) => req.ip,
-    errorResponseBuilder: (req, context) => ({
+    errorResponseBuilder: () => ({
       error: "Trop de requêtes, merci de patienter.",
     }),
   });
-  // Configuration des cookies
-  app.register(fastifyCookie, {
-    secret: process.env.SIGNED_COOKIE, // for signed cookies (optional)
-    parseOptions: {}, // options for parsing cookies
-  });
 
-  // 1) Plugins fondamentaux
   app.register(prismaPlugin);
-  app.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET || "test-secret",
+
+  app.register(jwt, {
+    secret: jwtSecret,
     cookie: {
       cookieName: "token",
       signed: false,
@@ -60,32 +67,35 @@ export async function buildApp() {
   });
 
   app.register(authPlugin);
-  app.register(rateLimit, { max: 100, timeWindow: "1 minute" });
 
-  // 2) Gestion centralisée des erreurs
   app.setErrorHandler((error, request, reply) => {
     const e = isFastifyLikeError(error) ? error : {};
 
     if (
-      e.error === "Trop de requêtes, merci de patienter." ||
       e.statusCode === 429 ||
-      e.code === "FST_ERR_RATE_LIMIT"
+      e.code === "FST_ERR_RATE_LIMIT" ||
+      e.error === "Trop de requêtes, merci de patienter."
     ) {
-      reply.status(429).send({ error: "Trop de requêtes, merci de patienter." });
-      return;
+      return reply
+        .status(429)
+        .send({ error: "Trop de requêtes, merci de patienter." });
     }
 
     const status = e.statusCode ?? 500;
-    reply.status(status).send({
+
+    return reply.status(status).send({
       statusCode: status,
       error: e.name ?? "Error",
       message: e.message ?? "Une erreur est survenue",
     });
   });
 
-  // 3) Routes
   app.get("/", async () => ({ message: "Bienvenue sur l’API TES !" }));
-  app.register(multipart, { limits: { fileSize: 10 * 1024 * 1024 } }); // Limite de 10 Mo pour les fichiers uploadés
+
+  app.register(multipart, {
+    limits: { fileSize: 10 * 1024 * 1024 },
+  });
+
   app.register(userRoutes);
   app.register(creatureRoutes);
   app.register(regionRoutes);
