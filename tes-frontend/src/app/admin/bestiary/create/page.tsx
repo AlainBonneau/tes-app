@@ -38,7 +38,7 @@ export default function CreateCreaturePage() {
   function handleChange(
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
