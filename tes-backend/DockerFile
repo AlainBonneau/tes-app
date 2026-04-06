@@ -9,7 +9,8 @@ RUN npm install
 # Copie le codee
 COPY . .
 
-# Build TypeScript
+# Build TypeScript and generate Prisma client
+RUN npx prisma generate
 RUN npm run build
 
 # Expose ton port (à adapter si besoin)
