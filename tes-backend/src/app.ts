@@ -34,11 +34,18 @@ function getRequiredEnv(name: string): string {
 export async function buildApp() {
   const app = Fastify({ logger: true });
 
-  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+  const allowedOrigins = ["http://localhost:3000", process.env.FRONTEND_URL];
   const jwtSecret = getRequiredEnv("JWT_SECRET");
 
   app.register(cors, {
-    origin: [frontendUrl],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"), false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   });
